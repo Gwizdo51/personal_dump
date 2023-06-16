@@ -1,0 +1,97 @@
+git : gestionnaire de version
+permet de travailler à plusieurs sur le même projet
+
+dépôt git (repository) :
+structure qui contient un ensemble de fichiers, et qui contient l'historique de son contenu. (versionning)
+
+enregistrement des modifications que j'ai effectué :
+commit => sauvegarde de mon projet à l'instant T 
+       => différentes versions du projet
+
+SSH PASSPHRASE :
+HOLY Guacs
+
+
+cloner un repository :
+git clone <path_to_file>
+remplacer path to file avec "clone by ssh" de gitlab
+
+avoir des infos sur le master actuel :
+git rev-parse --show-toplevel
+
+ajouter un fichier à la branche actuelle (doit être accompagné de commit pour enregistrer les changements) :
+git add <path/to/file>
+pour tout ajouter :
+git add *
+
+pour enlever un fichier du commit (stop tracking a file/unstage a file) :
+git rm --cached <nom_fichier>
+
+enregistrer les changements dans la branche actuelle :
+git commit -m "message du commit"
+
+mettre à jour le repo local (récupérer les changements du repo distant) :
+git fetch (--all)
+git pull (--all)
+git pull origin master
+git pull <REMOTE> <name_of_branch>
+
+mettre à jour le repo distant sur gitlab :
+git push origin master
+git push <REMOTE> <name_of_branch>
+
+mettre à jour la branche actuelle sur le repo distant :
+git push origin HEAD
+
+appliquer un commit spécifique sur une branche :
+git checkout <nom_branch>
+git cherry-pick <commit_hash_from_log>
+
+avoir des infos sur la branche actuelle :
+git status
+
+pour savoir si on est à jour avec le repo distant :
+git fetch --all
+git fetch origin
+
+connaître le nom d'utilisateur et l'email configurés :
+git config --list
+
+faire du dossier actuel un repo git :
+git init
+
+obtenir la liste de toutes les branches (locales et distantes) :
+git branch -a
+
+ajouter une nouvelle branche en local :
+git branch <nom_nouvelle_branche>
+git checkout -b <nom_nouvelle_branche>
+
+ajouter une branche locale sur le repo distant :
+git push origin <nom_branche>
+avec tracking (connexion active entre les branches locales et distantes) :
+git push -u origin <nom_branche>
+
+supprimer une branche en local :
+git branch -D <nom_branche>
+git branch -d <nom_branche>
+
+supprimer une branche sur le repo distant :
+git push origin --delete <nom_branche>
+
+changer de branche :
+git switch <nom_branche>
+git checkout <nom_branche>
+
+pour appliquer les changements de la branche parent sur une branche enfant :
+git checkout <branche_enfant>
+git rebase <branche_parent>
+
+pour appliquer les changements d'une branche enfant sur sa branche parent :
+git checkout <branche_parent>
+git merge <branche_enfant>
+
+enregristrer les changements sans faire de commit :
+git stash
+récupérer les changements :
+git stash pop

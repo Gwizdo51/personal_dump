@@ -1,0 +1,24 @@
+pour voir tous les disques monté sur ubuntu :
+sudo fdisk -l
+
+show accessible mounted drives :
+df
+
+show accessible drives and their mount points :
+lsblk
+
+mount device with its own name :
+udisks --mount /dev/sda1
+/usr/bin/udisks --mount /dev/sda1
+
+bash zoom :
+	IN : ctrl + shift + =
+	OUT : ctrl + -
+	NEUTRAL : ctrl + shift + à
+
+folder / file disk usage :
+du -sh <path>
+
+find files:
+find <path/to/folder> -iname <stuff_to_find>
+find ./ -iname "*.ipynb"

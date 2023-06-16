@@ -1,0 +1,34 @@
+supprimer un venv :
+conda env remove -n testenv
+conda remove -n testenv --all
+
+créer un nouveau venv :
+conda create -n testenv
+
+créer un nouveau venv depuis un fichier YAML :
+conda env create -f /path/to/environment.yml
+
+créer un nouveau venv dans un répertoire :
+conda create --prefix /path/to/venv/directory
+
+créer un nouveau venv avec python :
+conda create -n testenv python
+
+lister les venv :
+conda env list
+conda info --envs
+
+activer un venv :
+conda activate testenv
+
+désactiver le venv actuel :
+conda deactivate
+
+lister les paquets dans le venv actuel :
+conda list
+
+installer python :
+conda install -n testenv python=3.9.1
+
+nettoyer le cache:
+conda clean --all
