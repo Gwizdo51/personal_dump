@@ -92,18 +92,15 @@ class DotDict(dict):
     """
 
     def __init__(self, *args, _check: bool = True, **kwargs):
+        # create a temporary dict from the arguments
+        dict_self = dict(*args, **kwargs)
         if _check:
-            # create a temporary dict from the arguments
-            dict_self = dict(*args, **kwargs)
             # test if all keys are valid as attribute names, recursively
             check_keys(dict_self)
             # if any values are DotDicts, convert them to dict, recursively
             dict_self = clean_types(dict_self)
-            # init the "self" dict with the cleaned dict
-            dict.__init__(self, dict_self)
-        else:
-            # init the "self" dict from the arguments directly
-            dict.__init__(self, *args, **kwargs)
+        # init the "self" dict with the cleaned dict
+        dict.__init__(self, dict_self)
 
     def __getitem__(self, key: str) -> Optional[Any]:
         # check if the key exists
