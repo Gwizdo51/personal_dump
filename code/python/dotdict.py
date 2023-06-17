@@ -3,7 +3,6 @@ import re
 from typing import Optional, Any
 
 
-
 class KeyTypeError(Exception):
     """
     A custom exception for the DotDict class. Raised when a trying to use
@@ -92,7 +91,7 @@ class DotDict(dict):
     - cannot be used with the __dict__ attribute, as well as the 'vars' built-in function
     """
 
-    def __init__(self, *args, _check: bool = True, _root: Optional[DotDict] = None, **kwargs):
+    def __init__(self, *args, _check: bool = True, **kwargs):
         if _check:
             # create a temporary dict from the arguments
             dict_self = dict(*args, **kwargs)
