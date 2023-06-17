@@ -1,5 +1,7 @@
+from __future__ import annotations
 import re
 from typing import Optional, Any
+
 
 
 class KeyTypeError(Exception):
@@ -19,6 +21,8 @@ class AttributeNameError(Exception):
 # best attempt at defining a Regular Expression for an attribute name
 attribute_name_pattern_string = "^[a-zA-Z]\w*$"
 attribute_name_pattern = re.compile(attribute_name_pattern_string)
+# dict class methods names
+dict_attribute_names = [meth_name for meth_name in dir(dict) if not ("_" in meth_name)]
 
 
 def check_key(key):
@@ -27,13 +31,17 @@ def check_key(key):
         raise KeyTypeError(f"The key '{key}' is not a string")
     # check if the key is accessible as a not-hidden attribute
     if not attribute_name_pattern.match(key):
-        raise AttributeNameError(f"The key '{key}' cannot be used as an attribute name")
+        raise AttributeNameError(f"The key '{key}' is not valid as a DotDict attribute name")
+    # check whether the key would erase a dict method
+    if key in dict_attribute_names:
+        raise AttributeNameError(f"The key '{key}' would erase a dict method")
 
 
 def check_keys(dict_to_check: dict):
     """
-    Recursively checks if the keys of dict_to_check and its
-    nested dictionaries are accessible as attribute names.
+    Recursively checks if the keys of dict_to_check and its nested dictionaries
+    are accessible as attribute names, and will not replace any methods from the
+    "dict" class.
     """
     for key in dict_to_check.keys():
         check_key(key)
@@ -67,9 +75,24 @@ def clean_types(dict_to_check: dict) -> dict:
 class DotDict(dict):
     """
     Allows handling dictionaries with the "dot" notation.
+
+    - set/get/delete items/attributes with the dot notation as well as the dict notation
+        (dotdict.atr is the same as dotdict["atr"])
+    - Direct link between DotDict and dict (DotDict inherits directly from dict, so it can
+        do anything dict already can)
+    - DotDict is recursive (dotdict.atr.subatr is the same as dotdict["atr"]["subatr"])
+    - DotDict will raise exceptions when the keys cannot be accepted as attribute names
+        (an attribute name cannot begin by a digit, but a dict key can)
+    => The accepted names for the attributes must begin by an uppercase or lowercase letter,
+    and cannot contain non-alphanumeric characters ("/w" from RegEx).
+    - dir(dotdict_object) contains the keys/attributes of the underlying dictionary
+    - adding DotDict objects as a DotDict attributes will work as intended (the underlying
+        dictionary will receive a dict as a value)
+    - create an empty DotDict with "DotDict()"
+    - cannot be used with the __dict__ attribute, as well as the 'vars' built-in function
     """
 
-    def __init__(self, *args, _check: bool = True, **kwargs):
+    def __init__(self, *args, _check: bool = True, _root: Optional[DotDict] = None, **kwargs):
         if _check:
             # create a temporary dict from the arguments
             dict_self = dict(*args, **kwargs)
@@ -95,6 +118,7 @@ class DotDict(dict):
         else:
             return value
 
+    # the logic for __getattr__ is the exact same as the one for __getitem__
     __getattr__ = __getitem__
 
     def __setitem__(self, key: str, value: Optional[Any]):
@@ -108,6 +132,7 @@ class DotDict(dict):
             value = dict(value)
         dict.__setitem__(self, key, value)
 
+    # the logic for __setattr__ is the exact same as the one for __setitem__
     __setattr__ = __setitem__
 
     def __delitem__(self, key: str):
@@ -116,13 +141,21 @@ class DotDict(dict):
             raise AttributeError(f"No key/attribute '{key}'")
         dict.__delitem__(self, key)
 
+    # the logic for __delattr__ is the exact same as the one for __delitem__
     __delattr__ = __delitem__
 
+    # overridden to show the keys as attributes with the 'dir' built-in function
     def __dir__(self) -> list[str]:
-        # overridden to show the keys as attributes with the 'dir' built-in function
         dict_dir = dict.__dir__(self)
         dotdict_attributes = list(self.keys())
         return dict_dir + dotdict_attributes
+
+    # for consistency with the 'dict.copy' method
+    def copy(self) -> DotDict:
+        """
+        Returns a shallow copy of this DotDict object.
+        """
+        return DotDict(dict(self))
 
 
 if __name__ == "__main__":
