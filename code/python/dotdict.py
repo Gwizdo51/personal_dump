@@ -1,6 +1,8 @@
 from __future__ import annotations
 import re
 from typing import Optional, Any
+from types import MappingProxyType
+import json
 
 
 class KeyTypeError(Exception):
@@ -71,6 +73,27 @@ def clean_types(dict_to_check: dict) -> dict:
     return cleaned_dict
 
 
+# def pretty_string_factory_recursive(dict_to_print: dict, indent: int = 2, current_indent: int = 0) -> list[str]:
+#     """
+#     Helper recursive function for pretty_string_factory.
+#     """
+#     # see if items are iterable with "iter"
+#     # see if items are mappings with "dict" (mappings are iterable)
+#     for key, value in dict_to_print.items():
+#         current_indent += 2
+#         ...
+#     # return pretty_string
+#     return "LOL"
+
+
+# def pretty_string_factory(dict_to_print: dict, indent: int = 2) -> str:
+#     """
+#     Return a pretty string for the __str__ method of DotDict.
+#     """
+#     ...
+#     return "LOL"
+
+
 class DotDict(dict):
     """
     Allows handling dictionaries with the "dot" notation.
@@ -91,7 +114,13 @@ class DotDict(dict):
     - cannot be used with the __dict__ attribute, as well as the 'vars' built-in function
     """
 
-    def __init__(self, *args, _check: bool = True, **kwargs):
+    def __init__(self,
+                 *args,
+                 _check: bool = True,
+                 _root: Optional[DotDict] = None,
+                 _path_to_root: Optional[list[str]] = None,
+                 **kwargs):
+        # print("__init__ call")
         # create a temporary dict from the arguments
         dict_self = dict(*args, **kwargs)
         if _check:
@@ -101,23 +130,50 @@ class DotDict(dict):
             dict_self = clean_types(dict_self)
         # init the "self" dict with the cleaned dict
         dict.__init__(self, dict_self)
+        # add a reference to the root DotDict
+        # bypass DotDict.__setattr__ to protect the variable from rewrites
+        object.__setattr__(self, "_root", _root)
+        # remember how to get to this DotDict from the root DotDict as a list of attribute names
+        # bypass DotDict.__setattr__ to protect the variable from rewrites
+        object.__setattr__(self, "_path_to_root", _path_to_root)
+        # print("root:", self._root)
+        # print("root type:", type(self._root))
+        # print("path to root:", self._path_to_root)
 
-    def __getitem__(self, key: str) -> Optional[Any]:
+    def __getitem__(self, key: str) -> Any:
+        # print("__getitem__ call")
         # check if the key exists
         if not (key in self.keys()):
             raise AttributeError(f"No key/attribute '{key}'")
+        # get the value from the dictionary
         value = dict.__getitem__(self, key)
+        # if the value is a dict, return it as a DotDict object
         if type(value) is dict:
-            # if the value is a dict, return it as a DotDict object
+            if self._root is None:
+                # this DotDict is the root
+                root = self
+                # create the _path_to_root attribute
+                path_to_root = [key]
+            else:
+                # add a reference to the root DotDict
+                root = self._root
+                # add the key to the _path_to_root attribute
+                path_to_root = self._path_to_root + [key]
             # no need to check it, it's already cleared
-            return DotDict(value, _check=False)
+            return DotDict(
+                value,
+                _check=False,
+                _root=root,
+                _path_to_root=path_to_root
+            )
         else:
             return value
 
     # the logic for __getattr__ is the exact same as the one for __getitem__
     __getattr__ = __getitem__
 
-    def __setitem__(self, key: str, value: Optional[Any]):
+    def __setitem__(self, key: str, value: Any):
+        # print("__setitem__ call")
         # check if the key is valid as an attribute name
         check_key(key)
         # if the value is a dict, convert it to DotDict (clears/cleans it)
@@ -126,12 +182,21 @@ class DotDict(dict):
         # if the value is a DotDict, insert it as a dict (already cleared)
         if type(value) is DotDict:
             value = dict(value)
+        # insert the value to both this object and the root object, if it exists
         dict.__setitem__(self, key, value)
+        if not (self._root is None):
+            # retrieve the dictionary pointed by self._path_to_root
+            dict_to_modify = dict(self._root)
+            for breadcrumb in self._path_to_root:
+                dict_to_modify = dict_to_modify[breadcrumb]
+            # insert the value to the root dictionary
+            dict_to_modify[key] = value
 
     # the logic for __setattr__ is the exact same as the one for __setitem__
     __setattr__ = __setitem__
 
     def __delitem__(self, key: str):
+        # print("__delitem__ call")
         # check if the key exists
         if not (key in self.keys()):
             raise AttributeError(f"No key/attribute '{key}'")
@@ -142,6 +207,7 @@ class DotDict(dict):
 
     # overridden to show the keys as attributes with the 'dir' built-in function
     def __dir__(self) -> list[str]:
+        # print("__dir__ call")
         dict_dir = dict.__dir__(self)
         dotdict_attributes = list(self.keys())
         return dict_dir + dotdict_attributes
@@ -151,9 +217,29 @@ class DotDict(dict):
         """
         Returns a shallow copy of this DotDict object.
         """
+        # print("copy call")
         return DotDict(dict(self))
 
+    # for compatibility with the 'vars' built-in function
+    @property
+    def __dict__(self) -> MappingProxyType:
+        # return a MappingProxyType to enhance the fact that this isn't
+        # the right way to modify attributes of DotDict objects
+        return MappingProxyType(dict(self))
+
+    # def __str__(self):
+    #     """
+
+    #     """
+    #     # Deleguate the string to json.dumps when possible, otherwise
+    #     # try to return a pretty string.
+    #     try:
+    #         raise Exception
+    #         json_like_string = json.dumps(dict(self), indent=2)
+    #     except:
+    #         json_like_string = pretty_string_factory(dict(self))
+    #     return json_like_string
 
 if __name__ == "__main__":
     # tests
-    pass
+    test = DotDict()
