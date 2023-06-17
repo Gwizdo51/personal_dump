@@ -29,7 +29,7 @@ end of word:
 exactly "abc":
 abc
 
-any one of a,b or c:
+any one of a, b or c:
 [abc]
 anything but a, b or c:
 [^abc]
