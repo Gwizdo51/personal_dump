@@ -4,5 +4,7 @@ regedit
 => HKLM\System\CurrentControlSet\Control\Keyboard Layout
 => New → Binary Value
 Scancode Map
-000000000000000002000000000052E000000000
+0000    00 00 00 00 00 00 00 00
+0008    02 00 00 00 00 00 52 E0
+0010    00 00 00 00
 => reboot
