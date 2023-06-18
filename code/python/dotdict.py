@@ -1,8 +1,9 @@
 from __future__ import annotations
 import re
-from typing import Optional, Any
-from types import MappingProxyType
 import json
+from typing import Optional, Any, Union
+from types import MappingProxyType
+from collections.abc import Mapping
 
 
 class KeyTypeError(Exception):
@@ -19,22 +20,70 @@ class AttributeNameError(Exception):
     """
 
 
+# def test_1(param_0: bool, param_1: int = 2) -> Optional[Union[float, int]]:
+#     """
+#     _summary_
+
+#     PARAMS
+#     ------
+#         param_0: bool
+#             _description_
+#         param_1: int = 2
+#             _description_
+
+#     RETURNS
+#     -------
+#         float
+#             _description_
+
+#     RAISES
+#     ------
+#         KeyTypeError
+#             slkdjfq
+#     """
+
+
+def is_mapping(obj: Any) -> bool:
+    """
+    Returns whether the object pass is a mapping of some kind.
+    """
+    return isinstance(obj, Mapping)
+
+
+def is_iterable_not_string_like(obj: Any) -> bool:
+    """
+    Returns whether the object is an iterable, but not string-like
+    (this function will return False if the object type is "str", "bytes"
+    or "bytearray").
+    """
+    # check if obj is iterable
+    try:
+        iter(obj)
+        obj_is_iterable = True
+    except:
+        obj_is_iterable = False
+    # check if obj is a string-like object
+    # (str, bytes and bytearray objects are iterable)
+    obj_is_str_like = repr(obj)[0] in ["'", "b"]
+    return obj_is_iterable and not obj_is_str_like
+
+
 # best attempt at defining a Regular Expression for an attribute name
 attribute_name_pattern_string = "^[a-zA-Z]\w*$"
 attribute_name_pattern = re.compile(attribute_name_pattern_string)
-# dict class methods names
-dict_attribute_names = [meth_name for meth_name in dir(dict) if not ("_" in meth_name)]
+# dict class method names
+dict_method_names = [meth_name for meth_name in dir(dict) if not ("_" in meth_name)]
 
 
 def check_key(key):
     # check if the key is a string
     if not (type(key) is str):
         raise KeyTypeError(f"The key '{key}' is not a string")
-    # check if the key is accessible as a not-hidden attribute
+    # check if the key is accessible as a visible attribute
     if not attribute_name_pattern.match(key):
         raise AttributeNameError(f"The key '{key}' is not valid as a DotDict attribute name")
     # check whether the key would erase a dict method
-    if key in dict_attribute_names:
+    if key in dict_method_names:
         raise AttributeNameError(f"The key '{key}' would erase a dict method")
 
 
@@ -55,16 +104,16 @@ def check_keys(dict_to_check: dict):
 def clean_types(dict_to_check: dict) -> dict:
     """
     Recursively converts the types of all the values of dict_to_check and its
-    nested dictionaries to DotDicts when they are dicts.
+    nested mappings to "dict" when they are mappings of any kind.
     """
     # placeholder for the clean dict
     cleaned_dict = {}
     for key in dict_to_check.keys():
         value = dict_to_check[key]
-        # convert the value to a dict if it is a DotDict
-        if type(value) is DotDict:
+        # convert the value to a dict if if is a mapping of any kind
+        if is_mapping(value):
             value = dict(value)
-        # clean the types of the value if it is a dict
+        # clean the types of the value's nested mappings if it is a dict
         if type(value) is dict:
             value = clean_types(value)
         # add the clean value to the clean dict
@@ -73,30 +122,144 @@ def clean_types(dict_to_check: dict) -> dict:
     return cleaned_dict
 
 
-# def pretty_string_factory_recursive(dict_to_print: dict, indent: int = 2, current_indent: int = 0) -> list[str]:
-#     """
-#     Helper recursive function for pretty_string_factory.
-#     """
-#     # see if items are iterable with "iter"
-#     # see if items are mappings with "dict" (mappings are iterable)
-#     for key, value in dict_to_print.items():
-#         current_indent += 2
-#         ...
-#     # return pretty_string
-#     return "LOL"
+def _pretty_string_factory_object_processor(item_to_process: Any) -> Any:
+    """
+
+    """
+    if is_mapping(item_to_process):
+        # if the item is a mapping, convert it to a dict
+        item_to_process = dict(item_to_process)
+        if not item_to_process:
+            # if the dict is empty, return it as is
+            processed_item = item_to_process
+        else:
+            # process item_to_process content in place
+            for key, value in item_to_process.items():
+                item_to_process[key] = _pretty_string_factory_object_processor(value)
+            processed_item = item_to_process
+    elif is_iterable_not_string_like(item_to_process):
+        # if the item is an "openable" iterable...
+        if not item_to_process:
+            # special case if the iterable is empty
+            processed_item = item_to_process
+        else:
+            # try to figure out what type of iterable item_to_process is
+            if str(item_to_process)[0] == "(":
+                # tuple-like
+                type_to_use = tuple
+            elif str(item_to_process)[0] == "{":
+                # set-like
+                type_to_use = set
+            else:
+                # default to list-like
+                type_to_use = list
+            # create a placeholder list to store the iterable processed items
+            processed_item_placeholder = []
+            # process the items and add them to the list
+            for item in item_to_process:
+                processed_item_placeholder.append(_pretty_string_factory_object_processor(item))
+            # return the iterator as either a list, a set or a tuple
+            processed_item = type_to_use(processed_item_placeholder)
+    else:
+        # return the item as is
+        processed_item = item_to_process
+    return processed_item
 
 
-# def pretty_string_factory(dict_to_print: dict, indent: int = 2) -> str:
-#     """
-#     Return a pretty string for the __str__ method of DotDict.
-#     """
-#     ...
-#     return "LOL"
+def _pretty_string_factory_string_processor(item_to_print: Any, indent: int, pretty_string_lines: list[str], current_indent: int = 0) -> list[str]:
+    """
+    {'a': {'foo': 'bar'}, 'b': {'lol': 'kekw', 'hehe': 'haha'}, 'c': {}}
+    =>
+    {
+        'a': {
+            'foo': 'bar'
+        },
+        'b': {
+            'lol': 'kekw',
+            'hehe': 'haha'
+        },
+        'c': {}
+    }
+    """
+    if type(item_to_print) is dict:
+        # the item is a dict
+        if not item_to_print:
+            # if the dict is empty, add "{}" to the last line
+            pretty_string_lines[-1] += "{}"
+        else:
+            # the dict is not empty, open a new dict
+            pretty_string_lines[-1] += "{"
+            dict_first_item = True
+            for key, value in item_to_print.items():
+                # for each item in the dict...
+                if not dict_first_item:
+                    # if this is not the first dict item,
+                    # add a comma at the end of the last line
+                    pretty_string_lines[-1] += ","
+                else:
+                    dict_first_item = False
+                # add a new key/value line to pretty_string_lines
+                pretty_string_lines.append(" "*(current_indent + indent) + f"{repr(key)}: ")
+                # let _pretty_string_factory_string_processor cook
+                pretty_string_lines = _pretty_string_factory_string_processor(
+                    value,
+                    indent,
+                    current_indent = current_indent + indent,
+                    pretty_string_lines = pretty_string_lines
+                )
+            # close the dict
+            pretty_string_lines.append(" "*current_indent + "}")
+    elif type(item_to_print) in [list, tuple, set]:
+        # the item is an "openable" iterable
+        if not item_to_print:
+            # if the iterable is empty, add it as is to the last line
+            pretty_string_lines[-1] += repr(item_to_print)
+        else:
+            # the iterable is not empty
+            pretty_string_lines[-1] += repr(item_to_print)[0]
+            iterable_first_item = True
+            for item in item_to_print:
+                # for each item in the iterable...
+                if not iterable_first_item:
+                    # if this is not the first item,
+                    # add a comma at the end of the last line
+                    pretty_string_lines[-1] += ","
+                else:
+                    iterable_first_item = False
+                # add a new item line to pretty_string_lines
+                pretty_string_lines.append(" "*(current_indent + indent))
+                # let _pretty_string_factory_string_processor cook
+                pretty_string_lines = _pretty_string_factory_string_processor(
+                    item,
+                    indent,
+                    current_indent = current_indent + indent,
+                    pretty_string_lines = pretty_string_lines
+                )
+            # close the iterable
+            pretty_string_lines.append(" "*current_indent + repr(item_to_print)[-1])
+    else:
+        # the item is a string-like, add it as is to the last line
+        pretty_string_lines[-1] += repr(item_to_print)
+    return pretty_string_lines
+
+
+def pretty_string_factory(dict_to_print: dict, indent: int = 4) -> str:
+    """
+    Return a pretty string for the __str__ method of DotDict.
+    """
+    # process dict_to_print into a simpler form
+    # create a pretty string from the processed dict
+    pretty_string_lines = _pretty_string_factory_string_processor(
+        item_to_print = _pretty_string_factory_object_processor(dict_to_print),
+        indent = indent,
+        pretty_string_lines = [""]
+    )
+    return "\n".join(pretty_string_lines)
 
 
 class DotDict(dict):
     """
-    Allows handling dictionaries with the "dot" notation.
+    This class allows handling dictionaries with the "dot" notation.
 
     - set/get/delete items/attributes with the dot notation as well as the dict notation
         (dotdict.atr is the same as dotdict["atr"])
@@ -124,10 +287,10 @@ class DotDict(dict):
         # create a temporary dict from the arguments
         dict_self = dict(*args, **kwargs)
         if _check:
+            # if any values are mappings, convert them to dict, recursively
+            dict_self = clean_types(dict_self)
             # test if all keys are valid as attribute names, recursively
             check_keys(dict_self)
-            # if any values are DotDicts, convert them to dict, recursively
-            dict_self = clean_types(dict_self)
         # init the "self" dict with the cleaned dict
         dict.__init__(self, dict_self)
         # add a reference to the root DotDict
@@ -136,9 +299,6 @@ class DotDict(dict):
         # remember how to get to this DotDict from the root DotDict as a list of attribute names
         # bypass DotDict.__setattr__ to protect the variable from rewrites
         object.__setattr__(self, "_path_to_root", _path_to_root)
-        # print("root:", self._root)
-        # print("root type:", type(self._root))
-        # print("path to root:", self._path_to_root)
 
     def __getitem__(self, key: str) -> Any:
         # print("__getitem__ call")
@@ -176,8 +336,8 @@ class DotDict(dict):
         # print("__setitem__ call")
         # check if the key is valid as an attribute name
         check_key(key)
-        # if the value is a dict, convert it to DotDict (clears/cleans it)
-        if type(value) is dict:
+        # if the value is a mapping, convert it to DotDict (clears/cleans it)
+        if is_mapping(value):
             value = DotDict(value)
         # if the value is a DotDict, insert it as a dict (already cleared)
         if type(value) is DotDict:
@@ -223,23 +383,37 @@ class DotDict(dict):
     # for compatibility with the 'vars' built-in function
     @property
     def __dict__(self) -> MappingProxyType:
+        # print("__dict__ call")
         # return a MappingProxyType to enhance the fact that this isn't
         # the right way to modify attributes of DotDict objects
         return MappingProxyType(dict(self))
 
-    # def __str__(self):
-    #     """
+    def __str__(self):
+        """
 
-    #     """
-    #     # Deleguate the string to json.dumps when possible, otherwise
-    #     # try to return a pretty string.
-    #     try:
-    #         raise Exception
-    #         json_like_string = json.dumps(dict(self), indent=2)
-    #     except:
-    #         json_like_string = pretty_string_factory(dict(self))
-    #     return json_like_string
+        """
+        # print("__str__ call")
+        return pretty_string_factory(dict(self))
+
 
 if __name__ == "__main__":
     # tests
     test = DotDict()
+    # print(is_iterable_not_string_like("lol"))
+    # print(is_iterable_not_string_like([1,2,3]))
+    # print(is_iterable_not_string_like(["lol", "haha"]))
+    # print(is_iterable_not_string_like("lol"))
+    print(is_iterable_not_string_like(set()))
+    print(str(set()))
+
+    print(_pretty_string_factory_object_processor(("lol", "haha")))
+    print(_pretty_string_factory_object_processor("lol"))
+    print(_pretty_string_factory_object_processor({"lol", "haha"}))
+    print(_pretty_string_factory_object_processor({"0": 1}))
+    print(_pretty_string_factory_object_processor({
+        "a": {
+            "lol": "haha",
+            "abc": "def"
+        },
+        "b": 5
+    }))
