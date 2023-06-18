@@ -3,5 +3,5 @@
 # keep .ipynb files with lf endings on windows
 *.ipynb text eol=lf
 
-# let git guess what files are text files
+# let git guess the rest
 * text=auto
