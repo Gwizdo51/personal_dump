@@ -1,0 +1,8 @@
+disable insert key permanently:
+https://superuser.com/questions/31794/windows-insert-key-anti-functionality-accidentally-triggers-how-to-stop-it-perm
+regedit
+=> HKLM\System\CurrentControlSet\Control\Keyboard Layout
+=> New → Binary Value
+Scancode Map
+000000000000000002000000000052E000000000
+=> reboot
