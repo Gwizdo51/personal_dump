@@ -1,10 +1,7 @@
 # possible attributes: text, binary, eol, diff
 
 # let git guess what files are text files
-*               text=auto
-
-# .gitattributes  text
-# *.md            text
+* text=auto
 
 # keep .ipynb files with lf endings on windows
-*.ipynb         text eol=lf
+*.ipynb -diff
