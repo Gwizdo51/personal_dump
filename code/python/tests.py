@@ -1,6 +1,6 @@
 from __future__ import annotations
 from functools import reduce
-from typing import Any
+from typing import Any, Type, Union
 
 
 ########################
@@ -82,6 +82,17 @@ def func_test(unnamed_arg, /, unnamed_arg_2, *, named_arg = 0):
 ### generator ###
 #################
 
+list_test = [1,2,3]
+test_generator = (item for item in list(list_test))
+
+def infinite_sequence():
+    num = 0
+    while True:
+        yield num
+        num += 1
+        if num == 100000:
+            break
+
 
 ###############
 ### __new__ ###
@@ -130,8 +141,20 @@ class B(A):
 ###########################
 
 
+############################
+### is instance or class ###
+############################
+
+def is_type(obj_or_type: Union[Any, Type[object]]) -> bool:
+    return type(obj_or_type) is type
+
+def is_instance(obj_or_type: Union[Any, Type[object]]) -> bool:
+    return not is_type(obj_or_type)
+
+
 if __name__ == "__main__":
 
+    # # functools.reduce
     # print(_len(["a", "b", "c"]))
     # print(_sum([3,1,2]))
     # print(_any([False, False]))
@@ -141,12 +164,34 @@ if __name__ == "__main__":
     # print(_max([1,5,-2]))
     # print(_min([1,5,-2]))
 
-    title_printer("RegEx UUID detector")
+    # # title_printer
+    # title_printer("is instance or class")
     # title_printer("generator", fill_char="+")
 
+    # # named and unnamed args
     # func_test(unnamed_arg=1, unnamed_arg_2=2, named_arg=3)
     # func_test(1, 2, 3)
 
+    # # generator
+    # print(type(test_generator))
+    # print(next(test_generator))
+    # print(next(test_generator))
+    # print(next(test_generator))
+    # try:
+    #     next(test_generator)
+    # except StopIteration:
+    #     print("no more items")
+    # print(test_generator.__iter__.__doc__)
+    # print()
+    # for item in dir(test_generator):
+    #     print(item)
+    # print()
+    # print(type(test_generator).__mro__)
+    gen = infinite_sequence()
+    while True:
+        print(next(gen), end=" ")
+
+    # # __new__
     # A()
     # B()
     # type({}.values())()
@@ -157,3 +202,12 @@ if __name__ == "__main__":
     # test = B.__new__(A)
     # print(type(test))
     # print(A.__new__(object))
+
+    # RegEx UUID detector
+
+    # # is instance or class
+    # print(is_instance([]))
+    # print(is_type([]))
+    # print(is_instance(list))
+    # print(is_type(list))
+    # print(is_instance(type))

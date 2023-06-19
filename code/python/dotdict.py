@@ -373,55 +373,63 @@ class DotDictValues(ValuesView):
     """
     Provides a dynamic view of the DotDict's values. Works the same way as
     "dict_values" works, except that the nested dictionaries are viewed as
-    DotDicts objects.
+    DotDicts objects. Inherit from collections.abc.ValueView for the sole
+    purpose of having
+    "issubclass(DotDictValues, ValuesView)"
+    evaluate to True.
     """
 
-    def __new__(cls, _dotdict_hook: DotDict) -> DotDictValues:
-        print("__new__ call")
+    def __new__(cls, _dotdict_hook: DotDict, /) -> DotDictValues:
+        print("DotDictValues __new__ call") if _dotdict_hook._verbose else ...
         values_view_obj = object.__new__(cls)
         # store the DotDict object to view the values of in self._dotdict
         # bypass DotDictValues.__setattr__, which is meant to fail
         object.__setattr__(values_view_obj, "_dotdict_hook", _dotdict_hook)
         return values_view_obj
 
-    def __init__(self):
-        print("__init__ call")
+    def __init__(self, _, /):
+        print("DotDictValues __init__ call") if self._dotdict_hook._verbose else ...
         # prevent direct DotDictValues instance creation
         raise TypeError(f"cannot create '{self.__class__.__name__}' instances")
 
     def __iter__(self) -> Iterator:
-        print("__iter__ call")
-        # returns a generator
-        raise NotImplementedError
+        print("DotDictValues __iter__ call") if self._dotdict_hook._verbose else ...
+        # returns a iterator over the values of the associated DotDict object.
+        return iter(self._dotdict_hook._view.values())
 
     def __reversed__(self) -> Iterator:
-        print("__reversed__ call")
+        print("DotDictValues __reversed__ call") if self._dotdict_hook._verbose else ...
         # returns a generator that returns the values
         # in the opposite order of insertion
-        raise NotImplementedError
+        # return reversed(iter(self))
+        return iter(reversed(self._dotdict_hook._view.values()))
 
     def __len__(self) -> int:
-        print("__len__ call")
+        print("DotDictValues __len__ call") if self._dotdict_hook._verbose else ...
         return len(self._dotdict_hook)
 
+    @property
     def mapping(self) -> MappingProxyType:
-        print("mapping call")
+        print("DotDictValues mapping call") if self._dotdict_hook._verbose else ...
         # return MappingProxyType(dict())
-        raise NotImplementedError
+        # MappingProxy of _dotdict_hook ?
+        return MappingProxyType(self._dotdict_hook)
 
     def __contains__(self, item: Any, /) -> bool:
-        print("__contains__ call")
-        raise NotImplementedError
-
-    def __repr__(self) -> str:
-        print("__repr__ call")
-        # maybe
-        raise NotImplementedError
+        print("DotDictValues __contains__ call") if self._dotdict_hook._verbose else ...
+        # returns True when item is in the values of self._dotdict_hook
+        return item in self._dotdict_hook._view.values()
 
     def __str__(self) -> str:
-        print("__str__ call")
-        # maybe
-        raise NotImplementedError
+        # leninent
+        print("DotDictValues __str__ call") if self._dotdict_hook._verbose else ...
+        # return f"{str(list(self._dotdict_hook._view.values()))}"
+        return repr(self)
+
+    def __repr__(self) -> str:
+        # strict
+        print("DotDictValues __repr__ call") if self._dotdict_hook._verbose else ...
+        return f"{self.__class__.__name__}({str(list(self._dotdict_hook._view.values()))})"
 
     # def __or__(self):
     #     raise NotImplementedError
@@ -429,13 +437,17 @@ class DotDictValues(ValuesView):
     # def __ror__(self):
     #     raise NotImplementedError
 
-    def __setattr__(self, name: str, value: Any, /):
-        print("__setattr__ call")
-        raise NotImplementedError
+    def __getattr__(self, *_, **__):
+        print("DotDictValues __getattr__ call") if self._dotdict_hook._verbose else ...
+        raise AttributeError(f"Access to {self.__class__.__name__} attributes denied")
 
-    def __delattr__(self, name: str, /):
-        print("__delattr__ call")
-        raise NotImplementedError
+    def __setattr__(self, *_, **__):
+        print("DotDictValues __setattr__ call") if self._dotdict_hook._verbose else ...
+        raise AttributeError(f"Access to {self.__class__.__name__} attributes denied")
+
+    def __delattr__(self, *_, **__):
+        print("DotDictValues __delattr__ call") if self._dotdict_hook._verbose else ...
+        raise AttributeError(f"Access to {self.__class__.__name__} attributes denied")
 
 
 # make MappingProxyType return nested dicts as DotDict objects
@@ -660,8 +672,14 @@ class DotDict(dict):
         str
             A string equivalent to the output of "json.dumps(dict(self), indent=4)".
         """
+        # lenient
         print("__str__ call") if self._verbose else ...
         return pretty_string_factory(dict(self))
+
+    def __repr__(self):
+        # strict
+        print("__repr__ call") if self._verbose else ...
+        return f"{self.__class__.__name__}({dict.__repr__(self)})"
 
     def copy(self) -> DotDict:
         """
@@ -742,7 +760,7 @@ class DotDict(dict):
     def values(self) -> DotDictValues:
         print("values call") if self._verbose else ...
         # Returns a dynamic view of the values of this DotDict.
-        return DotDictValues(self)
+        return DotDictValues.__new__(DotDictValues, self)
 
     @property
     def _view(self) -> dict[str, Any]:
