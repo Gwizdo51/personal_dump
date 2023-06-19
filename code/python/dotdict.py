@@ -373,7 +373,7 @@ class DotDictValues(ValuesView):
     """
     Provides a dynamic view of the DotDict's values. Works the same way as
     "dict_values" works, except that the nested dictionaries are viewed as
-    DotDicts objects. Inherit from collections.abc.ValueView for the sole
+    DotDicts objects. Inherits from collections.abc.ValueView for the sole
     purpose of having
     "issubclass(DotDictValues, ValuesView)"
     evaluate to True.
@@ -387,21 +387,20 @@ class DotDictValues(ValuesView):
         object.__setattr__(values_view_obj, "_dotdict_hook", _dotdict_hook)
         return values_view_obj
 
-    def __init__(self, _, /):
+    def __init__(self, *_, **__):
         print("DotDictValues __init__ call") if self._dotdict_hook._verbose else ...
         # prevent direct DotDictValues instance creation
         raise TypeError(f"cannot create '{self.__class__.__name__}' instances")
 
     def __iter__(self) -> Iterator:
         print("DotDictValues __iter__ call") if self._dotdict_hook._verbose else ...
-        # returns a iterator over the values of the associated DotDict object.
+        # return an iterator over the values of the associated DotDict object
         return iter(self._dotdict_hook._view.values())
 
     def __reversed__(self) -> Iterator:
         print("DotDictValues __reversed__ call") if self._dotdict_hook._verbose else ...
         # returns a generator that returns the values
         # in the opposite order of insertion
-        # return reversed(iter(self))
         return iter(reversed(self._dotdict_hook._view.values()))
 
     def __len__(self) -> int:
@@ -411,8 +410,6 @@ class DotDictValues(ValuesView):
     @property
     def mapping(self) -> MappingProxyType:
         print("DotDictValues mapping call") if self._dotdict_hook._verbose else ...
-        # return MappingProxyType(dict())
-        # MappingProxy of _dotdict_hook ?
         return MappingProxyType(self._dotdict_hook)
 
     def __contains__(self, item: Any, /) -> bool:
@@ -423,7 +420,6 @@ class DotDictValues(ValuesView):
     def __str__(self) -> str:
         # leninent
         print("DotDictValues __str__ call") if self._dotdict_hook._verbose else ...
-        # return f"{str(list(self._dotdict_hook._view.values()))}"
         return repr(self)
 
     def __repr__(self) -> str:
