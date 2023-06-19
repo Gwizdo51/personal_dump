@@ -22,16 +22,36 @@ class AttributeNameError(Exception):
 
 def is_mapping(obj: Any) -> bool:
     """
-    Returns whether the object pass is a mapping of some kind.
+    Returns whether an object is a mapping of some kind.
+
+    PARAMETERS
+    ----------
+    obj: Any
+        The object to analyse.
+
+    RETURNS
+    -------
+    bool
+        Whether the object is a mapping of any kind.
     """
     return isinstance(obj, Mapping)
 
 
 def is_iterable_not_string_like(obj: Any) -> bool:
     """
-    Returns whether the object is an iterable, but not string-like
+    Returns whether an object is an iterable, but not string-like
     (this function will return False if the object type is "str", "bytes"
     or "bytearray").
+
+    PARAMETERS
+    ----------
+    obj: Any
+        The object to analyse.
+
+    RETURNS
+    -------
+    bool
+        Whether obj is an iterable, but not a string-like.
     """
     # check if obj is iterable
     try:
@@ -46,29 +66,53 @@ def is_iterable_not_string_like(obj: Any) -> bool:
 
 
 # best attempt at defining a Regular Expression for an attribute name
-attribute_name_pattern_string = "^[a-zA-Z]\w*$"
-attribute_name_pattern = re.compile(attribute_name_pattern_string)
+CLASS_ATTRIBUTE_NAME_PATTERN = re.compile("^[a-zA-Z]\w*$")
 # dict class method names
-dict_method_names = [meth_name for meth_name in dir(dict) if not ("_" in meth_name)]
+DICT_METHOD_NAMES = [meth_name for meth_name in dir(dict) if not ("_" in meth_name)]
 
 
-def check_key(key):
+def check_key(key: Any):
+    """
+    Helper function for the DotDict class.
+    Raises exceptions when a key is not a string, is not valid
+    as as class attribute name, or woud erase a "dict" class method.
+
+    PARAMETERS
+    ----------
+    key: Any
+        The key to analyse.
+
+    RAISES
+    ------
+    KeyTypeError
+        Raised when the key is not a string.
+    AttributeNameError
+        Raised when the key is not valid as a class attribute name.
+    AttributeNameError
+        Raised when the key would erase a "dict" class method (like "get" or "update").
+    """
     # check if the key is a string
     if not (type(key) is str):
         raise KeyTypeError(f"The key '{key}' is not a string")
     # check if the key is accessible as a visible attribute
-    if not attribute_name_pattern.match(key):
-        raise AttributeNameError(f"The key '{key}' is not valid as a DotDict attribute name")
+    if not CLASS_ATTRIBUTE_NAME_PATTERN.match(key):
+        raise AttributeNameError(f"The key '{key}' is not valid as a class attribute name")
     # check whether the key would erase a dict method
-    if key in dict_method_names:
+    if key in DICT_METHOD_NAMES:
         raise AttributeNameError(f"The key '{key}' would erase a dict method")
 
 
 def check_keys(dict_to_check: dict):
     """
+    Helper function for the DotDict class.
     Recursively checks if the keys of dict_to_check and its nested dictionaries
-    are accessible as attribute names, and will not replace any methods from the
-    "dict" class.
+    are strings, are accessible as attribute names, and will not replace
+    any methods from the "dict" class.
+
+    PARAMETERS
+    ----------
+    dict_to_check: dict
+        The dictionary to analyse.
     """
     for key in dict_to_check.keys():
         check_key(key)
@@ -80,8 +124,20 @@ def check_keys(dict_to_check: dict):
 
 def clean_types(dict_to_check: dict) -> dict:
     """
+    Helper function for the DotDict class.
     Recursively converts the types of all the values of dict_to_check and its
     nested mappings to "dict" when they are mappings of any kind.
+
+    PARAMETERS
+    ----------
+    dict_to_check: dict
+        The dictionary which values types need to be converted
+        to dict when they are mappings of any kind.
+
+    RETURNS
+    -------
+    dict
+        The dictionary with "cleaned" values types.
     """
     # placeholder for the clean dict
     cleaned_dict = {}
@@ -101,7 +157,23 @@ def clean_types(dict_to_check: dict) -> dict:
 
 def _pretty_string_factory_object_processor(item_to_process: Any) -> Any:
     """
+    Helper function for the pretty_string_factory function.
+    Returns a simpler form of an item and its content:
+    - all mappings and nested mappings are converted to the "dict" type;
+    - all iterable that are not string-like are converted to either lists,
+    sets or tuples;
+    - all other items are left as is.
+    item_to_process is left untouched; The returned item is an image.
 
+    PARAMETERS
+    ----------
+    item_to_process: Any
+        The item to process into a simpler form.
+
+    RETURNS
+    -------
+    Any
+        The processed, "simpler" item.
     """
     if is_mapping(item_to_process):
         # if the item is a mapping, convert it to a dict
@@ -145,18 +217,27 @@ def _pretty_string_factory_object_processor(item_to_process: Any) -> Any:
 
 def _pretty_string_factory_string_processor(item_to_print: Any, indent: int, pretty_string_lines: list[str], current_indent: int = 0) -> list[str]:
     """
-    {'a': {'foo': 'bar'}, 'b': {'lol': 'kekw', 'hehe': 'haha'}, 'c': {}}
-    =>
-    {
-        'a': {
-            'foo': 'bar'
-        },
-        'b': {
-            'lol': 'kekw',
-            'hehe': 'haha'
-        },
-        'c': {}
-    }
+    Helper function for the pretty_string_factory function.
+    Handles the creation of the pretty string itself.
+    item_to_print needs to be a "clean" item, as defined by the
+    _pretty_string_factory_object_processor function.
+
+    PARAMETERS
+    ----------
+    item_to_print: Any
+        Any object, but must be "clean", as defined by the
+        _pretty_string_factory_object_processor function.
+    indent: int
+        The number of spaces used per indent level.
+    pretty_string_lines: list[str]
+        The list containing the current lines of the pretty string.
+    current_indent: int = 0
+        The current indent for this nest level.
+
+    RETURNS
+    -------
+    list[str]
+        The list of lines of the pretty string.
     """
     if type(item_to_print) is dict:
         # the item is a dict
@@ -222,7 +303,21 @@ def _pretty_string_factory_string_processor(item_to_print: Any, indent: int, pre
 
 def pretty_string_factory(dict_to_print: dict, indent: int = 4) -> str:
     """
-    Return a pretty string for the __str__ method of DotDict.
+    Creates a pretty string from a dictionary.
+    The string returned matches the output of "json.loads(dict_to_print, indent=indent)",
+    but should not fail if it encounters unexpected types.
+
+    PARAMETERS
+    ----------
+    dict_to_print: dict
+        The dictionary to pretty-print.
+    indent: int = 4
+        The number of spaces to use per indent level.
+
+    RETURNS
+    -------
+    str
+        The JSON-like indented string representing dict_to_print.
     """
     # process dict_to_print into a simpler form
     # create a pretty string from the processed dict
@@ -260,6 +355,18 @@ class DotDict(dict):
                  _root: Optional[DotDict] = None,
                  _path_to_root: Optional[list[str]] = None,
                  **kwargs):
+        """
+        The instance factory.
+
+        PARAMETERS
+        ----------
+        _check: bool = True
+            Whether to check the keys of the dictionary.
+        _root: DotDict | None = None
+            The root DotDict object.
+        _path_to_root: list[str] | None = None
+            The keys that lead to this object from the root object.
+        """
         # print("__init__ call")
         # create a temporary dict from the arguments
         dict_self = dict(*args, **kwargs)
@@ -278,6 +385,25 @@ class DotDict(dict):
         object.__setattr__(self, "_path_to_root", _path_to_root)
 
     def __getitem__(self, key: str) -> Any:
+        """
+        Get an item from the DotDict. Called with the dot notation as
+        well as the dict notation.
+
+        PARAMETERS
+        ----------
+        key: str
+            The key/attribute of the item to get.
+
+        RETURNS
+        -------
+        Any
+            The value of the item.
+
+        RAISES
+        ------
+        AttributeError
+            Raised when the key/attribute does not exist.
+        """
         # print("__getitem__ call")
         # check if the key exists
         if not (key in self.keys()):
@@ -310,6 +436,17 @@ class DotDict(dict):
     __getattr__ = __getitem__
 
     def __setitem__(self, key: str, value: Any):
+        """
+        Set a key-value pair. Called with the dot notation as
+        well as the dict notation.
+
+        PARAMETERS
+        ----------
+        key: str
+            The key/attribute of the item to set.
+        value: Any
+            The value of the item to set.
+        """
         # print("__setitem__ call")
         # check if the key is valid as an attribute name
         check_key(key)
@@ -342,17 +479,30 @@ class DotDict(dict):
     # the logic for __delattr__ is the exact same as the one for __delitem__
     __delattr__ = __delitem__
 
-    # overridden to show the keys as attributes with the 'dir' built-in function
     def __dir__(self) -> list[str]:
+        """
+        Overridden to show the keys as attributes with the 'dir' built-in function.
+
+        RETURNS
+        -------
+        list[str]
+            A list containing the names of all methods and key/attributes
+            of this object.
+        """
         # print("__dir__ call")
         dict_dir = dict.__dir__(self)
         dotdict_attributes = list(self.keys())
         return dict_dir + dotdict_attributes
 
-    # for consistency with the 'dict.copy' method
     def copy(self) -> DotDict:
         """
         Returns a shallow copy of this DotDict object.
+        overriden for consistency with the 'dict.copy' method.
+
+        RETURNS
+        -------
+        DotDict
+            _description_
         """
         # print("copy call")
         return DotDict(dict(self))
@@ -360,14 +510,27 @@ class DotDict(dict):
     # for compatibility with the 'vars' built-in function
     @property
     def __dict__(self) -> MappingProxyType:
+        """
+        For compatibility with the 'vars' built-in function.
+
+        RETURNS
+        -------
+        MappingProxyType
+            A mapping proxy representing the DotDict object.
+        """
         # print("__dict__ call")
         # return a MappingProxyType to enhance the fact that this isn't
         # the right way to modify attributes of DotDict objects
         return MappingProxyType(dict(self))
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
+        Returns a "json.dumps"-like string representing the DotDict object.
 
+        RETURNS
+        -------
+        str
+            A string equivalent to the output of "json.dumps(dict(self), indent=4)".
         """
         # print("__str__ call")
         return pretty_string_factory(dict(self))
