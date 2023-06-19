@@ -3,7 +3,7 @@ A random clutter of stuff I should remember.
 
 # TODO
 
-- [ ] add .gitattribute file
+- [x] add .gitattribute file
 - [ ] debug deleting nested items for DotDict
 - [ ] add unit tests for DotDict
 - [ ] add docstrings to DotDict => make custom docstring template

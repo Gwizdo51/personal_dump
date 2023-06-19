@@ -20,29 +20,6 @@ class AttributeNameError(Exception):
     """
 
 
-# def test_1(param_0: bool, param_1: int = 2) -> Optional[Union[float, int]]:
-#     """
-#     _summary_
-
-#     PARAMS
-#     ------
-#         param_0: bool
-#             _description_
-#         param_1: int = 2
-#             _description_
-
-#     RETURNS
-#     -------
-#         float
-#             _description_
-
-#     RAISES
-#     ------
-#         KeyTypeError
-#             slkdjfq
-#     """
-
-
 def is_mapping(obj: Any) -> bool:
     """
     Returns whether the object pass is a mapping of some kind.
