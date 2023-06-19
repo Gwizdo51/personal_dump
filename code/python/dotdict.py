@@ -474,7 +474,15 @@ class DotDict(dict):
         # check if the key exists
         if not (key in self.keys()):
             raise AttributeError(f"No key/attribute '{key}'")
+        # delete the item from both this object and the root object, if it exists
         dict.__delitem__(self, key)
+        if not (self._root is None):
+            # retrieve the dictionary pointed by self._path_to_root
+            dict_to_modify = dict(self._root)
+            for breadcrumb in self._path_to_root:
+                dict_to_modify = dict_to_modify[breadcrumb]
+            # delete the item from the root dictionary
+            del dict_to_modify[key]
 
     # the logic for __delattr__ is the exact same as the one for __delitem__
     __delattr__ = __delitem__
@@ -494,20 +502,6 @@ class DotDict(dict):
         dotdict_attributes = list(self.keys())
         return dict_dir + dotdict_attributes
 
-    def copy(self) -> DotDict:
-        """
-        Returns a shallow copy of this DotDict object.
-        overriden for consistency with the 'dict.copy' method.
-
-        RETURNS
-        -------
-        DotDict
-            _description_
-        """
-        # print("copy call")
-        return DotDict(dict(self))
-
-    # for compatibility with the 'vars' built-in function
     @property
     def __dict__(self) -> MappingProxyType:
         """
@@ -534,6 +528,19 @@ class DotDict(dict):
         """
         # print("__str__ call")
         return pretty_string_factory(dict(self))
+
+    def copy(self) -> DotDict:
+        """
+        Returns a shallow copy of this DotDict object.
+        overriden for consistency with the 'dict.copy' method.
+
+        RETURNS
+        -------
+        DotDict
+            _description_
+        """
+        # print("copy call")
+        return DotDict(dict(self))
 
 
 if __name__ == "__main__":
