@@ -386,8 +386,8 @@ class DotDict(dict):
 
     def __getitem__(self, key: str) -> Any:
         """
-        Get an item from the DotDict. Called with the dot notation as
-        well as the dict notation.
+        Get an item from the DotDict.
+        Called with the dot notation as well as the dict notation.
 
         PARAMETERS
         ----------
@@ -437,8 +437,8 @@ class DotDict(dict):
 
     def __setitem__(self, key: str, value: Any):
         """
-        Set a key-value pair. Called with the dot notation as
-        well as the dict notation.
+        Set an item.
+        Called with the dot notation as well as the dict notation.
 
         PARAMETERS
         ----------
@@ -470,6 +470,20 @@ class DotDict(dict):
     __setattr__ = __setitem__
 
     def __delitem__(self, key: str):
+        """
+        Delete an item from the DotDict.
+        Called with the dot notation as well as the dict notation.
+
+        PARAMETERS
+        ----------
+        key: str
+            The key/attribute of the item to delete.
+
+        RAISES
+        ------
+        AttributeError
+            Raised when the key/attribute does not exist.
+        """
         # print("__delitem__ call")
         # check if the key exists
         if not (key in self.keys()):
@@ -537,7 +551,7 @@ class DotDict(dict):
         RETURNS
         -------
         DotDict
-            _description_
+            A shallow copy of this object.
         """
         # print("copy call")
         return DotDict(dict(self))
