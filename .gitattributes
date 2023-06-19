@@ -1,7 +1,7 @@
 # possible attributes: text, binary, eol, diff
 
 # keep .ipynb files with lf endings on windows
-*.ipynb text eol=lf
+*.ipynb     text eol=lf
 
 # let git guess the rest
-* text=auto
+*           text=auto

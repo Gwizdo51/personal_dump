@@ -4,7 +4,8 @@ A random clutter of stuff I should remember.
 # TODO
 
 - [x] add .gitattribute file
-- [ ] debug deleting nested items for DotDict
+- [x] debug deleting nested items for DotDict
+- [ ] make every DotDict dict method consistent with the dict class
 - [ ] add unit tests for DotDict
 - [x] add docstrings to DotDict => make custom docstring template
 - [ ] make pretty_string_factory a module on its own

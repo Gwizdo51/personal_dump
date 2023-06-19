@@ -384,7 +384,7 @@ class DotDict(dict):
         # bypass DotDict.__setattr__ to protect the variable from rewrites
         object.__setattr__(self, "_path_to_root", _path_to_root)
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: str, /) -> Any:
         """
         Get an item from the DotDict.
         Called with the dot notation as well as the dict notation.
@@ -435,7 +435,7 @@ class DotDict(dict):
     # the logic for __getattr__ is the exact same as the one for __getitem__
     __getattr__ = __getitem__
 
-    def __setitem__(self, key: str, value: Any):
+    def __setitem__(self, key: str, value: Any, /):
         """
         Set an item.
         Called with the dot notation as well as the dict notation.
@@ -469,7 +469,7 @@ class DotDict(dict):
     # the logic for __setattr__ is the exact same as the one for __setitem__
     __setattr__ = __setitem__
 
-    def __delitem__(self, key: str):
+    def __delitem__(self, key: str, /):
         """
         Delete an item from the DotDict.
         Called with the dot notation as well as the dict notation.
@@ -546,7 +546,7 @@ class DotDict(dict):
     def copy(self) -> DotDict:
         """
         Returns a shallow copy of this DotDict object.
-        overriden for consistency with the 'dict.copy' method.
+        Overriden for consistency with the 'dict.copy' method.
 
         RETURNS
         -------
@@ -555,6 +555,64 @@ class DotDict(dict):
         """
         # print("copy call")
         return DotDict(dict(self))
+
+    def clear(self):
+        """
+        Empties the DotDict.
+        Overriden for consistency with the 'dict.clear' method.
+        """
+        # print("clear call")
+        # clear this object and the same object in the root object, if it exists
+        dict.clear(self)
+        if not (self._root is None):
+            # retrieve the dictionary pointed by self._path_to_root
+            dict_to_modify = dict(self._root)
+            for breadcrumb in self._path_to_root:
+                dict_to_modify = dict_to_modify[breadcrumb]
+            # delete the item from the root dictionary
+            dict_to_modify.clear()
+
+    def get(self, key: Any, default: Any = None, /) -> Any:
+        """
+        Get an item from the DotDict. If the item does not exist,
+        return a default value.
+
+        PARAMETERS
+        ----------
+        key: Any
+            The key/attribute of the item to get.
+        default: Any = None
+            The value to return in case the item does not exist.
+
+        RETURNS
+        -------
+        Any
+            The value if the key exists, the default value otherwise.
+        """
+        # print("get call")
+        # return the default value if the key doesn't exist
+        if not (key in self.keys()):
+            return default
+        # return the value otherwise
+        return self[key]
+
+    def items(self) -> ...:
+        raise NotImplementedError
+
+    def pop(self, key: Any, default: Any = None, /) -> Any:
+        raise NotImplementedError
+
+    def popitem(self) -> ...:
+        raise NotImplementedError
+
+    def setdefault(self, key: Any, default: Any = None, /) -> Any:
+        raise NotImplementedError
+
+    def update(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def values(self) -> ...:
+        raise NotImplementedError
 
 
 if __name__ == "__main__":
