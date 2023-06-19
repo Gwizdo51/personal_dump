@@ -1,22 +1,22 @@
 {{! Numpy Docstring Template }}
 {{summaryPlaceholder}}
-{{! {{extendedSummaryPlaceholder}} }}
+{{!extendedSummaryPlaceholder}}
 {{#parametersExist}}
 
-Parameters
+PARAMETERS
 ----------
 {{#args}}
-{{var}} : {{typePlaceholder}}
+{{var}}: {{typePlaceholder}}
     {{descriptionPlaceholder}}
 {{/args}}
 {{#kwargs}}
-{{var}} : {{typePlaceholder}}, optional
-    {{descriptionPlaceholder}}, by default {{&default}}
+{{var}}: {{typePlaceholder}} = {{&default}}
+    {{descriptionPlaceholder}}
 {{/kwargs}}
 {{/parametersExist}}
 {{#returnsExist}}
 
-Returns
+RETURNS
 -------
 {{#returns}}
 {{typePlaceholder}}
@@ -25,7 +25,7 @@ Returns
 {{/returnsExist}}
 {{#yieldsExist}}
 
-Yields
+YIELDS
 ------
 {{#yields}}
 {{typePlaceholder}}
@@ -34,7 +34,7 @@ Yields
 {{/yieldsExist}}
 {{#exceptionsExist}}
 
-Raises
+RAISES
 ------
 {{#exceptions}}
 {{type}}
