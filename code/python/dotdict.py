@@ -328,12 +328,21 @@ def pretty_string_factory(dict_to_print: dict, indent: int = 4) -> str:
     return "\n".join(pretty_string_lines)
 
 
-"""
-Returns a version of the dictionary of a DotDict object where
-its values are converted to DotDict when they are of the "dict" type.
-"""
-# uses DotDict.__getitem__
 def get_view(dotdict: DotDict) -> dict[str, Any]:
+    """
+    Returns a version of the dictionary of a DotDict object where
+    its values are converted to DotDict when they are of the "dict" type.
+
+    PARAMETERS
+    ----------
+    dotdict: DotDict
+        The DotDict object to get the processed view from.
+
+    RETURNS
+    -------
+    dict[str, Any]
+        The processed dictionary.
+    """
     # get the dict from the dotdict object
     dict_to_view = dict(dotdict)
     # if a value is a dict, convert it to the DotDict object
@@ -652,7 +661,6 @@ class DotDict(dict):
             A string equivalent to the output of "json.dumps(dict(self), indent=4)".
         """
         print("__str__ call") if self._verbose else ...
-        # maybe send self._view here?
         return pretty_string_factory(dict(self))
 
     def copy(self) -> DotDict:
@@ -734,9 +742,6 @@ class DotDict(dict):
     def values(self) -> DotDictValues:
         print("values call") if self._verbose else ...
         # Returns a dynamic view of the values of this DotDict.
-        # values_list = []
-        # for value in dict.values(self):
-        #     values_list.append(value)
         return DotDictValues(self)
 
     @property
