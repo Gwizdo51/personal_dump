@@ -1,9 +1,8 @@
 from __future__ import annotations
 import re
-import json
 from typing import Optional, Any, Union
 from types import MappingProxyType
-from collections.abc import Mapping
+from collections.abc import Mapping, Iterator, ItemsView, ValuesView, KeysView
 
 
 class KeyTypeError(Exception):
@@ -92,7 +91,7 @@ def check_key(key: Any):
         Raised when the key would erase a "dict" class method (like "get" or "update").
     """
     # check if the key is a string
-    if not (type(key) is str):
+    if not isinstance(key, str):
         raise KeyTypeError(f"The key '{key}' is not a string")
     # check if the key is accessible as a visible attribute
     if not CLASS_ATTRIBUTE_NAME_PATTERN.match(key):
@@ -118,7 +117,7 @@ def check_keys(dict_to_check: dict):
         check_key(key)
         # if the value is a dict, check for its keys as well
         value = dict_to_check[key]
-        if type(value) is dict:
+        if isinstance(value, dict):
             check_keys(value)
 
 
@@ -147,7 +146,7 @@ def clean_types(dict_to_check: dict) -> dict:
         if is_mapping(value):
             value = dict(value)
         # clean the types of the value's nested mappings if it is a dict
-        if type(value) is dict:
+        if isinstance(value, dict):
             value = clean_types(value)
         # add the clean value to the clean dict
         cleaned_dict[key] = value
@@ -239,7 +238,7 @@ def _pretty_string_factory_string_processor(item_to_print: Any, indent: int, pre
     list[str]
         The list of lines of the pretty string.
     """
-    if type(item_to_print) is dict:
+    if isinstance(item_to_print, dict):
         # the item is a dict
         if not item_to_print:
             # if the dict is empty, add "{}" to the last line
@@ -267,7 +266,7 @@ def _pretty_string_factory_string_processor(item_to_print: Any, indent: int, pre
                 )
             # close the dict
             pretty_string_lines.append(" "*current_indent + "}")
-    elif type(item_to_print) in [list, tuple, set]:
+    elif isinstance(item_to_print, (list, tuple, set)):
         # the item is an "openable" iterable
         if not item_to_print:
             # if the iterable is empty, add it as is to the last line
@@ -329,6 +328,112 @@ def pretty_string_factory(dict_to_print: dict, indent: int = 4) -> str:
     return "\n".join(pretty_string_lines)
 
 
+"""
+Returns a version of the dictionary of a DotDict object where
+its values are converted to DotDict when they are of the "dict" type.
+"""
+# uses DotDict.__getitem__
+def get_view(dotdict: DotDict) -> dict[str, Any]:
+    # get the dict from the dotdict object
+    dict_to_view = dict(dotdict)
+    # if a value is a dict, convert it to the DotDict object
+    for key, value in dict_to_view.items():
+        if isinstance(value, dict):
+            # replace the value with dotdict[key] to let DotDict.__getitem__
+            # handle the DotDict object hidden attributes
+            dict_to_view[key] = dotdict[key]
+    return dict_to_view
+
+
+class DotDictItems:
+    """
+    Provides a dynamic view of the DotDict's items. Works the same way as
+    "dict_items" works, except that the nested dictionaries are viewed as
+    DotDicts objects.
+    """
+
+    def __init__(self, mapping):
+        # prevent direct DotDictItems instance creation
+        raise TypeError(f"cannot create '{self.__class__.__name__}' instances")
+
+
+# inherit from collections.abc.ValueView for the sole purpose of having
+# "issubclass(DotDictValues, ValuesView)"
+# evaluate to True
+class DotDictValues(ValuesView):
+    """
+    Provides a dynamic view of the DotDict's values. Works the same way as
+    "dict_values" works, except that the nested dictionaries are viewed as
+    DotDicts objects.
+    """
+
+    def __new__(cls, _dotdict_hook: DotDict) -> DotDictValues:
+        print("__new__ call")
+        values_view_obj = object.__new__(cls)
+        # store the DotDict object to view the values of in self._dotdict
+        # bypass DotDictValues.__setattr__, which is meant to fail
+        object.__setattr__(values_view_obj, "_dotdict_hook", _dotdict_hook)
+        return values_view_obj
+
+    def __init__(self):
+        print("__init__ call")
+        # prevent direct DotDictValues instance creation
+        raise TypeError(f"cannot create '{self.__class__.__name__}' instances")
+
+    def __iter__(self) -> Iterator:
+        print("__iter__ call")
+        # returns a generator
+        raise NotImplementedError
+
+    def __reversed__(self) -> Iterator:
+        print("__reversed__ call")
+        # returns a generator that returns the values
+        # in the opposite order of insertion
+        raise NotImplementedError
+
+    def __len__(self) -> int:
+        print("__len__ call")
+        return len(self._dotdict_hook)
+
+    def mapping(self) -> MappingProxyType:
+        print("mapping call")
+        # return MappingProxyType(dict())
+        raise NotImplementedError
+
+    def __contains__(self, item: Any, /) -> bool:
+        print("__contains__ call")
+        raise NotImplementedError
+
+    def __repr__(self) -> str:
+        print("__repr__ call")
+        # maybe
+        raise NotImplementedError
+
+    def __str__(self) -> str:
+        print("__str__ call")
+        # maybe
+        raise NotImplementedError
+
+    # def __or__(self):
+    #     raise NotImplementedError
+
+    # def __ror__(self):
+    #     raise NotImplementedError
+
+    def __setattr__(self, name: str, value: Any, /):
+        print("__setattr__ call")
+        raise NotImplementedError
+
+    def __delattr__(self, name: str, /):
+        print("__delattr__ call")
+        raise NotImplementedError
+
+
+# make MappingProxyType return nested dicts as DotDict objects
+# => add a "_view" attribute that holds a copy of DotDict, but with
+# any value converted to DotDict when they are dicts
+
+
 class DotDict(dict):
     """
     This class allows handling dictionaries with the "dot" notation.
@@ -354,6 +459,7 @@ class DotDict(dict):
                  _check: bool = True,
                  _root: Optional[DotDict] = None,
                  _path_to_root: Optional[list[str]] = None,
+                 _verbose: bool = False,
                  **kwargs):
         """
         The instance factory.
@@ -366,8 +472,10 @@ class DotDict(dict):
             The root DotDict object.
         _path_to_root: list[str] | None = None
             The keys that lead to this object from the root object.
+        _verbose: bool = False
+            Print stuff, mostly method calls. For debug purposes.
         """
-        # print("__init__ call")
+        print("__init__ call") if _verbose else ...
         # create a temporary dict from the arguments
         dict_self = dict(*args, **kwargs)
         if _check:
@@ -383,6 +491,8 @@ class DotDict(dict):
         # remember how to get to this DotDict from the root DotDict as a list of attribute names
         # bypass DotDict.__setattr__ to protect the variable from rewrites
         object.__setattr__(self, "_path_to_root", _path_to_root)
+        # for debug purposes
+        object.__setattr__(self, "_verbose", _verbose)
 
     def __getitem__(self, key: str, /) -> Any:
         """
@@ -404,14 +514,14 @@ class DotDict(dict):
         AttributeError
             Raised when the key/attribute does not exist.
         """
-        # print("__getitem__ call")
+        print("__getitem__ call") if self._verbose else ...
         # check if the key exists
         if not (key in self.keys()):
             raise AttributeError(f"No key/attribute '{key}'")
         # get the value from the dictionary
         value = dict.__getitem__(self, key)
         # if the value is a dict, return it as a DotDict object
-        if type(value) is dict:
+        if isinstance(value, dict):
             if self._root is None:
                 # this DotDict is the root
                 root = self
@@ -427,7 +537,8 @@ class DotDict(dict):
                 value,
                 _check=False,
                 _root=root,
-                _path_to_root=path_to_root
+                _path_to_root=path_to_root,
+                _verbose=self._verbose
             )
         else:
             return value
@@ -447,14 +558,14 @@ class DotDict(dict):
         value: Any
             The value of the item to set.
         """
-        # print("__setitem__ call")
+        print("__setitem__ call") if self._verbose else ...
         # check if the key is valid as an attribute name
         check_key(key)
         # if the value is a mapping, convert it to DotDict (clears/cleans it)
         if is_mapping(value):
             value = DotDict(value)
         # if the value is a DotDict, insert it as a dict (already cleared)
-        if type(value) is DotDict:
+        if isinstance(value, DotDict):
             value = dict(value)
         # insert the value to both this object and the root object, if it exists
         dict.__setitem__(self, key, value)
@@ -484,7 +595,7 @@ class DotDict(dict):
         AttributeError
             Raised when the key/attribute does not exist.
         """
-        # print("__delitem__ call")
+        print("__delitem__ call") if self._verbose else ...
         # check if the key exists
         if not (key in self.keys()):
             raise AttributeError(f"No key/attribute '{key}'")
@@ -526,10 +637,10 @@ class DotDict(dict):
         MappingProxyType
             A mapping proxy representing the DotDict object.
         """
-        # print("__dict__ call")
+        print("__dict__ call") if self._verbose else ...
         # return a MappingProxyType to enhance the fact that this isn't
         # the right way to modify attributes of DotDict objects
-        return MappingProxyType(dict(self))
+        return MappingProxyType(self._view)
 
     def __str__(self) -> str:
         """
@@ -540,7 +651,8 @@ class DotDict(dict):
         str
             A string equivalent to the output of "json.dumps(dict(self), indent=4)".
         """
-        # print("__str__ call")
+        print("__str__ call") if self._verbose else ...
+        # maybe send self._view here?
         return pretty_string_factory(dict(self))
 
     def copy(self) -> DotDict:
@@ -553,15 +665,22 @@ class DotDict(dict):
         DotDict
             A shallow copy of this object.
         """
-        # print("copy call")
-        return DotDict(dict(self))
+        print("copy call") if self._verbose else ...
+        # the copy returned must have the same hidden attributes
+        return DotDict(
+            dict(self),
+            _check=False,
+            _root=self._root,
+            _path_to_root=self._path_to_root,
+            _verbose=self._verbose
+        )
 
     def clear(self):
         """
         Empties the DotDict.
         Overriden for consistency with the 'dict.clear' method.
         """
-        # print("clear call")
+        print("clear call") if self._verbose else ...
         # clear this object and the same object in the root object, if it exists
         dict.clear(self)
         if not (self._root is None):
@@ -589,14 +708,15 @@ class DotDict(dict):
         Any
             The value if the key exists, the default value otherwise.
         """
-        # print("get call")
+        print("get call") if self._verbose else ...
         # return the default value if the key doesn't exist
         if not (key in self.keys()):
             return default
-        # return the value otherwise
+        # use "__getitem__" to return the value otherwise
         return self[key]
 
-    def items(self) -> ...:
+    def items(self) -> DotDictItems:
+        # Returns a dynamic view of the items of this DotDict.
         raise NotImplementedError
 
     def pop(self, key: Any, default: Any = None, /) -> Any:
@@ -611,28 +731,49 @@ class DotDict(dict):
     def update(self, *args, **kwargs):
         raise NotImplementedError
 
-    def values(self) -> ...:
-        raise NotImplementedError
+    def values(self) -> DotDictValues:
+        print("values call") if self._verbose else ...
+        # Returns a dynamic view of the values of this DotDict.
+        # values_list = []
+        # for value in dict.values(self):
+        #     values_list.append(value)
+        return DotDictValues(self)
+
+    @property
+    def _view(self) -> dict[str, Any]:
+        """
+        See "get_view" docstring.
+
+        RETURNS
+        -------
+        dict
+            A dict whose nested dicts are DotDicts.
+        """
+        print("_view call") if self._verbose else ...
+        return get_view(self)
 
 
 if __name__ == "__main__":
     # tests
-    test = DotDict()
+    # test = DotDict()
     # print(is_iterable_not_string_like("lol"))
     # print(is_iterable_not_string_like([1,2,3]))
     # print(is_iterable_not_string_like(["lol", "haha"]))
     # print(is_iterable_not_string_like("lol"))
-    print(is_iterable_not_string_like(set()))
-    print(str(set()))
+    # print(is_iterable_not_string_like(set()))
+    # print(str(set()))
 
-    print(_pretty_string_factory_object_processor(("lol", "haha")))
-    print(_pretty_string_factory_object_processor("lol"))
-    print(_pretty_string_factory_object_processor({"lol", "haha"}))
-    print(_pretty_string_factory_object_processor({"0": 1}))
-    print(_pretty_string_factory_object_processor({
-        "a": {
-            "lol": "haha",
-            "abc": "def"
-        },
-        "b": 5
-    }))
+    # print(_pretty_string_factory_object_processor(("lol", "haha")))
+    # print(_pretty_string_factory_object_processor("lol"))
+    # print(_pretty_string_factory_object_processor({"lol", "haha"}))
+    # print(_pretty_string_factory_object_processor({"0": 1}))
+    # print(_pretty_string_factory_object_processor({
+    #     "a": {
+    #         "lol": "haha",
+    #         "abc": "def"
+    #     },
+    #     "b": 5
+    # }))
+
+    test = DotDict({"a": {"b": "c"}})
+    print(repr(test["a"].copy))

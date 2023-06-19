@@ -1,4 +1,6 @@
+from __future__ import annotations
 from functools import reduce
+from typing import Any
 
 
 ########################
@@ -66,16 +68,92 @@ def title_printer(title: str, fill_char: str = "#", print_: bool = True) -> str:
     return title_string
 
 
+##############################
+### named and unnamed args ###
+##############################
+
+# <must not be named> / <can be name or not> * <must be named>
+
+def func_test(unnamed_arg, /, unnamed_arg_2, *, named_arg = 0):
+    pass
+
+
+#################
+### generator ###
+#################
+
+
+###############
+### __new__ ###
+###############
+
+class A:
+
+    def __new__(cls, *args, **kwargs) -> A:
+        print("A __new__ call")
+        print("cls:", cls.__name__)
+        print("object __new__ call")
+        obj = object.__new__(cls, *args, **kwargs)
+        # obj.foo = "bar"
+        return obj
+
+    def __init__(self, *args, **kwargs):
+        print("A __init__ call")
+        print("object __init__ call")
+        object.__init__(self, *args, **kwargs)
+
+    def __setattr__(self, *args, **kwargs) -> None:
+        print("A __setattr__ call")
+        print("object __setattr__ call")
+        object.__setattr__(self, *args, **kwargs)
+
+class B(A):
+
+    def __new__(cls, *args, **kwargs) -> B:
+        print("B __new__ call")
+        print("cls:", cls.__name__)
+        obj = A.__new__(cls, *args, **kwargs)
+        # obj.foo = "bar"
+        return obj
+
+    def __init__(self, *args, **kwargs):
+        print("B __init__ call")
+        A.__init__(self, *args, **kwargs)
+
+    def __setattr__(self, *args, **kwargs) -> None:
+        print("B __setattr__ call")
+        A.__setattr__(self, *args, **kwargs)
+
+
+###########################
+### RegEx UUID detector ###
+###########################
+
+
 if __name__ == "__main__":
 
-    print(_len(["a", "b", "c"]))
-    print(_sum([3,1,2]))
-    print(_any([False, False]))
-    print(_any([False, True]))
-    print(_all([True, True]))
-    print(_all([False, True]))
-    print(_max([1,5,-2]))
-    print(_min([1,5,-2]))
+    # print(_len(["a", "b", "c"]))
+    # print(_sum([3,1,2]))
+    # print(_any([False, False]))
+    # print(_any([False, True]))
+    # print(_all([True, True]))
+    # print(_all([False, True]))
+    # print(_max([1,5,-2]))
+    # print(_min([1,5,-2]))
 
-    title_printer("super awesome title")
-    title_printer("other super awesome title", fill_char="+")
+    title_printer("RegEx UUID detector")
+    # title_printer("generator", fill_char="+")
+
+    # func_test(unnamed_arg=1, unnamed_arg_2=2, named_arg=3)
+    # func_test(1, 2, 3)
+
+    # A()
+    # B()
+    # type({}.values())()
+    # print(object.__new__(A))
+    # print(A.__new__(A))
+    # print(B.__new__(B))
+    # weird stuff:
+    # test = B.__new__(A)
+    # print(type(test))
+    # print(A.__new__(object))
