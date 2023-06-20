@@ -1,7 +1,30 @@
-# possible attributes: text, binary, eol, diff
+# docs: https://git-scm.com/docs/gitattributes
+
+# possible attributes:
+# - "text=auto": let git figure out if the file is a text or binary file (default behavior for all files)
+# - "text": file is text file, end of line should be normalised
+# - "-text": file is not a text file, end of line should not be normalised
+# - "eol=(lf,crlf)": file is text file, but should be checked out with linux (lf) or windows (crlf) line endings
+
+# text files will always be checked in with LF line endings
+
+# paths follow the same rules as .gitignore paths, except:
+# - negative patterns are forbidden
+# - paths are ignored if they lead to directories (every path must lead to files)
+
+
+# default behavior
+*           text=auto
+
+# text
+*.py        text
+*.tex       text
+*.bib       text
+.bash*      eol=lf
+*.sh        eol=lf
 
 # keep .ipynb files with lf endings on windows
-*.ipynb     text eol=lf
-
-# let git guess the rest
-*           text=auto
+# *.ipynb     eol=lf
+# binaries
+*.png       -text
+*.ipynb     -text

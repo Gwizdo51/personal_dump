@@ -1,2 +1,28 @@
-.ipynb_checkpoints
-__pycache__
+# docs: https://git-scm.com/docs/gitignore
+# path name matching: https://man7.org/linux/man-pages/man7/glob.7.html
+
+# all paths are relative from the .gitignore file
+
+# directories and files are matched indiscriminately, add a "/" at the end to specify directories only
+
+# path containing a "/" are matched relative to the .gitignore file path:
+# "foo/bar" points to "./foo/bar/" but not "./a/foo/bar
+# "bar" points to "./bar/", "./bar", "./foo/bar/", and "./foo/bar"
+
+# special characters:
+#     "?" matches any single character except "/"
+#     "*" matches any length of characters except "/" (greedy)
+#     "[...]" matches any single character inside the brackets (cannot be empty)
+#     => ranges: "[a-fA-F0-9]" == "[abcdefABCDEF0123456789]"
+#     => this doesn't work: "[0-9]*" (not RegEx)
+#     "**":
+#         "**" matches anything ("**/" matches any directory)
+#         "**/foo" matches anything named "foo" (default behavior, equivalent to "foo")
+#         "**/foo/bar" matches anything named "bar" belonging to a directory named "foo"
+#         "foo/**" matches anything in the directory "foo/"
+#         "foo/**/bar" matches anything named "bar" in the directory "foo/"
+#     add "!" at the start of the pattern to reinclude patterns that have been previously excluded
+#     "\" escapes special characters in the pattern
+
+.ipynb_checkpoints/
+__pycache__/
