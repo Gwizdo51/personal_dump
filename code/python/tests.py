@@ -152,6 +152,49 @@ def is_instance(obj_or_type: Union[Any, Type[object]]) -> bool:
     return not is_type(obj_or_type)
 
 
+#################
+### metaclass ###
+#################
+
+# dynamic class creation
+def choose_class(name):
+    if name == 'foo':
+        class Foo:
+            pass
+        return Foo # return the class, not an instance
+    elif name == "bar":
+        class Bar:
+            pass
+        return Bar
+    else:
+        print("not found")
+
+# type(name, bases, attrs) class creation
+class ParentClass:
+    parent_attribute = False
+def my_class_method(self: MyClass) -> Any:
+    print(self.key)
+name = "MyClass"
+bases = (ParentClass,)
+attrs = {
+    "key": "value",
+    "my_class_method": my_class_method
+}
+MyClass = type(name, bases, attrs)
+
+# metaclasses are class factories => can be any callable that returns a class
+def my_metaclass(future_class_name, future_class_parents, future_class_attrs: dict):
+    # pick up any attribute that doesn't start with '__' and uppercase it
+    uppercase_attrs = {attr if attr.startswith("__") else attr.upper(): v for attr, v in future_class_attrs.items()}
+    # let `type` do the class creation
+    my_metaclass_return = type(future_class_name, future_class_parents, uppercase_attrs)
+    return my_metaclass_return
+# __metaclass__ = my_metaclass
+class MyClassInstance(metaclass=my_metaclass):
+    # __metaclass__ = my_metaclass
+    bar = 'bip'
+
+
 if __name__ == "__main__":
     pass
 
@@ -166,7 +209,7 @@ if __name__ == "__main__":
     # print(_min([1,5,-2]))
 
     # # title_printer
-    # title_printer("is instance or class")
+    # title_printer("metaclass")
     # title_printer("generator", fill_char="+")
 
     # # named and unnamed args
@@ -213,53 +256,82 @@ if __name__ == "__main__":
     # print(is_type(list))
     # print(is_instance(type))
 
+    # # __dict__ behavior
+    # class Test:
+    #     pass
+    # print("test = Test()")
+    # test = Test()
+    # print(test)
+    # print()
+    # print("Test.__mro__ (Method Resolution Order)")
+    # print(Test.__mro__)
+    # print(type(Test.__mro__))
+    # print()
+    # print("Test.__dict__")
+    # print(Test.__dict__)
+    # print(type(Test.__dict__))
+    # print()
+    # print('test.a = "lol"')
+    # test.a = "lol"
+    # print(test.a)
+    # print()
+    # print('object.__setattr__(test, "b", "kekw")')
+    # object.__setattr__(test, "b", "kekw")
+    # print(test.b)
+    # print()
+    # print("test.__dict__")
+    # print(test.__dict__)
+    # print(type(test.__dict__))
+    # print()
+    # print("vars(test)")
+    # print(vars(test))
+    # print(type(vars(test)))
+    # print()
+    # print("setting to __dict__ and vars")
+    # test.__dict__["c"] = "thing"
+    # vars(test)["d"] = [1,2,3]
+    # print(test.c)
+    # print(test.d)
+    # print()
+    # print("setting to a pointer of __dict__ and vars")
+    # dict_pointer = test.__dict__
+    # dict_pointer["e"] = "maybe"
+    # print(test.e)
+    # vars_pointer = vars(test)
+    # vars_pointer["f"] = "it works"
+    # print(test.f)
+
+    # metaclass
+    for name in ["foo", "bar"]:
+        print(name, "class:")
+        class_returned = choose_class(name)
+        print(class_returned)
+    obj = MyClass()
+    print(obj)
+    print(MyClass.key)
+    print(MyClass.my_class_method)
+    obj.my_class_method()
+    # Parent classes
+    print(obj.parent_attribute)
+    # all objects metaclass
+    print(obj.__class__.__class__)
+    print(object.__class__)
+    # type class is type
+    print(object.__class__.__class__)
+    obj = MyClassInstance()
+    print(obj)
+    # print(obj.bar)
+    print(obj.BAR)
+    print(MyClassInstance)
+    print(MyClassInstance.__mro__)
+    print(MyClassInstance.__class__)
+
+    ############
+    ### DUMP ###
+    ############
+
     # print(type(locals())
     # locals_1 = locals().copy()
     # for key in locals_1:
     #     if not ("__" in key):
     #         print(key)
-
-    # __dict__ behavior
-    class Test:
-        pass
-    print("test = Test()")
-    test = Test()
-    print(test)
-    print()
-    print("Test.__mro__ (Method Resolution Order)")
-    print(Test.__mro__)
-    print(type(Test.__mro__))
-    print()
-    print("Test.__dict__")
-    print(Test.__dict__)
-    print(type(Test.__dict__))
-    print()
-    print('test.a = "lol"')
-    test.a = "lol"
-    print(test.a)
-    print()
-    print('object.__setattr__(test, "b", "kekw")')
-    object.__setattr__(test, "b", "kekw")
-    print(test.b)
-    print()
-    print("test.__dict__")
-    print(test.__dict__)
-    print(type(test.__dict__))
-    print()
-    print("vars(test)")
-    print(vars(test))
-    print(type(vars(test)))
-    print()
-    print("setting to __dict__ and vars")
-    test.__dict__["c"] = "thing"
-    vars(test)["d"] = [1,2,3]
-    print(test.c)
-    print(test.d)
-    print()
-    print("setting to a pointer of __dict__ and vars")
-    dict_pointer = test.__dict__
-    dict_pointer["e"] = "maybe"
-    print(test.e)
-    vars_pointer = vars(test)
-    vars_pointer["f"] = "it works"
-    print(test.f)
