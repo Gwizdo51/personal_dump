@@ -24,5 +24,9 @@
 #     add "!" at the start of the pattern to reinclude patterns that have been previously excluded
 #     "\" escapes special characters in the pattern
 
+# generic
 .ipynb_checkpoints/
 __pycache__/
+
+# specific
+code/python/tests_dir/

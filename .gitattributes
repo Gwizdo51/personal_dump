@@ -20,11 +20,11 @@
 *.py        text
 *.tex       text
 *.bib       text
+# keep bash files with lf line endings on Windows
 .bash*      eol=lf
 *.sh        eol=lf
 
-# keep .ipynb files with lf endings on windows
-# *.ipynb     eol=lf
 # binaries
 *.png       -text
+# keep .ipynb files with lf line endings on windows
 *.ipynb     -text

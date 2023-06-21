@@ -8,7 +8,7 @@ A random clutter of stuff I should remember.
 - [x] add .gitattribute file
 - [x] debug deleting nested items for DotDict
 - [x] add docstrings to DotDict => make custom docstring template
-- [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
+- [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior - **WIP**
 - [ ] make every DotDict dict method consistent with the dict class - **WIP**
 - [ ] add unit tests for DotDict
 - [ ] store touch.py logic in a function
