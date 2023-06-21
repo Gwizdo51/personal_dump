@@ -11,7 +11,7 @@ A random clutter of stuff I should remember.
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior - **WIP**
 - [ ] make every DotDict dict method consistent with the dict class - **WIP**
 - [ ] add unit tests for DotDict
-- [ ] store touch.py logic in a function
+- [x] store touch.py logic in a function
 - [ ] make pretty_string_factory a module on its own
 
 # Ideas
