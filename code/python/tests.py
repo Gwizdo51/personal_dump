@@ -153,6 +153,7 @@ def is_instance(obj_or_type: Union[Any, Type[object]]) -> bool:
 
 
 if __name__ == "__main__":
+    pass
 
     # # functools.reduce
     # print(_len(["a", "b", "c"]))
@@ -187,9 +188,9 @@ if __name__ == "__main__":
     #     print(item)
     # print()
     # print(type(test_generator).__mro__)
-    gen = infinite_sequence()
-    while True:
-        print(next(gen), end=" ")
+    # gen = infinite_sequence()
+    # while True:
+    #     print(next(gen), end=" ")
 
     # # __new__
     # A()
@@ -211,3 +212,54 @@ if __name__ == "__main__":
     # print(is_instance(list))
     # print(is_type(list))
     # print(is_instance(type))
+
+    # print(type(locals())
+    # locals_1 = locals().copy()
+    # for key in locals_1:
+    #     if not ("__" in key):
+    #         print(key)
+
+    # __dict__ behavior
+    class Test:
+        pass
+    print("test = Test()")
+    test = Test()
+    print(test)
+    print()
+    print("Test.__mro__ (Method Resolution Order)")
+    print(Test.__mro__)
+    print(type(Test.__mro__))
+    print()
+    print("Test.__dict__")
+    print(Test.__dict__)
+    print(type(Test.__dict__))
+    print()
+    print('test.a = "lol"')
+    test.a = "lol"
+    print(test.a)
+    print()
+    print('object.__setattr__(test, "b", "kekw")')
+    object.__setattr__(test, "b", "kekw")
+    print(test.b)
+    print()
+    print("test.__dict__")
+    print(test.__dict__)
+    print(type(test.__dict__))
+    print()
+    print("vars(test)")
+    print(vars(test))
+    print(type(vars(test)))
+    print()
+    print("setting to __dict__ and vars")
+    test.__dict__["c"] = "thing"
+    vars(test)["d"] = [1,2,3]
+    print(test.c)
+    print(test.d)
+    print()
+    print("setting to a pointer of __dict__ and vars")
+    dict_pointer = test.__dict__
+    dict_pointer["e"] = "maybe"
+    print(test.e)
+    vars_pointer = vars(test)
+    vars_pointer["f"] = "it works"
+    print(test.f)
