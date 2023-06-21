@@ -38,7 +38,7 @@ def touch(path_file_to_create: Union[str, Path], verbose: bool = True):
 
 if __name__ == "__main__":
 
-    # do not print the full exceptions traceback
+    # do not print the full exceptions tracebacks
     sys.tracebacklimit = 0
 
     parser = argparse.ArgumentParser(
