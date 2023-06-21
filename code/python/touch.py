@@ -9,6 +9,21 @@ from typing import Union
 
 
 def touch(path_file_to_create: Union[str, Path], verbose: bool = True):
+    """
+    Creates empty text files.
+
+    PARAMETERS
+    ----------
+    path_file_to_create: str | Path
+        The path to the file to create.
+    verbose: bool = True
+        Whether to print on success.
+
+    RAISES
+    ------
+    FileExistsError
+        If the path leads to something.
+    """
     # get the full path of file_path
     file_path = Path(path_file_to_create).resolve()
     # check if the destination does not exist already
@@ -23,12 +38,12 @@ def touch(path_file_to_create: Union[str, Path], verbose: bool = True):
 
 if __name__ == "__main__":
 
-    # do not print the full exception traceback
+    # do not print the full exceptions traceback
     sys.tracebacklimit = 0
 
     parser = argparse.ArgumentParser(
         prog="touch",
-        description="Creates empty files, UNIX-style",
+        description="Creates empty files, UNIX-style"
     )
 
     # files_paths is a list that defaults empty
@@ -36,26 +51,19 @@ if __name__ == "__main__":
         "files_paths",
         metavar="PATH",
         help="The paths to the empty files to create",
-        nargs="*",
-        # type=Path
-        # type=repr
+        nargs="*"
     )
     parser.add_argument(
         "-v",
         "--verbose",
         metavar="VERBOSE_LEVEL",
-        help="",
+        help="0: all prints | 1: only errors | 2: no prints (default: 0)",
         type=int,
-        default=0,
-        choices=[0, 1, 2]
+        choices=[0, 1, 2],
+        default=0
     )
-    # verbose level:
-    # 0 = print on success and failure
-    # 1 = print only on failure
-    # 2 = no prints
 
     args = parser.parse_args()
-    # print(args)
 
     # return the help and exit if files_paths is empty
     if not args.files_paths:
@@ -65,7 +73,7 @@ if __name__ == "__main__":
     # create a verbose bool for touch
     touch_verbose = not bool(args.verbose)
     for file_path in args.files_paths:
-        # print any exception raised by touch
+        # call touch, print any exception raised
         try:
             touch(file_path, touch_verbose)
         except Exception as e:
