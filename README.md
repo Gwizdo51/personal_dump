@@ -7,9 +7,11 @@ A random clutter of stuff I should remember.
 
 - [x] add .gitattribute file
 - [x] debug deleting nested items for DotDict
+- [x] add docstrings to DotDict => make custom docstring template
+- [ ] make DotDict.__dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class - **WIP**
 - [ ] add unit tests for DotDict
-- [x] add docstrings to DotDict => make custom docstring template
+- [ ] store touch.py logic in a function
 - [ ] make pretty_string_factory a module on its own
 
 # Ideas
