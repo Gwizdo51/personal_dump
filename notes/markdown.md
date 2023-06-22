@@ -1,4 +1,5 @@
 <!-- good cheatsheet: https://www.markdownguide.org/cheat-sheet/ -->
+<!-- list of github emojis https://gist.github.com/rxaviers/7360908 -->
 
 <!-- Headings -->
 
@@ -21,3 +22,6 @@ Less big title too
 ###### Even smaller title
 
 <!-- ####### not a title -->
+
+<!-- ruler -->
+---

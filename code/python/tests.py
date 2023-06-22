@@ -195,6 +195,11 @@ class MyClassInstance(metaclass=my_metaclass):
     bar = 'bip'
 
 
+##################
+### decorators ###
+##################
+
+
 if __name__ == "__main__":
     pass
 
@@ -209,7 +214,7 @@ if __name__ == "__main__":
     # print(_min([1,5,-2]))
 
     # # title_printer
-    # title_printer("metaclass")
+    # title_printer("decorators")
     # title_printer("generator", fill_char="+")
 
     # # named and unnamed args
@@ -301,30 +306,30 @@ if __name__ == "__main__":
     # vars_pointer["f"] = "it works"
     # print(test.f)
 
-    # metaclass
-    for name in ["foo", "bar"]:
-        print(name, "class:")
-        class_returned = choose_class(name)
-        print(class_returned)
-    obj = MyClass()
-    print(obj)
-    print(MyClass.key)
-    print(MyClass.my_class_method)
-    obj.my_class_method()
-    # Parent classes
-    print(obj.parent_attribute)
-    # all objects metaclass
-    print(obj.__class__.__class__)
-    print(object.__class__)
-    # type class is type
-    print(object.__class__.__class__)
-    obj = MyClassInstance()
-    print(obj)
-    # print(obj.bar)
-    print(obj.BAR)
-    print(MyClassInstance)
-    print(MyClassInstance.__mro__)
-    print(MyClassInstance.__class__)
+    # # metaclass
+    # for name in ["foo", "bar"]:
+    #     print(name, "class:")
+    #     class_returned = choose_class(name)
+    #     print(class_returned)
+    # obj = MyClass()
+    # print(obj)
+    # print(MyClass.key)
+    # print(MyClass.my_class_method)
+    # obj.my_class_method()
+    # # Parent classes
+    # print(obj.parent_attribute)
+    # # all objects metaclass
+    # print(obj.__class__.__class__)
+    # print(object.__class__)
+    # # type class is type
+    # print(object.__class__.__class__)
+    # obj = MyClassInstance()
+    # print(obj)
+    # # print(obj.bar)
+    # print(obj.BAR)
+    # print(MyClassInstance)
+    # print(MyClassInstance.__mro__)
+    # print(MyClassInstance.__class__)
 
     ############
     ### DUMP ###
