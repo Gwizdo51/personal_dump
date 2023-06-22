@@ -13,6 +13,7 @@ A random clutter of stuff I should remember.
 - [ ] add unit tests for DotDict
 - [x] store touch.py logic in a function
 - [ ] make pretty_string_factory a module on its own
+- [ ] make pretty prompt with powershell 7
 
 # Ideas
 

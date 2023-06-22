@@ -8,3 +8,9 @@ Scancode Map
 0008    02 00 00 00 00 00 52 E0
 0010    00 00 00 00
 => reboot
+
+show the LNK file extension (windows shortcuts):
+https://www.minitool.com/lib/lnk-file.html
+regedit
+=> HKEY_CLASSES_ROOT\lnkfile
+=> delete "NeverShowExt" attribute (string value, no value data)
