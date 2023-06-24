@@ -49,7 +49,7 @@ if __name__ == "__main__":
         description="Creates empty files, UNIX-style"
     )
 
-    # files_paths is a list that defaults empty
+    # args.files_paths is a list that defaults empty
     parser.add_argument(
         "files_paths",
         metavar="PATH",

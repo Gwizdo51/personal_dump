@@ -66,7 +66,7 @@ if (-not $(Test-Path "Variable:esc")) {
 }
 function git_branch_name {
     # look for possible branch name, silence git "not in git repo" error
-    $branch = $(git rev-parse --abbrev-ref HEAD 2> $null)
+    $branch = $(& "C:\Program Files\Git\cmd\git.exe" rev-parse --abbrev-ref HEAD 2> $null)
     if ($branch) {
         # we're in a git repo
         if ($branch -eq 'HEAD') {
@@ -74,7 +74,7 @@ function git_branch_name {
             # $branch = git rev-parse --short HEAD
             # Write-Host " ($branch)" -ForegroundColor "red"
             # $prompt_str = " ($branch)" -ForegroundColor "red"
-            "$($col_Red)($(git rev-parse --short HEAD))"
+            "$($col_Red)($(& "C:\Program Files\Git\cmd\git.exe" rev-parse --short HEAD))"
         }
         else {
             # we're on an actual branch, so print it
@@ -84,6 +84,7 @@ function git_branch_name {
         }
     }
     # if we're not in a git repo, don't return anything
+    # needs a unix-style flags parsing
 }
 function cd_alias {
     param([string]$path)
@@ -101,17 +102,17 @@ function cd_alias {
 }
 # override "cd" alias with cd_alias
 New-Item -Path Alias:cd -Value cd_alias -Force > $null
+# save git function
+# New-Item -Path Alias:git_backup -Value git # -Force > $null
 function git_alias {
-    $str_args = ""
-    foreach ($item in $args) {$str_args += [string]$item}
-    $str_args
-    # $list_args = @("1","2","3","4","5")
-    # $result_str = ""
-    # foreach ($item in $list_args) {$result_str += $item}
-    # return $result_str
+    # Write-Host 'Calling git with args:' $args
+    . "C:\Program Files\Git\cmd\git.exe" $args
+    # Write-Host 'Success'
+    # udpate the prompt branch name
+    cd_alias .
 }
 # override "git" alias with git_alias
-# New-Item -Path Alias:git -Value git_alias -Force > $null
+New-Item -Path Alias:git -Value git_alias -Force > $null
 # <#
 function prompt {
     ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT /!\ ###
@@ -183,6 +184,7 @@ function print_path {echo "${Env:path}".replace(";", "`n")}
 
 $code = "D:\Code\"
 $horoview = "${code}\projects\01_horoview\"
+$dump = "${code}\personal_dump\"
 
 # <#
 #region conda initialize
@@ -194,7 +196,7 @@ If (Test-Path "D:\Programs\anaconda3\Scripts\conda.exe") {
 # #>
 
 
-
+# show prompt code:
 # Write-Host (Get-Command prompt).ScriptBlock
 ###############################################################################################
 # tests

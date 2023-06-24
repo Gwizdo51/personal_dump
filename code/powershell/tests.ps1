@@ -422,3 +422,23 @@ Test-Path -Path "D:\does\not\exist.txt" -IsValid
 Test-Path -Path "G:\does\not\exist.txt" -IsValid
 
 # try - catch - finally:
+
+# flags parser:
+# no need, receives flags as regular arguments
+function flags_parser {
+    foreach ($arg in $args) {
+        Write-Host
+        Write-Host 'new arg to process:'
+        Write-Host $arg
+        # convert $arg as a char array
+        # $arg_as_char_array = [char[]][string]$arg
+        # Write-Host $arg_as_char_array
+        # $arg_type = $arg_as_char_array.GetType()
+        # Write-Host $arg_type
+        # # '-'
+        # $dash_char = [char]45
+        # if ($char -eq $dash_char)
+        # foreach ($char in $arg)
+        # [char[]]'test'
+    }
+}

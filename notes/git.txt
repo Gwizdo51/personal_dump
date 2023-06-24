@@ -5,7 +5,7 @@ dépôt git (repository) :
 structure qui contient un ensemble de fichiers, et qui contient l'historique de son contenu. (versionning)
 
 enregistrement des modifications que j'ai effectué :
-commit => sauvegarde de mon projet à l'instant T 
+commit => sauvegarde de mon projet à l'instant T
        => différentes versions du projet
 
 SSH PASSPHRASE :
@@ -24,7 +24,7 @@ git add <path/to/file>
 pour tout ajouter :
 git add *
 
-pour enlever un fichier du commit (stop tracking a file/unstage a file) :
+to stop tracking a file/unstage a file :
 git rm --cached <nom_fichier>
 
 enregistrer les changements dans la branche actuelle :
@@ -95,3 +95,13 @@ enregristrer les changements sans faire de commit :
 git stash
 récupérer les changements :
 git stash pop
+
+git diff: (the stage is considered a commit for git diff)
+- git diff
+shows the diff between the modified files (not staged) and the latest commit (HEAD)
+- git diff --staged
+shows the diff between the stage and the latest commit (HEAD)
+- git diff origin/HEAD
+shows the diff between my branch and the online branch (all files, all commits)
+- git diff --cached origin/HEAD
+shows the diff between the commits of HEAD (stage included) and the online branch (all files, all commits)

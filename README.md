@@ -11,12 +11,12 @@ A random clutter of stuff I should remember.
 - [x] add docstrings to DotDict => make custom docstring template
 - [x] store touch.py logic in a function
 - [x] make a pretty PowerShell prompt (system)
+- [x] debug PowerShell prompt git-branch part (branch name not updating)
 
 ### *WIP*
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
 - [ ] add a unix-style flag parser
-- [ ] debug PowerShell prompt git-branch part (branch name not updating)
 - [ ] make a pretty PowerShell prompt (7)
 - [ ] convert custom functions into aliases
 
