@@ -17,12 +17,12 @@ A random clutter of stuff I should remember.
 - [ ] make every DotDict dict method consistent with the dict class
 - [ ] debug PowerShell prompt git-branch part (branch name not updating)
 - [ ] make a pretty PowerShell prompt (7)
-- [ ] transform functions into aliases
+- [ ] convert custom functions into aliases
 
 ### *TODO*
 - [ ] make pretty_string_factory a module on its own
-- [ ] add a docstring to logger_factory and touch
-- [ ] add unit tests for DotDict
+- [ ] add a docstring to logger_factory.py and touch.py
+- [ ] add unit tests for dotdict.py
 - [ ] add markdown notes
 - [ ] add django notes
 
