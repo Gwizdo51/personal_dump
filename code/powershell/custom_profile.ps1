@@ -1,25 +1,27 @@
-Write-Output "loading subprofile (profile.ps1) ..."
+Write-Host "Loading profile (custom_profile.ps1) ..."
+# Write-Host "$($home)"
 
 # <#
 #region conda initialize
 # !! Contents within this block are managed by 'conda init' !!
-If (Test-Path "D:\Programs\anaconda3\Scripts\conda.exe") {
-    (& "D:\Programs\anaconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
+If (Test-Path "$($home)\anaconda3\Scripts\conda.exe") {
+    (& "$($home)\anaconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
 }
 #endregion
 # #>
 
 # prompt setup
-Write-Output "setup prompt ..."
-conda activate base
+# Write-Output "setup prompt ..."
+# conda activate base
 # conda venv: "$Env:CONDA_PROMPT_MODIFIER"
 # function conda_venv_name {
 #     if ($Env:CONDA_PROMPT_MODIFIER) {"$($Env:CONDA_PROMPT_MODIFIER)`n"}
 #     # if ($Env:CONDA_PROMPT_MODIFIER) {"$($Env:CONDA_PROMPT_MODIFIER)"}
 # }
 # some colors
-# "ESC" character
-if (-not $(Test-Path "Variable:esc")) { # don't create the color variables if they already exist
+if (-not $(Test-Path "Variable:esc")) {
+    # set up the color variables
+    # "ESC" character
     $esc = [char]27
     function color_char_gen {
         param ([int]$char_number)
@@ -55,13 +57,9 @@ if (-not $(Test-Path "Variable:esc")) { # don't create the color variables if th
     foreach ($color_name in $color_name_array) {
         $reg_col_var_name = "col_$color_name"
         $reg_col_var_value = color_char_gen $i
-        # if (-not $(Test-Path "Variable:$($reg_col_var_name)"))
-        #     {New-Variable -Name $reg_col_var_name -Value $reg_col_var_value}
         New-Variable -Name $reg_col_var_name -Value $reg_col_var_value
         $bri_col_var_name = "bcol_$color_name"
         $bri_col_var_value = color_char_gen $($i + 60)
-        # if (-not $(Test-Path "Variable:$($bri_col_var_name)"))
-        #     {New-Variable -Name $bri_col_var_name -Value $bri_col_var_value}
         New-Variable -Name $bri_col_var_name -Value $bri_col_var_value
         ++$i
     }
@@ -92,7 +90,7 @@ function cd_alias {
     Set-Location -path $path -passthru > $null
     if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
         # we are in a FileSystem drive, safe to look for git branches
-        $Env:git_ps_prompt_str = "$(git_branch_name)"
+        $Env:git_ps_prompt_str = $(git_branch_name)
     }
     else {
         # we are not in a FileSystem drive, clear $Env:git_ps_prompt_str
@@ -178,6 +176,8 @@ function touch {python "D:\code\personal_dump\code\python\touch.py" $args}
 #         ...
 #     )
 # }
+# add a "lr" alias with get-childitem
+function conda_update {conda update conda -n base -c defaults}
 
 function print_path {echo "${Env:path}".replace(";", "`n")}
 

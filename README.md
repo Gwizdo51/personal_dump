@@ -25,6 +25,7 @@ A random clutter of stuff I should remember.
 - [ ] add unit tests for dotdict.py
 - [ ] add markdown notes
 - [ ] add django notes
+- [ ] reinstall OS at some point (never update conda on base with conda-forge, btw)
 
 # Ideas
 
@@ -39,3 +40,5 @@ A random clutter of stuff I should remember.
 *powershell profile*
 - add notepad alias "np" ?
 - touch alias with New-Item ?
+- add "send to trash" function ? => override "rm" alias
+- update conda alias ?
