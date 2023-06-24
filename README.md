@@ -15,6 +15,7 @@ A random clutter of stuff I should remember.
 ### *WIP*
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
+- [ ] add a unix-style flag parser
 - [ ] debug PowerShell prompt git-branch part (branch name not updating)
 - [ ] make a pretty PowerShell prompt (7)
 - [ ] convert custom functions into aliases
