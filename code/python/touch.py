@@ -8,35 +8,38 @@ import sys
 from typing import Union
 
 
-def touch(path_file_to_create: Union[str, Path], verbose: bool = True):
+def touch(path_file_to_touch: Union[str, Path], verbose: bool = True) -> bool:
     """
-    Creates empty text files.
+    Touch a file. Update the file "last modified" date if it exists,
+    create it if it doesn't exist.
 
     PARAMETERS
     ----------
-    path_file_to_create: str | Path
+    path_file_to_touch: str | Path
         The path to the file to create.
     verbose: bool = True
         Whether to print on success.
 
-    RAISES
-    ------
-    FileExistsError
-        If the path leads to something.
+    RETURNS
+    -------
+    bool
+        Whether the file existed before being touched.
     """
-    # get the full path of file_path
-    file_path = Path(path_file_to_create).resolve()
-    # check if the destination does not exist already
-    if file_path.exists():
-        raise FileExistsError(f"{str(file_path)} already exists")
-    # create the empty file
-    with open(file_path, "w"):
+    # get the absolute path of path_file_to_touch
+    file_path = Path(path_file_to_touch).resolve()
+    file_existed = file_path.exists()
+    # touch the file
+    with open(file_path, "ab"):
         pass
-    # print the file path on success
+    # print the file absolute path on success
     print(file_path) if verbose else ...
+    return file_existed
 
 
 if __name__ == "__main__":
+
+    # print(touch(r"D:\code\personal_dump\code\python\tests_dir\a.txt"))
+    # sys.exit()
 
     # do not print the full exceptions tracebacks
     sys.tracebacklimit = 0
