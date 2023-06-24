@@ -20,7 +20,6 @@ A random clutter of stuff I should remember.
 - [ ] transform functions into aliases
 
 *TODO*
-- [ ]
 - [ ] make pretty_string_factory a module on its own
 - [ ] add a docstring to logger_factory and touch
 - [ ] add unit tests for DotDict
