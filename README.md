@@ -5,21 +5,21 @@ A random clutter of stuff I should remember.
 
 # TODO
 
-*DONE*
+### *Done*
 - [x] add .gitattribute file
 - [x] debug deleting nested items for DotDict
 - [x] add docstrings to DotDict => make custom docstring template
 - [x] store touch.py logic in a function
 - [x] make a pretty PowerShell prompt (system)
 
-*WIP*
+### *WIP*
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
 - [ ] debug PowerShell prompt git-branch part (branch name not updating)
 - [ ] make a pretty PowerShell prompt (7)
 - [ ] transform functions into aliases
 
-*TODO*
+### *TODO*
 - [ ] make pretty_string_factory a module on its own
 - [ ] add a docstring to logger_factory and touch
 - [ ] add unit tests for DotDict
@@ -28,14 +28,14 @@ A random clutter of stuff I should remember.
 
 # Ideas
 
-**DotDict**
+*DotDict*
 - add MappingProxyType support to DotDict ?
 - make DotDict work with any type of key (convert keys to strings) ?
 - make a script that returns whether a string can be used at all as a class attribute name ?
 
-**pretty_string_factory**
+*pretty_string_factory*
 - make pretty_string_factory print the class name when it is not a builtin type ?
 
-**powershell profile**
+*powershell profile*
 - add notepad alias "np" ?
 - touch alias with New-Item ?
