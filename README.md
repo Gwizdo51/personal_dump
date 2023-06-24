@@ -23,6 +23,7 @@ A random clutter of stuff I should remember.
 **DotDict**
 - add MappingProxyType support to DotDict ?
 - make DotDict work with any type of key (convert keys to strings) ?
+- make a script that returns whether a string can be used at all as a class attribute name ?
 
 **pretty_string_factory**
 - make pretty_string_factory print the class name when it is not a builtin type ?
