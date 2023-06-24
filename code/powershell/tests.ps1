@@ -64,15 +64,18 @@ Write-Host("$((10).GetType())")
 # Write-Host("$($true.GetType() | Out-String)")
 
 # convert types:
-[char]"a"
-[string][char]"a"
-[bool]10
+[char] "a"
+[string] [char] "a"
+[bool] 10
 
 # assign value to variable, delete variable:
 Write-Host ''
 Write-Host 'variables:'
 $myvar = 10
-Write-Host(!!$myvar)
+# does the variable exist
+Write-Host $(!!$myvar)
+Write-Host $(Test-Path 'Variable:myvar')
+# Test-Path
 # Remove-Variable
 $myvar = $null
 # colored print
@@ -122,13 +125,13 @@ function pos_named{
     Write-Host $args
     Write-Host $file_name
 }
-Write-Host ""
+# Write-Host ""
 pos_named
-Write-Host ""
+# Write-Host ""
 pos_named -verbose
-Write-Host ""
+# Write-Host ""
 pos_named a b c -verbose
-Write-Host ""
+# Write-Host ""
 pos_named a b c -file_name kekw -verbose
 
 # "or" comparison
@@ -296,30 +299,20 @@ Write-Host "$($bcol_Cyan)This text is in Cyan$($col_def)"
 # $($bcol_Green)$($executionContext.SessionState.Path.CurrentLocation) $($col_Blue)(main)
 # $($col_def)PS >
 # "@$
-$fake_prompt_1 = "$($bcol_Cyan)(workenv)`n$($col_def)PS $($bcol_Green)$($executionContext.SessionState.Path.CurrentLocation) $($bcol_Blue)(main)`n$($col_def)> echo hello world"
-$fake_prompt_2 = "$($bcol_Cyan)(workenv)`n$($bcol_Green)$($executionContext.SessionState.Path.CurrentLocation) $($bcol_Blue)(main)`n$($col_Yellow)PS$($col_def)> echo hello world"
-$fake_prompt_3 = "$($bcol_Cyan)(workenv) $($bcol_Green)$($executionContext.SessionState.Path.CurrentLocation) $($bcol_Blue)(main)`n$($col_Yellow)PS$($col_def)> echo hello world"
-$fake_prompt_4 = "$($bcol_Cyan)(workenv)`n$($bcol_Green)$($executionContext.SessionState.Path.CurrentLocation) $($col_Red)(123abcd)`n$($col_Yellow)PS$($col_def)> echo hello world"
+# $fake_prompt_1 = "$($bcol_Cyan)(workenv)`n$($col_def)PS $($bcol_Green)$($executionContext.SessionState.Path.CurrentLocation) $($bcol_Blue)(main)`n$($col_def)> echo hello world"
+# $fake_prompt_2 = "$($bcol_Cyan)(workenv)`n$($bcol_Green)$($executionContext.SessionState.Path.CurrentLocation) $($bcol_Blue)(main)`n$($col_Yellow)PS$($col_def)> echo hello world"
+# $fake_prompt_3 = "$($bcol_Cyan)(workenv) $($bcol_Green)$($executionContext.SessionState.Path.CurrentLocation) $($bcol_Blue)(main)`n$($col_Yellow)PS$($col_def)> echo hello world"
+# $fake_prompt_4 = "$($bcol_Cyan)(workenv)`n$($bcol_Green)$($executionContext.SessionState.Path.CurrentLocation) $($col_Red)(123abcd)`n$($col_Yellow)PS$($col_def)> echo hello world"
+$fake_prompt_1 = "$($bcol_Cyan)(fakeenv)`n$($bcol_Green)A:\fake\place $($bcol_Blue)(git_branch)`n$($col_Yellow)PS$($col_def)> echo hello world"
+$fake_prompt_2 = "$($bcol_Cyan)(fakeenv)`n$($bcol_Green)A:\fake\place`n$($col_Yellow)PS$($col_def)> echo hello world"
+$fake_prompt_3 = "$($bcol_Green)A:\fake\place $($col_Red)(git_hash)`n$($col_Yellow)PS$($col_def)> echo hello world"
+$fake_prompt_4 = "$($bcol_Green)A:\fake\place`n$($col_Yellow)PS$($col_def)> echo hello world"
 Write-Host 'Prompt test:'
-# Write-Host ''
-# Write-Host $fake_prompt_1
-# Write-Host $fake_prompt_1
-# Write-Host $fake_prompt_1
-# Write-Host $fake_prompt_1
-# Write-Host $fake_prompt_1
 Write-Host ''
+Write-Host $fake_prompt_1
 Write-Host $fake_prompt_2
-Write-Host $fake_prompt_2
-Write-Host $fake_prompt_2
-Write-Host $fake_prompt_2
-Write-Host $fake_prompt_2
-Write-Host ''
+Write-Host $fake_prompt_3
 Write-Host $fake_prompt_4
-Write-Host $fake_prompt_4
-Write-Host $fake_prompt_4
-Write-Host $fake_prompt_4
-Write-Host $fake_prompt_4
-Write-Host ''
 # Write-Host $fake_prompt_4
 # new prompt validated => $fake_prompt_2
 
@@ -422,3 +415,10 @@ foreach ($item in $test) {
 # $test[0]
 # $test[0].provider
 # $test[0].provider.name
+
+# test if path is valid:
+Test-Path -Path "D:\does\not\exist.txt" -IsValid
+# the drive needs to exist
+Test-Path -Path "G:\does\not\exist.txt" -IsValid
+
+# try - catch - finally:
