@@ -12,12 +12,13 @@ A random clutter of stuff I should remember.
 - [x] store touch.py logic in a function
 - [x] make a pretty PowerShell prompt (system)
 - [x] debug PowerShell prompt git-branch part (branch name not updating)
+- [x] add "send to trash" function ? => override "rm" alias
+- [x] make a pretty PowerShell prompt (7)
 
 ### *WIP*
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
-- [ ] make a pretty PowerShell prompt (7)
-- [ ] convert custom functions into aliases
+- [ ] convert custom PS functions into aliases
 
 ### *TODO*
 - [ ] make pretty_string_factory a module on its own
@@ -40,5 +41,4 @@ A random clutter of stuff I should remember.
 *powershell profile*
 - add notepad alias "np" ?
 - touch alias with New-Item ?
-- add "send to trash" function ? => override "rm" alias
-- update conda alias ?
+- add a script to interact with the trashbin ? (restore a file from the recycle bin if it is unique, or maybe the last one - empty it completely ... => module ?)

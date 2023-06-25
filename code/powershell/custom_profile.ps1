@@ -1,14 +1,13 @@
 Write-Host "Loading profile (custom_profile.ps1) ..."
 # Write-Host "$($home)"
+# Import-Module "D:\Code\personal_dump\code\powershell\Recycle.psm1"
 
-# <#
 #region conda initialize
 # !! Contents within this block are managed by 'conda init' !!
 If (Test-Path "$($home)\anaconda3\Scripts\conda.exe") {
     (& "$($home)\anaconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
 }
 #endregion
-# #>
 
 # prompt setup
 # Write-Output "setup prompt ..."
@@ -109,7 +108,7 @@ function git_alias {
     . "C:\Program Files\Git\cmd\git.exe" $args
     # Write-Host 'Success'
     # udpate the prompt branch name
-    cd_alias .
+    cd .
 }
 # override "git" alias with git_alias
 New-Item -Path Alias:git -Value git_alias -Force > $null
@@ -125,8 +124,11 @@ function prompt {
     $git_prompt = "$($Env:git_ps_prompt_str)"
     # default ("[int][char]'>'" to find the integer): [char]62
     # here: [int][char]'¤' => 164
-    $dynamic_color_char = [char]164
+    $dynamic_color_char = [char]62
     $cwd = $executionContext.SessionState.Path.CurrentLocation
+    # if (Test-Path Variable:/PSDebugContext) { '[DBG]: ' }
+    # elseif($principal.IsInRole($adminRole)) { "[ADMIN]: " }
+    # else { '' }
     # [$env:COMPUTERNAME]
     # return "`nPS > "
     # return "`nPS & "
@@ -136,7 +138,7 @@ function prompt {
     # D:\code\personal_dump\code\powershell (main)
     # PS>
     # "$($conda_prompt)$($cwd) $($git_prompt)`nPS $($dynamic_color_char) "
-    "$($conda_prompt)$($bcol_Green)$($cwd) $($git_prompt)`n$($col_Yellow)PS $($col_def)$($dynamic_color_char) "
+    "$($conda_prompt)$($bcol_Green)$($cwd) $($git_prompt)`n$($col_Yellow)PS$($col_def)$($dynamic_color_char) "
 }
 # add an "admin" flag when running as admin ? add user name ?
 # #>
@@ -160,12 +162,84 @@ function git_ps {git submodules update --init --recursive}
 function git_us {git submodules update --init --recursive --remote}
 function gfs {git fetch; git status}
 
-function rmd {
-    param([switch]$f, [switch]$force)
-    if ($f -or $force) {Remove-Item $args -r -force}
-    else {Remove-Item $args -r}
+# function rmd {
+#     param([switch]$f, [switch]$force)
+#     if ($f -or $force) {Remove-Item $args -r -force}
+#     else {Remove-Item $args -r}
+# }
+function Move-To-Trashcan { # move items to trash on "rm" calls
+    Param(
+        [Parameter(Mandatory = $true, ValueFromPipeline=$true)] # check pipeline
+        [SupportsWildcards()] # check wildcards (https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_wildcards?view=powershell-7.3)
+        [string]$Path
+    )
+    # Write-Host $Path
+    # get the absolute path of the item + check if item exists
+    $path_is_valid = Test-Path $Path
+    if (-not $path_is_valid) {Write-Error 'Path does not exist'; return}
+    $Path = Resolve-Path $Path
+    # $Path
+    # Write-Host $path
+    # Write-Host $path_drive_name
+    # if $Path is a drive, fail here
+    # <#
+    $drives_names = $(Get-PSDrive).Name
+    $drives_names_cleaned = @()
+    foreach ($drive_name in $drives_names) {
+            $drives_names_cleaned += $($drive_name + ':\')
+            $drives_names_cleaned += $($drive_name + ':')
+        }
+    # $drives_names_cleaned
+    # Write-Host $($drives_names_cleaned -contains $Path)
+    if ($drives_names_cleaned -contains $Path)
+        {Write-Error 'Cannot remove a drive'; return}
+    # $drives_names_cleaned
+    # #>
+    # if ($Path -eq $($path_drive_name))
+    # if ($drives_names_cleaned -contains )
+    #     {Write-Error "Cannot remove a drive"; return}
+    $parent_dir_path = Split-Path $Path -Parent
+    $path_item_name = Split-Path $Path -Leaf
+    # Write-Host $parent_dir_path
+    # Write-Host $path_item_name
+    $shell = New-Object -ComObject 'Shell.Application'
+    $shell_dir = $shell.Namespace($parent_dir_path)
+    $shell_item = $shell_dir.ParseName($path_item_name)
+    # $shell_item | Get-Member
+    if ($shell_item.IsFolder) {
+        $original_user_message = "Confirm deleting folder '$Path'"
+        $user_message = $original_user_message
+        while (-not $(Test-Path 'Variable:\confirmed')) {
+            # ask for confirmation if trying to remove a directory
+            $user_input = [string] $(Read-Host $user_message)
+            # default to yes
+            if (!$user_input) {$user_input = 'y'}
+            # use RegEx here
+            switch ($user_input) {
+                'y' {$confirmed = $True}
+                'Y' {$confirmed = $True}
+                'n' {$confirmed = $False}
+                'N' {$confirmed = $False}
+                default {}
+            }
+            if (-not $(Test-Path 'Variable:\confirmed')) {
+                $user_message = "Did not understand.`n$original_user_message"
+            }
+        }
+        if (-not $confirmed) {Write-Error 'Abort'; return}
+        # Write-Host 'removing folder...'
+    }
+    # return
+    $shell_item.InvokeVerb('delete')
+    # check success
+    $path_exists = Test-Path $Path
+    if ($path_exists) {Write-Error 'Some items were not removed'}
+    else {Write-Host "Moved '$($col_Red)$($Path)$($col_def)' to trashcan"}
 }
+New-Item -Path Alias:rm -Value Move-To-Trashcan -Force > $null
+# New-Item -Path Alias:del -Value rm_alias -Force > $null
 function la {dir -Force}
+# la | Format-Table Length, Name
 function find {Get-ChildItem -Recurse -Filter $args}
 function touch {python "D:\code\personal_dump\code\python\touch.py" $args}
 # notepad alias

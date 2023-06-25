@@ -421,7 +421,7 @@ Test-Path -Path "D:\does\not\exist.txt" -IsValid
 # the drive needs to exist
 Test-Path -Path "G:\does\not\exist.txt" -IsValid
 
-# try - catch - finally:
+# try - catch - finally: (Write-Error ?)
 
 # flags parser:
 # no need, receives flags as regular arguments
@@ -442,3 +442,70 @@ function flags_parser {
         # [char[]]'test'
     }
 }
+
+# RegEx:
+# '$test_string -match $RegEx'
+Write-Host ''
+Write-Host 'RegEx:'
+$regex_test = '-[\w]+'
+$str_to_test = '-lolhaha'
+$str_to_test -match $regex_test
+$(!!$Matches)
+$Matches
+$Matches = $null
+$str_to_test = '123'
+$str_to_test -match $regex_test
+$(!!$Matches)
+$Matches
+$Matches = $null
+# try to get the name part of the path:
+Write-Host 'new test:'
+$file_path_test = 'D:\code\personal\code\powershell\test.txt'
+$dir_path_test = 'D:\code\personal\code\powershell'
+$regex_test = '\\([\w\-. ]+)$' # https://stackoverflow.com/questions/11794144/regular-expression-for-valid-filename
+$file_path_test -match $regex_test
+$(!!$Matches)
+# $Matches # 0: whole string - 1, 2 ...: groups captured
+$Matches.1
+$dir_path_test -match $regex_test
+$(!!$Matches)
+$Matches
+$Matches.1
+
+# ComObjects:
+# - delete a FileSystem object (file/dir/link):
+# $shell = New-Object -ComObject "Shell.Application"
+# $shellFolder = $shell.Namespace($directoryPath)
+# $shellItem = $shellFolder.ParseName($Item.Name)
+# $shellItem.InvokeVerb("delete")
+$item_path_to_delete = "$HOME\to_delete.txt"
+$item_parent_path_to_delete = Split-Path $item_path_to_delete -Parent
+# touch $item_path_to_delete
+$shell = New-Object -ComObject "Shell.Application"
+# $shell | Get-Member | Format-Table Name,MemberType,Definition
+$shell_dir = $shell.Namespace($item_parent_path_to_delete)
+$shell_dir | Get-Member | Format-Table Name,MemberType,Definition
+# $shell_dir_items = $shell_dir.Items()
+# $shell_dir_items | Get-Member | Format-Table Name,MemberType,Definition
+# $shell_dir_items | Format-Table Path,IsLink,IsFolder,IsFileSystem,Type
+$item_path_to_delete -match $regex_test # use Resolve-Path to check existence instead
+# $(!!$Matches)
+# $Matches.1
+$shell_item = $shell_dir.ParseName($Matches.1)
+# $shell_item | Get-Member | Format-Table Name,MemberType,Definition
+$shell_item.Name
+# $shell_item.InvokeVerb("delete")
+# - see all objects in trashcan:
+$trashcan = $(New-Object -ComObject shell.application).Namespace(10)
+$trashcan | Get-Member | Format-Table Name,MemberType,Definition
+$trashcan_items = $trashcan.Items()
+$trashcan_items | Get-Member | Format-Table Name,MemberType,Definition
+@($trashcan_items) | Get-Member | Format-Table Name,MemberType,Definition
+# $trashcan_items #| Format-Table Name
+# $trashcan_items.IsFolder
+# @($trashcan_items)[0] | Get-Member | Format-Table Name,MemberType,Definition
+@($trashcan_items)[0] | Format-Table
+# $trashcan | Get-Member | Format-Table Name,MemberType,Definition
+# $trashcan.ParseName("Recycle")
+# $trashcan_item = $trashcan.ParseName($Matches.1)
+# $trashcan_item

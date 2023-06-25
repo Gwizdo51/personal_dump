@@ -15,7 +15,7 @@ any digit:
 \d
 any non digit:
 \D
-any word character, alphanumeric (digit, lowercase and uppercase ASCII, underscore):
+any word character, alphanumeric ([0-9a-zA-Z_]):
 \w
 any non alphanumeric character:
 \W
