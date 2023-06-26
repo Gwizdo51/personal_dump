@@ -20,12 +20,17 @@ avoir des infos sur le master actuel :
 git rev-parse --show-toplevel
 
 ajouter un fichier à la branche actuelle (doit être accompagné de commit pour enregistrer les changements) :
+to add a file/folder to the index / stage a file/folder (must be commited)
 git add <path/to/file>
 pour tout ajouter :
 git add *
 
-to stop tracking a file/unstage a file :
+to remove a file/folder from the index / unstage a file/folder (file is not deleted locally, must still be commited):
 git rm --cached <nom_fichier>
+
+to move a staged file/folder in the index (file is moved locally, must still be commited):
+git mv <file_name> <file_destination>
+=> fixes renaming on Windows
 
 enregistrer les changements dans la branche actuelle :
 git commit -m "message du commit"
