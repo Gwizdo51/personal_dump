@@ -80,7 +80,7 @@ function conda_prompt {
 # conda activate base
 
 # custom profile
-. "D:\Code\personal_dump\code\powershell\windows_custom_profile.ps1"
+. "D:\Code\personal_dump\code\powershell\profile\windows_custom_profile.ps1"
 
 # test prompt
 <#

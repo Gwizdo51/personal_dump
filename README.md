@@ -23,6 +23,7 @@ A random clutter of stuff I should remember.
 - [ ] make every DotDict dict method consistent with the dict class
 
 ### *TODO*
+- [ ] add a PSProfile.psm1 module to delete useless variables from the current scope after loading the profile
 - [ ] make pretty_string_factory a module on its own
 - [ ] add a docstring to logger_factory.py and touch.py
 - [ ] add unit tests for dotdict.py
