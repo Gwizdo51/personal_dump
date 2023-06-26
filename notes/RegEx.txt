@@ -63,9 +63,20 @@ start of string (nothing before a):
 end of string (nothing after a):
 a$
 
-groups of characters:
+unamed captured groups of characters (1,2,3, ...) (0 is the string matched by the RegEx, always captured):
 (abc)
+named captured groups of characters:
+(?<group_name>abc)
 non-capturing groups of characters:
 (?:abc)
+
 OR in groups:
 (abc|def)
+
+notes on groups:
+- can mix any kinds of grouping in a single RegEx
+- if there is a match:
+    - the part of the string matched by the RegEx will always be captured as group #0
+    - any non-capturing group will not be accessible
+    - any unnamed captured group will be accessible as group #1, 2, 3, ...
+    - any named captured group will be accessible by its name
