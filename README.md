@@ -24,12 +24,14 @@ A random clutter of stuff I should remember.
 
 ### *TODO*
 - [ ] add a PSProfile.psm1 module to delete useless variables from the current scope after loading the profile
+- [ ] test if .gitattributes is working as intended
 - [ ] make pretty_string_factory a module on its own
 - [ ] add a docstring to logger_factory.py and touch.py
 - [ ] add unit tests for dotdict.py
 - [ ] add markdown notes
 - [ ] add django notes
 - [ ] add ssh notes
+- [ ] add vscode and jupyter JSON config files
 - [ ] reinstall OS at some point (never update conda on base with conda-forge, btw)
 
 # Ideas

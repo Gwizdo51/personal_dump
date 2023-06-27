@@ -1,17 +1,3 @@
-git : gestionnaire de version
-permet de travailler à plusieurs sur le même projet
-
-dépôt git (repository) :
-structure qui contient un ensemble de fichiers, et qui contient l'historique de son contenu. (versionning)
-
-enregistrement des modifications que j'ai effectué :
-commit => sauvegarde de mon projet à l'instant T
-       => différentes versions du projet
-
-SSH PASSPHRASE :
-HOLY Guacs
-
-
 cloner un repository :
 git clone <path_to_file>
 remplacer path to file avec "clone by ssh" de gitlab
@@ -48,10 +34,6 @@ git push <REMOTE> <name_of_branch>
 mettre à jour la branche actuelle sur le repo distant :
 git push origin HEAD
 
-appliquer un commit spécifique sur une branche :
-git checkout <nom_branch>
-git cherry-pick <commit_hash_from_log>
-
 avoir des infos sur la branche actuelle :
 git status
 
@@ -64,6 +46,9 @@ git config --list
 
 faire du dossier actuel un repo git :
 git init
+
+checkout specific file from specific commit:
+git checkout <commit#> <file_path>
 
 obtenir la liste de toutes les branches (locales et distantes) :
 git branch -a
@@ -78,8 +63,8 @@ avec tracking (connexion active entre les branches locales et distantes) :
 git push -u origin <nom_branche>
 
 supprimer une branche en local :
-git branch -D <nom_branche>
 git branch -d <nom_branche>
+git branch -D <nom_branche> (== git branch -df <nom_branche>)
 
 supprimer une branche sur le repo distant :
 git push origin --delete <nom_branche>
@@ -96,10 +81,14 @@ pour appliquer les changements d'une branche enfant sur sa branche parent :
 git checkout <branche_parent>
 git merge <branche_enfant>
 
-enregristrer les changements sans faire de commit :
+hide current working directory differences from the index (hidden commit):
 git stash
-récupérer les changements :
+retrieve working directory differences (reapply hidden commit):
 git stash pop
+
+appliquer un commit spécifique sur une branche :
+git checkout <nom_branch>
+git cherry-pick <commit_hash_from_log>
 
 git diff: (the stage is considered a commit for git diff)
 - git diff
@@ -110,3 +99,5 @@ shows the diff between the stage and the latest commit (HEAD)
 shows the diff between my branch and the online branch (all files, all commits)
 - git diff --cached origin/HEAD
 shows the diff between the commits of HEAD (stage included) and the online branch (all files, all commits)
+- git diff <file_path>
+shows the modifications made to a specific file since the last commit
