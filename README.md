@@ -13,9 +13,9 @@ A random clutter of stuff I should remember.
 - [x] make a pretty PowerShell prompt (system)
 - [x] debug PowerShell prompt git-branch part (branch name not updating)
 - [x] make a pretty PowerShell prompt (7)
+- [x] delete useless variables from the current scope after loading the profile
 
 ### *WIP*
-- [ ] delete useless variables from the current scope after loading the profile
 - [ ] speed up PS profile load => call conda-hook the first time conda is activated ?
 - [ ] add a mklink alias
 - [ ] add "send to trash" function ? => override "rm" alias

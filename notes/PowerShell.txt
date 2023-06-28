@@ -36,6 +36,10 @@ New-Item -ItemType SymbolicLink -Path 'C:\Users\Arthur\Desktop\wt_asadmin.exe.ln
 accessing elements of a list that do not exist is always possible (returns $null):
 $empty_list = @(); $empty_list[10]
 
+time an expression:
+Measure-Command { Get-WinEvent "windows powershell" }
+
+
 - show hastables as nice tables (ft = Format-Table) / lists of "key: value" (fl = Format-List):
 # only keys chosen by PS
 $my_hashtable | ft
