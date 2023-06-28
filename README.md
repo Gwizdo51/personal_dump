@@ -12,19 +12,19 @@ A random clutter of stuff I should remember.
 - [x] store touch.py logic in a function
 - [x] make a pretty PowerShell prompt (system)
 - [x] debug PowerShell prompt git-branch part (branch name not updating)
-- [x] add "send to trash" function ? => override "rm" alias
 - [x] make a pretty PowerShell prompt (7)
 
 ### *WIP*
+- [ ] delete useless variables from the current scope after loading the profile
 - [ ] speed up PS profile load => call conda-hook the first time conda is activated ?
 - [ ] add a mklink alias
+- [ ] add "send to trash" function ? => override "rm" alias
 - [ ] convert custom PS functions into aliases
 - [ ] add powershell notes
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
 
 ### *TODO*
-- [ ] add a PSProfile.psm1 module to delete useless variables from the current scope after loading the profile
 - [ ] test if .gitattributes is working as intended
 - [ ] make pretty_string_factory a module on its own
 - [ ] add a docstring to logger_factory.py and touch.py

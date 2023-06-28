@@ -20,9 +20,8 @@ If (Test-Path "$home\anaconda3\Scripts\conda.exe") {
 }
 
 # prompt setup
-# Write-Output "setup prompt ..."
 # some colors
-if (-not $(Test-Path "Function:color_char_gen")) { # don't
+if (-not $(Test-Path "Function:color_char_gen")) {
     Write-Host 'Setting up color variables ...'
     # set up the color variables
     # "ESC" character: [char]27
@@ -93,7 +92,6 @@ $principal = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsId
 $admin_role = [Security.Principal.WindowsBuiltInRole]::Administrator
 if ($principal.IsInRole($admin_role)) {$privilege = "[$($bcol_Blue)ADMIN$($col_def)] "}
 else {$privilege = ''}
-# <#
 function Prompt {
     ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT /!\ ###
     # if we want to keep the "turn red on error" feature
@@ -115,7 +113,6 @@ function Prompt {
     # add nested prompts ?
     # change path color to regular green ?
 }
-# >
 
 # edit this script in VSCode
 # function Edit-Profile {}
@@ -253,8 +250,7 @@ function Open-Ise {
     # opens a file in PowerShell ISE
 }
 New-Item -Path Alias:ise -Value Open-Ise -Force > $null
-function wt-Alias {
-    # param([switch])
+function wt-Alias { # allows opening a windows terminal as admin with no confirmation
     # $wt_args = ($args | ? {($_) -or ($_)})
     $as_admin = $False
     foreach ($arg in $args) {
