@@ -1,8 +1,10 @@
+$tick = Get-Date
 Write-Host "Loading personal profile (custom_profile.ps1) ..."
 # Import-Module "D:\Code\personal_dump\code\powershell\Recycle.psm1"
 
 # conda module
 # => only load conda if conda is needed => "conda activate <venv>" loads conda?
+<#
 If (Test-Path "$home\anaconda3\Scripts\conda.exe") {
     # (& "$($home)\anaconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
     # $test_output = & "$($home)\anaconda3\Scripts\conda.exe" shell.powershell hook # | ?{$_} | iex
@@ -15,93 +17,97 @@ If (Test-Path "$home\anaconda3\Scripts\conda.exe") {
     # conda hook (adds conda to path)
     & "$($Env:_CONDA_ROOT)\Scripts\conda.exe" 'shell.powershell' 'hook' > $null
     # conda PS module
-    Import-Module "$($Env:_CONDA_ROOT)\shell\condabin\Conda.psm1"
-    # conda activate base
+    Import-Module "D:\code\personal_dump\code\powershell\Conda.psm1" -Verbose
+    conda activate base
 }
+#>
 
 # prompt setup
-# some colors
-if (-not $(Test-Path "Function:color_char_gen")) {
-    Write-Host 'Setting up color variables ...'
+if (-not $color_characters_dict) { # only set up colors once
+    Write-Host 'Setting up prompt colors ...'
     # set up the color variables
     # "ESC" character: [char]27
-    function color_char_gen {
+    function gen_color_char {
         param ([int]$char_number)
         "$([char]27)[$($char_number)m"
     }
-    $col_def = color_char_gen 0
-    $color_name_array = "Black", "Red", "Green", "Yellow", "Blue", "Magenta", "Cyan", "White"
+    $color_characters_dict = @{} # empty hashtable
+    # $col_def = color_char_gen 0
+    $color_characters_dict.col_def = gen_color_char 0
+    # $color_name_array = "Black", "Red", "Green", "Yellow", "Blue", "Magenta", "Cyan", "White"
     # $($col_Black)  $($col_Red)  $($col_Green)  $($col_Yellow)  $($col_Blue)  $($col_Magenta)  $($col_Cyan)  $($col_White)
     # $($bcol_Black) $($bcol_Red) $($bcol_Green) $($bcol_Yellow) $($bcol_Blue) $($bcol_Magenta) $($bcol_Cyan) $($bcol_White)
     $i = 30
-    foreach ($color_name in $color_name_array) {
+    foreach ($color_name in "Black", "Red", "Green", "Yellow", "Blue", "Magenta", "Cyan", "White") {
         $reg_col_var_name = "col_$color_name"
-        $reg_col_var_value = color_char_gen $i
-        New-Variable -Name $reg_col_var_name -Value $reg_col_var_value
+        $reg_col_var_value = gen_color_char $i
+        $color_characters_dict["$reg_col_var_name"] = $reg_col_var_value
         $bri_col_var_name = "bcol_$color_name"
-        $bri_col_var_value = color_char_gen $($i + 60)
-        New-Variable -Name $bri_col_var_name -Value $bri_col_var_value
+        $bri_col_var_value = gen_color_char $($i + 60)
+        $color_characters_dict["$bri_col_var_name"] = $bri_col_var_value
         ++$i
-    } # put colors in hashtable instead ?
+    }
+    # delete gen_color_char function
+    Remove-Item -path 'function:\gen_color_char'
+    Remove-Variable 'color_name', 'reg_col_var_name', 'reg_col_var_value', 'bri_col_var_name', 'bri_col_var_value', 'i'
 }
-function git_branch_name {
+function Prompt-Git-Branch-Name {
     # look for possible branch name, silence git "not in git repo" error
     $branch = $(& "C:\Program Files\Git\cmd\git.exe" rev-parse --abbrev-ref HEAD 2> $null)
     if ($branch) {
         # we're in a git repo
         if ($branch -eq 'HEAD') {
             # we're in detached HEAD state, so print the SHA
-            "$($col_Red)($(& "C:\Program Files\Git\cmd\git.exe" rev-parse --short HEAD))"
+            "$($color_characters_dict.col_Red)($(& "C:\Program Files\Git\cmd\git.exe" rev-parse --short HEAD))"
         }
         else {
             # we're on an actual branch, so print it
-            "$($bcol_Blue)($($branch))"
+            "$($color_characters_dict.bcol_Blue)($($branch))"
         }
     }
     # if we're not in a git repo, don't return anything
 }
-function cd-Alias {
+function Alias-CD {
     param([string]$path)
     Set-Location $path
     # try {Set-Location $path}
     # catch {Write-Host 'didnt work'}
     if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
         # we are in a FileSystem drive, safe to look for git branches
-        $Env:git_ps_prompt_str = $(git_branch_name)
+        $Env:_PROMPT_GIT_MODIFIER = $(Prompt-Git-Branch-Name)
     }
     else {
-        # we are not in a FileSystem drive, clear $Env:git_ps_prompt_str
-        $Env:git_ps_prompt_str = $null
+        # we are not in a FileSystem drive, clear $Env:_PROMPT_GIT_MODIFIER
+        $Env:_PROMPT_GIT_MODIFIER = $null
     }
     # put the git prompt in $Env
-    # $Env:git_ps_prompt_str = git_branch_name
+    # $Env:_PROMPT_GIT_MODIFIER = git_branch_name
 }
 # override "cd" alias with cd_alias
-New-Item -Path Alias:cd -Value cd-Alias -Force > $null
+New-Item -Path Alias:cd -Value Alias-CD -Force > $null
 # save git function
-function git-Alias {
+function Alias-GIT {
     & "C:\Program Files\Git\cmd\git.exe" $args
-    # udpate $Env:git_ps_prompt_str
-    cd-Alias .
+    # udpate $Env:_PROMPT_GIT_MODIFIER
+    cd .
 }
 # override "git" alias with git_alias
-New-Item -Path Alias:git -Value git-Alias -Force > $null
-# $current_windows_identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-# $principal = [Security.Principal.WindowsPrincipal] $current_windows_identity
+New-Item -Path Alias:git -Value Alias-GIT -Force > $null
 $principal = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
 $admin_role = [Security.Principal.WindowsBuiltInRole]::Administrator
-if ($principal.IsInRole($admin_role)) {$privilege = "[$($bcol_Blue)ADMIN$($col_def)] "}
-else {$privilege = ''}
+if ($principal.IsInRole($admin_role)) {$ENV:_PROMPT_PRIVILEGE = "[$($color_characters_dict.bcol_Blue)ADMIN$($color_characters_dict.col_def)] "}
+else {$ENV:_PROMPT_PRIVILEGE = ''}
+Remove-Variable 'principal', 'admin_role'
 function Prompt {
     ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT /!\ ###
     # if we want to keep the "turn red on error" feature
     # => needs to receive state from Env, like conda
     # check if a conda venv is activated, if so color only the venv name
     if ($Env:CONDA_PROMPT_MODIFIER -match '\(([\w\- ]+)\)')
-        {$conda_prompt = "($($bcol_Cyan)$($Matches.1)$($col_def))`n"}
+        {$conda_prompt = "($($color_characters_dict.col_Cyan)$($Matches.1)$($color_characters_dict.col_def))`n"}
     else
         {$conda_prompt = ''}
-    $git_prompt = [string] $Env:git_ps_prompt_str
+    $git_prompt = [string] $Env:_PROMPT_GIT_MODIFIER
     # default ("[int][char]'>'" to find the integer): [char]62
     # here: [int][char]'¤' => 164
     $dynamic_color_char = [char] 62
@@ -109,25 +115,80 @@ function Prompt {
     # [$env:COMPUTERNAME], [$Env:USERNAME]
     # return "`nPS > "
     # return "`nPS & "
-    "$($conda_prompt)$($bcol_Green)$($cwd) $($git_prompt)`n$($col_def)$($privilege)$($col_Yellow)PS $($col_def)$($dynamic_color_char) "
+    "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd) $($git_prompt)`n$($color_characters_dict.col_def)$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)PS $($color_characters_dict.col_def)$($dynamic_color_char) "
     # add nested prompts ?
-    # change path color to regular green ?
 }
 
+# shortcuts to important folders
+$code = 'D:\Code'
+$horoview = "$code\projects\01_horoview"
+$dump = "$code\personal_dump"
+
 # edit this script in VSCode
-# function Edit-Profile {}
-# New-Item -Path Alias:ep -Value Edit-Profile -Force > $null
+function Edit-Profile {code "$dump\code\powershell\profile\windows_custom_profile.ps1"}
+New-Item -Path Alias:ep -Value Edit-Profile -Force > $null
 
-function cda {conda activate workenv}
-function cdd {conda deactivate}
+# override "conda" cmd to set it up only when it is called for the first time
+# <#
+If (Test-Path "$home\anaconda3\Scripts\conda.exe") {
+    $Env:_is_conda_set_up = $False
+    function conda_set_up {
+        # Write-host "is conda not set up: $Env:_is_conda_set_up"
+        if ($Env:_is_conda_set_up -eq $False) {
+            # $f_tick = Get-Date
+            Write-Host 'Setting up conda ...'
+            # (& "$($home)\anaconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
+            # $test_output = & "$($home)\anaconda3\Scripts\conda.exe" shell.powershell hook # | ?{$_} | iex
+            # conda env
+            $Env:_CONDA_ROOT = "$home/anaconda3"
+            $Env:CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
+            $Env:_CE_M = ""
+            $Env:_CE_CONDA = ""
+            $Env:_CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
+            # conda hook (adds conda to path)
+            & "$($Env:_CONDA_ROOT)\Scripts\conda.exe" 'shell.powershell' 'hook' > $null
+            # & "$($home)\anaconda3\Scripts\conda.exe" shell.powershell hook | ?{$_} | iex
+            # conda PS module
+            # Import-Module "$($Env:_CONDA_ROOT)\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False}
+            Import-Module "$dump\code\powershell\Conda.psm1" -ArgumentList @{ChangePs1 = $False} #-Verbose
+            # conda_test lol haha
+            New-Alias conda Invoke-Conda -Force
+            $Env:_is_conda_not_set_up = $True
+            # $f_tock = Get-Date
+            # Write-Host "Conda load time: $([math]::Round($load_time, 3))"
+        }
+    }
+    function Alias-Conda {
+        # Write-Host 'Alias-Conda called'
+        conda_set_up
+        conda $args
+    }
+    New-Item -Path Alias:conda -Value Alias-Conda -Force > $null
+}
+#>
 
-function jupyter_lab {cda; cd "${code}"; jupyter lab}
+# conda shortcuts
+function Conda-Activate {
+    param($venv='workenv')
+    conda activate $venv
+}
+New-Item -Path Alias:cda -Value Conda-Activate -Force > $null
+function Conda-Deactivate {conda deactivate}
+New-Item -Path Alias:cdd -Value Conda-Deactivate -Force > $null
 
-# alias git_tree='git log --graph --decorate --pretty=oneline --abbrev-commit'
-function git_tree {git log --graph --decorate --pretty=oneline --abbrev-commit}
-function git_ps {git submodules update --init --recursive}
-function git_us {git submodules update --init --recursive --remote}
-function gfs {git fetch; git status}
+# jupyter lab shortcut
+function Jupyter-Lab {cda; cd "${code}"; jupyter lab}
+New-Item -Path Alias:jupyter_lab -Value Jupyter-Lab -Force > $null
+
+# git shortcuts
+function Git-Tree {git log --graph --decorate --pretty=oneline --abbrev-commit}
+New-Item -Path Alias:git_tree -Value Git-Tree -Force > $null
+function Git-Pull-Submodules {git submodules update --init --recursive}
+New-Item -Path Alias:git_ps -Value Git-Pull-Submodules -Force > $null
+function Git-Update-Submodules {git submodules update --init --recursive --remote}
+New-Item -Path Alias:git_us -Value Git-Update-Submodules -Force > $null
+function Git-Fetch-Status {git fetch; git status}
+New-Item -Path Alias:gfs -Value Git-Fetch-Status -Force > $null
 
 # function rmd {
 #     param([switch]$f, [switch]$force)
@@ -219,7 +280,7 @@ function Recycle { # move items to trash on "rm" calls
     # check success
     $path_exists = Test-Path $Path
     if ($path_exists) {Write-Error 'Some items were not removed'}
-    else {Write-Host "Moved '$($col_Red)$($Path)$($col_def)' to trashcan"}
+    else {Write-Host "Moved '$($col_Red)$($Path)$($color_characters_dict.col_def)' to trashcan"}
 }
 New-Item -Path Alias:rm -Value Move-To-Trashcan -Force > $null
 # New-Item -Path Alias:del -Value rm_alias -Force > $null
@@ -263,11 +324,6 @@ function wt-Alias { # allows opening a windows terminal as admin with no confirm
 }
 New-Item -Path Alias:wt -Value wt-Alias -Force > $null
 
-# shortcuts to important folders
-$code = 'D:\Code\'
-$horoview = "${code}\projects\01_horoview\"
-$dump = "${code}\personal_dump\"
-
 ###
 
 function Get-Type {
@@ -275,8 +331,15 @@ function Get-Type {
         Write-Output $arg.GetType().FullName
     }
 }
-New-Item -Path Alias:type -Value Get-Type -Force > $null
+New-Item -Path Alias:type -Value Get-Type -Force > $Null
 
+###
+
+$tock = Get-Date
+# Start-Sleep .5
+$load_time = ($tock - $tick).TotalMilliseconds
+# [math]::Round(($tock - $tick).TotalSeconds), 3)
+Write-Host "Profile load time: $([int][math]::Round($load_time))ms"
 
 
 ###############################################################################################

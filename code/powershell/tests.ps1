@@ -499,10 +499,6 @@ foreach ($item in $test) {
 Test-Path -Path "D:\does\not\exist.txt" -IsValid
 # the drive needs to exist
 Test-Path -Path "G:\does\not\exist.txt" -IsValid
-
-# try - catch - finally:
-# /!\ PowerShell doesn't crash; it just prints an error message(Write-Error), does nothing and moves on
-# => "try" will try to catch that error message
 #>
 <#
 # $args:
@@ -644,3 +640,18 @@ while (($job.State -eq "Running") -and ($job.State -ne "NotStarted")) {
 Write-Host ""
 # Write-Progress
 #>
+
+# try - catch - finally, trap:
+# /!\ PowerShell doesn't crash; it just prints an error message(Write-Error), does nothing and moves on
+# => "try" will try to catch that error message
+try {
+    Write-Host "try: before error"
+    # NonSenseString
+    # throw
+    # @().split()
+    # Write-Error "This is an error" # Doesn't count as an error
+    Write-Host "try: after error" # this doesn't run if an error was caught earlier
+}
+catch { Write-Host "catch: caught the error" } # this only runs if an error was caught
+finally { Write-Host "finally: this always writes" } # this always run
+Write-Host "after finally: this always writes too"

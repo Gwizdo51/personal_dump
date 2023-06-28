@@ -127,12 +127,24 @@ function Exit-CondaEnvironment {
 function Invoke-Conda() {
     # Don't use any explicit args here, we'll use $args and tab completion
     # so that we can capture everything, INCLUDING short options (e.g. -n).
+
+    # foreach ($arg in $args) {Write-Host $arg, $arg.GetType(), $arg.Count}
+    # Write-Host $args.Count, $args.GetType()
+
     if ($Args.Count -eq 0) {
         # No args, just call the underlying conda executable.
         & $Env:CONDA_EXE $Env:_CE_M $Env:_CE_CONDA;
     }
+    elseif ($($args.Count -eq 1) -and $($args[0].GetType().FullName -eq 'System.Object[]') -and $($args[0].Count -eq 0)) {
+        # Write-Host "Caught the culprit"
+        & $Env:CONDA_EXE $Env:_CE_M $Env:_CE_CONDA;
+    }
     else {
-        $Command = $Args[0];
+        $args = $args.split(" ")  # why is this needed ffs
+        # Write-Host $args.GetType().FullName
+        if ($args.GetType().FullName -eq 'System.String') {$Command = $args}
+        else {$Command = $Args[0]}
+        $Command
         if ($Args.Count -ge 2) {
             $OtherArgs = $Args[1..($Args.Count - 1)];
         } else {
@@ -145,7 +157,6 @@ function Invoke-Conda() {
             "deactivate" {
                 Exit-CondaEnvironment;
             }
-
             default {
                 # There may be a command we don't know want to handle
                 # differently in the shell wrapper, pass it through
@@ -268,4 +279,5 @@ Export-ModuleMember `
         Invoke-Conda, `
         Get-CondaEnvironment, `
         Enter-CondaEnvironment, Exit-CondaEnvironment, `
-        TabExpansion, prompt
+        TabExpansion, prompt `
+        # conda_test
