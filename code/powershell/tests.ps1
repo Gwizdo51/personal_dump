@@ -1,13 +1,4 @@
 <#
-TODO:
-- "touch" with "New-Item"
-- symbolic links with "New-Item"
-- remake conda prompt
-- put profile stuff in separate file on personal_dump ?
-#>
-
-# write to console: "echo", "Write-Output", "Write-Host"
-
 # access types properties and methods: Get-Member - https://learn.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-04?view=powershell-7.3
 
 # get the type: https://learn.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-04?view=powershell-7.3
@@ -87,7 +78,13 @@ Write-Host $(!!$test)
 New-Variable -Name "by_name" -Value "lol"
 Write-Host $(!!$by_name)
 Write-Host $by_name
-
+#>
+<#
+# private items: (don't know what for but oh well)
+$a = 2
+$private:b = 3
+#>
+<#
 Write-Host ''
 Write-Host 'functions:'
 
@@ -115,7 +112,7 @@ $my_var = 10
 Write-Host("$(is_var_assigned($my_var))")
 
 # positional + named parameter
-Write-Host ""
+Write-Host ''
 Write-Host 'positional + named parameters:'
 function pos_named{
     Param([switch]$verbose, [string]$file_name)
@@ -125,17 +122,17 @@ function pos_named{
     Write-Host $args
     Write-Host $file_name
 }
-# Write-Host ""
+# Write-Host ''
 pos_named
-# Write-Host ""
+# Write-Host ''
 pos_named -verbose
-# Write-Host ""
+# Write-Host ''
 pos_named a b c -verbose
-# Write-Host ""
+# Write-Host ''
 pos_named a b c -file_name kekw -verbose
 
 # "or" comparison
-Write-Host ""
+Write-Host ''
 Write-Host '"or" comparison:'
 function or_ps {
     Param([switch]$f, [switch]$force)
@@ -180,27 +177,72 @@ Write-Host($mynumber)
 # convert to [ref] type to send only the ref of $mynumber
 change_in_place([ref]$mynumber)
 Write-Host($mynumber)
-
-# pipeline:
+#>
+<#
+# pipeline functions:
 function write_pipeline {
-    begin{Write-Host "the vars are $input"}
+    begin {
+        Write-Host "begin: the vars are of type $($input.GetType())"
+        Write-Host "begin: the vars are $input"
+    }
     # here, $input is filled with each item from the pipeline and empties them 1 by 1 in the process into $_
-    process {Write-Host "the var is: $_"}
+    # process {Write-Host "the var is: $_"}
+    process {
+        Write-Host "process: the vars are of type $($input.GetType())"
+        Write-Host "process: the vars are $input"
+        Write-Host "process: the var is: $PSItem"
+    }
+    # sends $PSItem down the pipeline
     # $input comes back empty
-    end{Write-Host "the vars are $input"}
+    end {Write-Host "end: the vars are of type $($input.GetType())"}
 }
 1,2,4 | write_pipeline
+# write_pipeline @(1,2,4) # doesn't work => "write_pipeline" is not a pipe
 # "filter" is a pipeline with only a process block:
 filter my_filter {
-    param([switch]$add2)
-    if ($add2) {Write-Host "$($_ + 2)"}
-    else {Write-Host "$($_)"}
+    param ([switch]$add2)
+    # if ($add2) {Write-Host "$($_ + 2)"}
+    # else {Write-Host "$($_)"}
+    if ($add2) {$PSItem + 2}
+    else {$PSItem}
 }
 1,2,4 | my_filter
 1,2,5 | my_filter -add2
-
+# my_filter @(2,4,6,8) -add2 # doesn't work => "my_filter" is not a pipe; only 2 goes into $_
+# my_filter 10 -add5 # doesn't work => same reason, nothing goes into $_
+function is_positive { process {
+    if ($_ -ge 0) {$True}
+    else {$False}
+}}
+18 | is_positive
+-2.5, 7 | is_positive
+is_positive -5
+# is_positive @(-10, 5, 35) # doesn't work
+# regular function that expects a list of ints
+function print_plus_five {
+    param ([int[]]$ints_to_print)
+    foreach ($int in $ints_to_print)
+        {Write-Output ($int + 5)}
+}
+print_plus_five 1, 3, 5
+print_plus_five 10
+# 10 | print_plus_five
+filter string_case_filter {
+    param ([switch]$lower, [switch]$upper)
+    # param checks:
+        if (-not $($lower -xor $upper)) {Write-Error "set either the -lower or the -upper flag"; return $null}
+        # if (!$PSItem) {return $null}
+        $PSItem = [string] $PSItem # so that it returns an empty string if it filters an empty variable
+    # $lower_case_chars =
+    $PSItem
+    # ...
+}
+'lol' | string_case_filter -lower
+'lol' | string_case_filter -upper
+#>
+<#
 # character number:
-Write-Host ""
+Write-Host ''
 Write-Host 'character number:'
 function char_number {
     param([char]$char)
@@ -212,7 +254,7 @@ Write-Host $(char_number 'A')
 Write-Host $(char_number 'Z')
 
 # string colors:
-Write-Host ""
+Write-Host ''
 Write-Host 'string colors:'
 # "ESC" character
 $esc = [char]27
@@ -328,7 +370,7 @@ New-Item -Path Alias:np -Value 'c:\windows\notepad.exe'
 # . $($alias:np)
 
 # statements: https://learn.microsoft.com/en-us/powershell/scripting/lang-spec/chapter-08?view=powershell-7.3
-Write-Host ""
+Write-Host ''
 Write-Host 'statements:'
 # if elif else
 $test = 1
@@ -382,6 +424,9 @@ for ($i = 1; $i -le 10; ++$i) {
     Write-Host "continue $i"
 }
 
+# string char tests:
+Write-Host ''
+Write-Host 'string char tests:'
 $space_char = [string][char]"`0"
 # $space_char = [string][char]0
 Write-Host $([int]$pace_char)
@@ -390,12 +435,46 @@ Write-Host "$($space_char.GetType())"
 # "haha $($space_char*5) blbl"
 Write-Host "first line`nsecond line"
 
+# $null:
+Write-Host ''
+Write-Host '$null'
 if ($null) {Write-Host '$null evaluates to $true'}
 else {Write-Host '$null evaluates to $false'}
 Write-Host "`"`$null`" evaluates to `$$([bool]$null)"
-
+#>
+<#
+# verbose:
+# - Write-Host:
+# - Write-Output:
+# - Write-Verbose:
+Write-Host ''
+Write-Host 'verbose:'
+function func_with_verbose {
+    param([switch]$verbose)
+    Write-Host 'This is a regular print'
+    Write-Verbose 'This is a verbose print' -verbose $verbose
+    Write-Verbose 'This is a force-printed verbose print' -verbose
+}
+# func_with_verbose
+# func_with_verbose -verbose
+function func_with_writeoutput {
+    Write-Output 'child Write-Output string'
+}
+function parent_function {
+    func_with_writeoutput
+    Write-Output 'parent Write-Output string'
+}
+parent_function
+Write-Host $(func_with_writeoutput)
+Write-Host $(parent_function)
+function f_test {Write-Host $(-not $([bool] $args.Length))}
+f_test
+f_test lol
+f_test haha
+#>
+<#
 # drives: https://learn.microsoft.com/en-us/powershell/scripting/samples/managing-windows-powershell-drives?view=powershell-7.3
-Write-Host ""
+Write-Host ''
 Write-Host 'drives:'
 # $Env:CONDA_PROMPT_MODIFIER
 $test = Get-PSDrive
@@ -421,28 +500,52 @@ Test-Path -Path "D:\does\not\exist.txt" -IsValid
 # the drive needs to exist
 Test-Path -Path "G:\does\not\exist.txt" -IsValid
 
-# try - catch - finally: (Write-Error ?)
-
-# flags parser:
-# no need, receives flags as regular arguments
+# try - catch - finally:
+# /!\ PowerShell doesn't crash; it just prints an error message(Write-Error), does nothing and moves on
+# => "try" will try to catch that error message
+#>
+<#
+# $args:
 function flags_parser {
+    # param([int]$step)
+    # Test-Path 'Variable:\args'
+    # Write-Host $args
+    $appendix_flag = $False
     foreach ($arg in $args) {
-        Write-Host
-        Write-Host 'new arg to process:'
-        Write-Host $arg
-        # convert $arg as a char array
-        # $arg_as_char_array = [char[]][string]$arg
-        # Write-Host $arg_as_char_array
-        # $arg_type = $arg_as_char_array.GetType()
-        # Write-Host $arg_type
-        # # '-'
-        # $dash_char = [char]45
-        # if ($char -eq $dash_char)
-        # foreach ($char in $arg)
-        # [char[]]'test'
+        $arg
+        # type $arg
+        if ($arg -match '^(--appendix|-a)$')
+            {$appendix_flag = $True}
     }
+    if ($appendix_flag) {Write-Output 'appendix flag detected'}
+    else {Write-Output 'appendix flag not detected'}
 }
-
+# flags_parser
+# flags_parser 1 lol 2 -5
+# flags_parser 1 2 -5
+flags_parser -a
+flags_parser --appendix
+flags_parser -a --appendix
+flags_parser thing other_thing
+flags_parser thing other_thing -a
+flags_parser -a thing other_thing
+# function Get-Type {
+#     # param([switch]$display)
+#     # Write-Host $display
+#     foreach($arg in $args) {
+#         # Write-Output $arg.GetType()
+#         # $arg.GetType() | fl
+#         # Write-Verbose $arg.GetType().FullName
+#         # Write-Verbose "lol"
+#         Write-Output $arg.GetType().FullName
+#         # if ($display) {Write-Host "lol" $arg.GetType()}
+#     }
+# }
+# $lol = 3
+# Get-Type @() $lol 2 'a' @{} #$null => .GetType() doesn't work on $null
+# @(), $lol, 2, 'a', @{} | Get-Type -verbose # Doesn't work
+#>
+<#
 # RegEx:
 # '$test_string -match $RegEx'
 Write-Host ''
@@ -462,7 +565,7 @@ $Matches = $null
 Write-Host 'new test:'
 $file_path_test = 'D:\code\personal\code\powershell\test.txt'
 $dir_path_test = 'D:\code\personal\code\powershell'
-$regex_test = '\\([\w\-. ]+)$' # https://stackoverflow.com/questions/11794144/regular-expression-for-valid-filename
+$regex_test = '\\([\w\-. ]+)$' # '^[\w\-. ]+$' https://stackoverflow.com/questions/11794144/regular-expression-for-valid-filename
 $file_path_test -match $regex_test
 $(!!$Matches)
 # $Matches # 0: whole string - 1, 2 ...: groups captured
@@ -473,6 +576,8 @@ $Matches
 $Matches.1
 
 # ComObjects:
+Write-Host ''
+Write-Host 'ComObjects:'
 # - delete a FileSystem object (file/dir/link):
 # $shell = New-Object -ComObject "Shell.Application"
 # $shellFolder = $shell.Namespace($directoryPath)
@@ -509,3 +614,33 @@ $trashcan_items | Get-Member | Format-Table Name,MemberType,Definition
 # $trashcan.ParseName("Recycle")
 # $trashcan_item = $trashcan.ParseName($Matches.1)
 # $trashcan_item
+#>
+<#
+# dynamic loader:
+$scroll = "|/-\"
+$idx = 0
+$job = Invoke-Command -ComputerName $env:ComputerName -ScriptBlock { Start-Sleep -Seconds 10 } -AsJob
+$origpos = $host.UI.RawUI.CursorPosition
+# $origpos.Y += 1
+while (($job.State -eq "Running") -and ($job.State -ne "NotStarted")) {
+    $host.UI.RawUI.CursorPosition = $origpos
+    Write-Host $scroll[$idx] -NoNewline
+    $idx++
+    if ($idx -ge $scroll.Length)
+    {
+        $idx = 0
+    }
+    Start-Sleep -Milliseconds 100
+}
+# It's over - clear the activity indicator.
+$host.UI.RawUI.CursorPosition = $origpos
+Write-Host 'Complete'
+Remove-Variable('job')
+$job = Start-Job -ScriptBlock { Start-Sleep -Seconds 10 }
+while (($job.State -eq "Running") -and ($job.State -ne "NotStarted")) {
+    Write-Host '.' -NoNewline
+    Start-Sleep -Seconds 1
+}
+Write-Host ""
+# Write-Progress
+#>

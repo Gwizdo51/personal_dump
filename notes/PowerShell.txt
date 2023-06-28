@@ -1,0 +1,93 @@
+get powershell version:
+$PSVersionTable
+
+update help on commands:
+update-help -UICulture en-US
+
+get type of object:
+<object>.GetType()
+
+get an object methods and properties:
+<object> | Get-Member
+
+access recycle bin of current filesystem drive:
+cd '\$RECYCLE.BIN\'
+
+open recycle bin in explorer:
+start shell:RecycleBinFolder
+
+the drives remember the state in which you left them:
+- "<drive>:" refers to the last container the drive visited
+- "<drive>:/" refers to the drive's root container
+
+you only need to type enough of the parameter name to uniquely identify it
+(-f => -force if nothing else starts with an f)
+
+PS has access to the same .exe commands as the command prompt
+(just add ".exe" to specify the command prompt executable)
+
+=> find the path of an executable in the "path"(.exe file):
+where.exe <exe_name>
+
+make a SymbolicLink:
+New-Item -ItemType SymbolicLink -Path '<link_path>' -Target '<original_item_path>'
+New-Item -ItemType SymbolicLink -Path 'C:\Users\Arthur\Desktop\wt_asadmin.exe.lnk' -Target 'C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.17.11461.0_x64__8wekyb3d8bbwe\wt.exe'
+
+accessing elements of a list that do not exist is always possible (returns $null):
+$empty_list = @(); $empty_list[10]
+
+- show hastables as nice tables (ft = Format-Table) / lists of "key: value" (fl = Format-List):
+# only keys chosen by PS
+$my_hashtable | ft
+# all keys
+$my_hashtable | ft *
+(fl always writes all keys)
+# only some keys
+$my_hashtable | ft <key1>,<key2>,...
+$my_hashtable | fl <key1>,<key2>,...
+
+
+- try - catch - except:
+
+
+- Write-Output - Write-Host - Write-Verbose:
+Write-Host $null != Write-Output $null
+Write-Host @(1,2,3) != Write-Output @(1,2,3)
+
+
+keyboard shortcuts:
+- ctrl + alt + shift + ,
+get the list of all keyboard shortcuts
+- ctrl + L
+clear terminal
+- ctrl + space
+tab completion
+- ctrl + A
+copy all current command
+- ctrl + R (ctrl + S)
+previous (next) command search
+- shift + enter
+new line, new execution
+- alt + .
+last used argument
+
+
+windows terminal:
+open a new tab in current window:
+wt -w 0 nt
+with custom profile:
+wt -w 0 nt -p
+
+
+resources:
+cheat sheet console experience: https://devblogs.microsoft.com/powershell-community/cheat-sheet-console-experience/
+cheat sheet punctuation: https://www.red-gate.com/simple-talk/wp-content/uploads/2015/09/PSPunctuationWallChart_1_0_4.pdf
+automatic variables: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.3
+
+
+to test:
+- test try - catch - finally
+- test diff between Write-Output - Write-Host - Write-Verbose
+- test ForEach-Object (%)
+- test Where-Object (?)
+- test $MyInvocation

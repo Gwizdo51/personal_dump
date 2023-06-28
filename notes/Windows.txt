@@ -14,3 +14,34 @@ https://www.minitool.com/lib/lnk-file.html
 regedit
 => HKEY_CLASSES_ROOT\lnkfile
 => delete "NeverShowExt" attribute (string value, no value data)
+
+run a .exe with as admin without prompt:
+https://superuser.com/questions/770420/schedule-a-task-with-admin-privileges-without-a-user-prompt-in-windows-7
+1- create a task in the task scheduler that opens a program with highest privileges
+2- create a shortcut to the task created
+C:\Windows\System32\schtasks.exe /RUN /TN "<task_path>"
+C:\Windows\System32\schtasks.exe /RUN /TN "my_tasks\stopupdates10_asadmin"
+3- look for the icon in the original exe (right click -> properties -> shortcut -> change icon -> browse -> look for original .exe)
+
+
+installed programs:
+    discord
+    quad-capture driver
+    nvidia geforce
+    wo mic client
+    steam
+    epic games launcher
+    vlc
+    ubisoft connect
+    parsec, hidhide, ds4windows
+    windows terminal
+    git
+    7-zip
+    stopupdates10
+    logitech g hub
+    eft
+    vscode
+    chrome
+    lol
+    powershell 7
+    powertoys

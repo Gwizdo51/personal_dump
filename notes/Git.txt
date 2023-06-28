@@ -47,8 +47,8 @@ git config --list
 faire du dossier actuel un repo git :
 git init
 
-checkout specific file from specific commit:
-git checkout <commit#> <file_path>
+checkout specific item from specific commit:
+git checkout <commit#> <item_path>
 
 obtenir la liste de toutes les branches (locales et distantes) :
 git branch -a

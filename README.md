@@ -16,8 +16,9 @@ A random clutter of stuff I should remember.
 - [x] make a pretty PowerShell prompt (7)
 
 ### *WIP*
-- [ ] convert custom PS functions into aliases
+- [ ] speed up PS profile load => call conda-hook the first time conda is activated ?
 - [ ] add a mklink alias
+- [ ] convert custom PS functions into aliases
 - [ ] add powershell notes
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
@@ -52,6 +53,9 @@ A random clutter of stuff I should remember.
     - [empty it completely](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/clear-recyclebin?view=powershell-7.3)
     - open in file explorer
     - [good blog post](https://jdhitsolutions.com/blog/powershell/7024/managing-the-recycle-bin-with-powershell/)
+
+### *Windows*
+- add a scheduler task to start the task manager on session start ?
 
 ### *other*
 - install WSL ?
