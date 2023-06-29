@@ -101,3 +101,5 @@ shows the diff between my branch and the online branch (all files, all commits)
 shows the diff between the commits of HEAD (stage included) and the online branch (all files, all commits)
 - git diff <file_path>
 shows the modifications made to a specific file since the last commit
+- git diff --no-index <original_file_path> <modified_file_path>
+shows the diff between two different files in the working directory

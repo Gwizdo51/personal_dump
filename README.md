@@ -29,6 +29,7 @@ A random clutter of stuff I should remember.
 - [ ] make every DotDict dict method consistent with the dict class
 
 ### *TODO*
+- [ ] make feedbacks to Anaconda about updating conda base with not default channel and speed it up through powershell
 - [ ] test if .gitattributes is working as intended
 - [ ] make pretty_string_factory a module on its own
 - [ ] add a docstring to logger_factory.py and touch.py

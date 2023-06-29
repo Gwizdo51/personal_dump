@@ -39,6 +39,10 @@ $empty_list = @(); $empty_list[10]
 time an expression:
 Measure-Command { Get-WinEvent "windows powershell" }
 
+test powershell load time:
+Measure-Command{ powershell.exe -Command "exit" }
+Measure-Command{ pwsh.exe -Command "exit" }
+
 
 - show hastables as nice tables (ft = Format-Table) / lists of "key: value" (fl = Format-List):
 # only keys chosen by PS
@@ -51,7 +55,11 @@ $my_hashtable | ft <key1>,<key2>,...
 $my_hashtable | fl <key1>,<key2>,...
 
 
-- try - catch - except:
+- try - catch - finally:
+"try" runs everything until a terminating error ("throw") is thrown.
+After that, it look for a corresponding "catch" block.
+After that, it runs the "finally" block.
+All blocks must be next to each other.
 
 
 - Write-Output - Write-Host - Write-Verbose:
