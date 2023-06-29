@@ -17,11 +17,10 @@ A random clutter of stuff I should remember.
 - [x] speed up PS profile load => call "conda-hook" only when conda is called the first time ?
 - [x] add a mklink alias
 - [x] add a shortcut to edit the user profile in VSCode
+- [x] add a function that prints example strings with the available colors
+- [x] don't color git prompt parentheses
 
 ### *WIP*
-- [ ] add a function that prints example strings with the available colors
-- [ ] don't color git prompt parentheses
-- [ ] import conda tab completion before importing Conda.psm1
 - [ ] add "send to trash" function ? => override "rm" alias
 - [ ] convert custom PS functions into aliases
 - [ ] add powershell notes

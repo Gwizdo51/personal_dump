@@ -37,7 +37,7 @@ if (-not $color_characters_dict) { # only set up colors once
         ++$i
     }
     # delete gen_color_char function
-    Remove-Item -path 'function:\gen_color_char'
+    # Remove-Item -path 'function:\gen_color_char'
     Remove-Variable 'color_name', 'reg_col_var_name', 'reg_col_var_value', 'bri_col_var_name', 'bri_col_var_value', 'i'
 }
 function Prompt-Git-Branch-Name {
@@ -47,11 +47,11 @@ function Prompt-Git-Branch-Name {
         # we're in a git repo
         if ($branch -eq 'HEAD') {
             # we're in detached HEAD state, so print the SHA
-            "$($color_characters_dict.col_Red)($(& "C:\Program Files\Git\cmd\git.exe" rev-parse --short HEAD))"
+            "($($color_characters_dict.col_Red)$(& "C:\Program Files\Git\cmd\git.exe" rev-parse --short HEAD)$($color_characters_dict.col_def))"
         }
         else {
             # we're on an actual branch, so print it
-            "$($color_characters_dict.bcol_Blue)($($branch))"
+            "($($color_characters_dict.col_Blue)$($branch)$($color_characters_dict.col_def))"
         }
     }
     # if we're not in a git repo, don't return anything
@@ -101,16 +101,20 @@ function Prompt {
     # $dynamic_color_char = [char] 12903
     # $char_1 = [char] 12903
     $char_1 = [char] 12295
-    $char_2 = [char] 65376
+    # $char_1 = [char] 124
+    # $char_2 = [char] 65376
+    # $char_2 = [char] 9002
+    $char_2 = [char] 10097
+    # $char_2 = [char] 124
     $cwd = $executionContext.SessionState.Path.CurrentLocation
     # [$env:COMPUTERNAME], [$Env:USERNAME]
-    # "PS > ""
+    # "PS > " |>
     # "PS¤> "
     # ｠ ﹤ ﹥ ﹡ Ꚛ ꗞ ꗟ ꔻ ꔼ ꔬ ꖝ ꔭ ꔮ ꔜ ꔝ ꔅ ꔆ ꖜ ꖛ ꕼ ꕹ ꗬ ꕺ ꕬ ꕢ ꕔ ꕕ ꗢ ꗣ ꗤ ꗥ ꗨ ꗳ ꗻ ꘃ ꘈ ꘜ ꘠ ꘨ ꘩ ꘪ
     # ꯁ ꯊ ꯌ ꯕ ꯖ ꯗ ꯘ ꯙ ꯱ ꯲ ꯳ ꯴ ꯵ ꯷ ㉤ ㉥ ㉦ ㉧ ㉨ ㉩ ㆍ ㆎ ㆆ 〇 Ⲑ Ⲫ Ⲋ Ⲱ ⯎ ⯏ ⫷ ⫸ ⪧ ⩥ ⨵ ⨳ ⨠ ⧁ ⦾ ⦿ ⦔ ⧂
-    # ⧃ ⥤ ⟢ ⟡ ➽ ➔ ❱ ⌾ ⊙ ⊚ ⊛ ∬ ൏ ಌ ಅ ఴ
+    # ⧃ ⥤ ⟢ ⟡ ➽ ➔ ❱ ⌾ ⊙ ⊚ ⊛ ∬ ൏ ಌ ಅ ఴ ᐅ 〉 ⋮ ≻ ▶ ◣ ◤
     # "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)PS $($color_characters_dict.col_def)$($dynamic_color_char) "
-    "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)$char_1$($color_characters_dict.col_def)> "
+    "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd)$($color_characters_dict.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)$char_1$($color_characters_dict.col_def)$char_2 "
     # add nested prompts ?
 }
 
@@ -143,7 +147,7 @@ New-Item -Path Alias:cdd -Value Conda-Deactivate -Force > $null
 # activate workenv when python is not in the path
 function Alias-Python {
     try {python.exe $args}
-    catch {cda; python.exe $args}
+    catch {Write-Host "Python.exe not found, activating workenv"; cda; python.exe $args}
 }
 New-Item -Path Alias:python -Value Alias-Python -Force > $null
 
@@ -318,7 +322,13 @@ New-Item -Path Alias:type -Value Get-Type -Force > $Null
 
 # tests the string colors of the terminal
 function Text-Colors-Test {
-
+    foreach ($color_name in "Black", "Red", "Green", "Yellow", "Blue", "Magenta", "Cyan", "White") {
+    # foreach ($color_name in "Blue", "Cyan") {
+        $reg_col = $color_characters_dict["col_$color_name"]
+        $bri_col = $color_characters_dict["bcol_$color_name"]
+        "$($reg_col)This is a sentence colored with regular $color_name"
+        "$($bri_col)This is a sentence colored with bright $color_name"
+    }
 }
 New-Item -Path Alias:color_test -Value Text-Colors-Test -Force > $Null
 
