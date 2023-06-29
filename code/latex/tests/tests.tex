@@ -1,0 +1,298 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\title{Test}
+\author{gwizdo51}
+\date{December 2016 \thanks{nasa}}
+
+%\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[backend=biber,style=verbose-trad2]{biblatex}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage{sectsty}
+\usepackage[french]{babel}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage[french,noline,tworuled]{algorithm2e}
+
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\definecolor{backgroundgray}{gray}{0.93}
+
+\lstset{
+backgroundcolor=\color{backgroundgray},
+basicstyle=\tt,
+breakatwhitespace=false,
+breaklines=true,
+commentstyle=\color{blue!50!black},
+keepspaces=true,
+keywordstyle=\color{red},
+language=ML,
+deletekeywords={case},
+frame=single,
+numberstyle=\small\color{darkgray},
+morekeywords={@},
+stringstyle=\color{orange},
+numbers=left,
+identifierstyle=\color{teal}
+}
+
+\sectionfont{\color{red}}
+\subsectionfont{\color{green!50!black}}
+\subsubsectionfont{\color{blue!40!black}}
+
+%\sethlcolor{green} % met le surlignage \hl en vert
+
+\bibliography{references}
+%\bibliographystyle{plain}
+
+\newenvironment{algoo}{
+    \begin{algorithm}[H]
+    \DontPrintSemicolon
+    \SetKwSwitch{Suivant}{Cas}{Autre}{suivant}{faire}{cas o\`u}{autres cas}{fincas}{finsuivant}{}
+    \SetKwInput{Donnees}{Donn\'ees}
+    \SetKwInput{Res}{R\'esultat}
+    \SetKwInput{Entree}{Entrees}
+    \SetKwInput{Sortie}{Sorties}
+    \SetKw{KwA}{\`a }
+    \SetKw{Retour}{retourner}
+    \SetKwBlock{Deb}{d\'ebut}{fin}
+    \SetKwBlock{Debs}{}{}
+    \SetKwBlock{Debu}{d\'ebut}{}
+    \SetKw{Fin}{fin}
+    \SetKwIF{Si}{SinonSi}{Sinon}{si}{alors}{sinon si}{sinon}{finsi}
+    \SetKwFor{Tq}{tant que}{faire}{fintantque}
+    \SetKwFor{Pour}{pour}{faire}{finpour}
+    \SetKwRepeat{Repeter}{r\'ep\'eter}{jusqu'\`a }
+}{%
+    \end{algorithm}
+    \vspace{1em}
+}
+
+\begin{document}
+
+\begin{titlepage}
+	\centering
+	%\includegraphics[width=0.15\textwidth]{example-image-1x1}\par\vspace{1cm}
+	\hrulefill\\
+	{\scshape\LARGE Columbidae University \par}
+	\vspace{1cm}
+	{\scshape\Large Final year project\par}
+	\vspace{1.5cm}
+	{\huge\bfseries Pigeons love doves\par}
+	\vspace{2cm}
+	{\Large\itshape John Birdwatch\par}
+	\vfill
+	supervised by\par
+	Dr.~Mark \textsc{Brown}
+
+	\vfill
+
+% Bottom of the page
+	{\large \today}
+\end{titlepage}
+
+\pagenumbering{gobble}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+\newpage
+
+\section{Introduction}
+There is a theory which states that if ever anyone discovers exactly what the Universe is for and why it is here, it will instantly disappear and be replaced by something even more bizarre and inexplicable.
+There is another theory which states that this has already happened.
+
+Mais ça marche du coup les ç apostrophe ? et les é à è ù ?
+
+\subsection{subsection}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=2]{universe.jpg}
+\caption{The Universe}
+\label{fig:universe}
+\end{figure}
+
+\section{test}
+
+\begin{equation}
+\left[
+\begin{matrix}
+1 & 0\\
+0 & 1
+\end{matrix}
+\right]
+\label{matrice_ex}
+\end{equation}
+
+\begin{equation}
+f(x) = 36
+\label{equ_ex}
+\end{equation}
+
+dans l'equation~\eqref{equ_ex} ... et dans la matrice~\eqref{matrice_ex} ...
+
+\begin{align}
+a(x) + 64 &= 36\\
+b(x) &= \frac{6}{2x} \times y\\
+c(x) &= \int_1^{10} (\frac{3}{x})^3\\
+\intertext{donc on obtient}
+&= \sqrt{2x}
+\end{align}
+
+\begin{equation*} %cette fois-ci, pas de numérotation de l'équation
+    f(32) = 64
+\end{equation*}
+
+je veux ça dans un texte : $\div \times \forall \exists \in$ et même encore après des trucs\par
+et la une formule centrée : \[x = 3\] détachée du texte.\par
+$\Longrightarrow \Longleftrightarrow \Longleftarrow \longleftarrow \longrightarrow \longleftrightarrow \pm \vec{a} \overrightarrow{AB} \bar{a} \dot{a} \cdot \Im(J) \Re(J) \div \times \forall \exists \in \notin \equiv \cap \cup < \leq \geq > \lnot \land \lor \top \bot$
+\newpage
+
+some text\footnote{\label{myfootnote}hello this is a footnote}
+
+\subsection{testage de tables}
+
+\begin{table}[h!]
+    \centering
+    \caption{tableau exemple}
+    \label{tableau}
+    \begin{tabular}{c|c||c}
+        \toprule
+        c1 & c2 & c3\\
+        \midrule
+        %\hline
+        r1 & r2 & r3\\
+        r4 & r5 & r6\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{test couleur}
+
+\textcolor{lime}{le texte \`a mettre en couleur}\\
+
+\sethlcolor{green}
+
+Et voici un \hl{texte surlign\'e en vert askip}.
+
+\sethlcolor{yellow}
+
+\hl{et celui-ci en jaune.}
+
+%red, green,blue, cyan, magenta, yellow, black, gray, white,darkgray, lightgray, brown, lime, olive, orange, pink,purple, teal, violet
+
+Voici un texte avec
+\textit{de l'italique},
+\textbf{du gras},
+\textsc{des petites capitales},
+\textsf{des caractères sans empattement},
+\texttt{des caractères à chasse fixe},
+des mots avec {\small{un corps plus petit}} ou {\large{plus grand}}.\par
+
+{\tiny A}
+{\scriptsize A}
+{\footnotesize A}
+{\small A}
+{\normalsize A}
+{\large A}
+{\Large A}
+{\LARGE A}
+{\huge A}
+{\Huge A}
+
+\emph{alors}
+
+\underline{Ce texte sera souligné}, HAHA
+
+\subsection{accents}
+
+\`e
+\'e
+\^o
+\"o
+\~u
+\=o
+\.o
+\c{c}
+\t{oo}
+\d{o}
+\b{o}
+\oe{}
+
+\section{Conclusion}
+``I always thought something was fundamentally wrong with the universe'' \autocite[1]{adams1995hitchhiker}
+
+\vfill
+
+alors ça s'écrit en dessous ce truc ?
+
+\begin{flushright} et ça c'est à droite ?\end{flushright}
+
+\begin{flushleft} et ça à gauche ?\end{flushleft}
+
+\begin{center}et ça au centre ?\end{center}
+
+\newpage
+
+\subsection{Du code}
+
+\begin{lstlisting}
+  let voisines_visibles taille une_grille case =
+  let liste_droite_complete = droite taille case in
+  let liste_gauche_complete = gauche taille case in
+  let liste_haut_complete = haut taille case in
+  let liste_bas_complete = bas taille case in
+
+  (* voici un commentaire *)
+
+  "ceci_est_une_chaine_de_caracteres";;
+
+  36;;
+
+  let rec aux_liste liste =
+    match liste with
+    |[] ->  []
+    |head::tail ->
+      if (une_grille head) = Vide then
+        head::(aux_liste tail)
+      else []
+  in
+
+  (aux_liste liste_droite_complete)
+  @(aux_liste liste_gauche_complete)
+  @(aux_liste liste_haut_complete)
+  @(aux_liste liste_bas_complete);;
+\end{lstlisting}
+
+\LaTeX{}
+
+\indent \indent texte \hspace{36pt} texte
+
+\section{algorythmie}
+
+\begin{algoo}
+\Deb
+{
+    \Suivant{N}
+    {
+        \Cas{1}{b=2}
+        \lCas{2}{b=3}
+        \Autre{b=8}
+    }
+    \Retour{b}\\
+    \eSi{a=2}{b=3}{b=4}
+}
+\end{algoo}
+
+\end{document}
