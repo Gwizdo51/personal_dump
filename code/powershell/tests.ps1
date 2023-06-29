@@ -640,7 +640,7 @@ while (($job.State -eq "Running") -and ($job.State -ne "NotStarted")) {
 Write-Host ""
 # Write-Progress
 #>
-
+<#
 # try - catch - finally, trap:
 # /!\ PowerShell doesn't crash; it just prints an error message(Write-Error), does nothing and moves on
 # => "try" will try to catch that error message
@@ -655,3 +655,25 @@ try {
 catch { Write-Host "catch: caught the error" } # this only runs if an error was caught
 finally { Write-Host "finally: this always writes" } # this always run
 Write-Host "after finally: this always writes too"
+#>
+
+# 0 -> 65535
+# $all_chars_list = @()
+for ($i = 33; $i -ge 0; ++$i) {
+    # Write-Host $i $char
+    # try { $all_chars_list += [char] $i }
+    try {
+        # [char] $i
+        "$([char] $i) " | Out-File -FilePath "~\Desktop\all_chars.txt" -Append -Encoding "utf8" -NoNewline
+    }
+    catch {break}
+    Write-Host $i $([char] $i)
+    if ($($i % 100) -eq 0) {
+        # Write-Host "lol"
+        "" | Out-File -FilePath "~\Desktop\all_chars.txt" -Append
+        "-" | Out-File -FilePath "~\Desktop\all_chars.txt" -Append
+        # break
+    }
+    # if ($i -eq 600) {break}
+}
+# foreach ($char in $all_chars_list)

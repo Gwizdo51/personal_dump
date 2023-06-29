@@ -24,18 +24,6 @@
             "keys": "ctrl+v"
         },
         {
-            "command": "find",
-            "keys": "ctrl+shift+f"
-        },
-        {
-            "command":
-            {
-                "action": "resizePane",
-                "direction": "left"
-            },
-            "keys": "ctrl+alt+left"
-        },
-        {
             "command":
             {
                 "action": "resizePane",
@@ -46,11 +34,14 @@
         {
             "command":
             {
-                "action": "splitPane",
-                "split": "auto",
-                "splitMode": "duplicate"
+                "action": "resizePane",
+                "direction": "left"
             },
-            "keys": "alt+shift+d"
+            "keys": "ctrl+alt+left"
+        },
+        {
+            "command": "find",
+            "keys": "ctrl+shift+f"
         },
         {
             "command": "unbound",
@@ -75,6 +66,15 @@
         {
             "command": "unbound",
             "keys": "alt+shift+plus"
+        },
+        {
+            "command":
+            {
+                "action": "splitPane",
+                "split": "auto",
+                "splitMode": "duplicate"
+            },
+            "keys": "alt+shift+d"
         },
         {
             "command":
@@ -139,26 +139,7 @@
                 "hidden": false,
                 "icon": "ms-appx:///ProfileIcons/pwsh.png",
                 "name": "PS 7",
-                "startingDirectory": "D:\\code\\",
-                "tabTitle": "PS 7"
-            },
-            {
-                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
-                "hidden": false,
-                "name": "PS 5 (system)",
-                "startingDirectory": "%USERPROFILE%",
-                "tabTitle": "PS 5"
-            },
-            {
-                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
-                "hidden": false,
-                "name": "command prompt"
-            },
-            {
-                "guid": "{2ece5bfe-50ed-5f3a-ab87-5cd4baafed2b}",
-                "hidden": false,
-                "name": "Git Bash",
-                "source": "Git"
+                "startingDirectory": "D:\\code\\"
             },
             {
                 "colorScheme": "Vintage",
@@ -178,6 +159,29 @@
                 "startingDirectory": "D:\\code\\",
                 "tabTitle": "PS 7",
                 "useAcrylic": true
+            },
+            {
+                "font":
+                {
+                    "weight": "medium"
+                },
+                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+                "hidden": false,
+                "name": "PS system",
+                "startingDirectory": "%USERPROFILE%"
+            },
+            {
+                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+                "hidden": false,
+                "name": "command prompt"
+            },
+            {
+                "guid": "{2ece5bfe-50ed-5f3a-ab87-5cd4baafed2b}",
+                "hidden": false,
+                "name": "Git Bash",
+                "source": "Git",
+                "startingDirectory": "%USERPROFILE%",
+                "tabTitle": "Git Bash"
             },
             {
                 "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
@@ -202,9 +206,9 @@
             "brightWhite": "#F2F2F2",
             "brightYellow": "#F9F1A5",
             "cursorColor": "#FFFFFF",
-            "cyan": "#3A96DD",
+            "cyan": "#1F8191",
             "foreground": "#CCCCCC",
-            "green": "#13A10E",
+            "green": "#17994A",
             "name": "Campbell",
             "purple": "#881798",
             "red": "#C50F1F",
@@ -411,7 +415,8 @@
             },
             "window":
             {
-                "applicationTheme": "dark"
+                "applicationTheme": "dark",
+                "useMica": false
             }
         },
         {
@@ -424,7 +429,8 @@
             },
             "window":
             {
-                "applicationTheme": "light"
+                "applicationTheme": "light",
+                "useMica": false
             }
         },
         {
@@ -437,7 +443,8 @@
             },
             "window":
             {
-                "applicationTheme": "system"
+                "applicationTheme": "system",
+                "useMica": false
             }
         }
     ],

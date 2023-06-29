@@ -2,24 +2,13 @@ $tick = Get-Date
 Write-Host "Loading personal profile (custom_profile.ps1) ..."
 # Import-Module "D:\Code\personal_dump\code\powershell\Recycle.psm1"
 
-# conda module
-# => only load conda if conda is needed => "conda activate <venv>" loads conda?
-<#
-If (Test-Path "$home\anaconda3\Scripts\conda.exe") {
-    # (& "$($home)\anaconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
-    # $test_output = & "$($home)\anaconda3\Scripts\conda.exe" shell.powershell hook # | ?{$_} | iex
-    # conda env
-    $Env:_CONDA_ROOT = "$home/anaconda3"
-    $Env:CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
-    $Env:_CE_M = ""
-    $Env:_CE_CONDA = ""
-    $Env:_CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
-    # conda hook (adds conda to path)
-    & "$($Env:_CONDA_ROOT)\Scripts\conda.exe" 'shell.powershell' 'hook' > $null
-    # conda PS module
-    Import-Module "D:\code\personal_dump\code\powershell\Conda.psm1" -Verbose
-    conda activate base
-}
+# <#
+# Write-Host 'Setting up conda ...'
+$Env:_CONDA_ROOT = "$HOME\anaconda3"
+$Env:CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
+$Env:_CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
+Import-Module "$Env:_CONDA_ROOT\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False}
+# conda activate base
 #>
 
 # prompt setup
@@ -70,8 +59,6 @@ function Prompt-Git-Branch-Name {
 function Alias-CD {
     param([string]$path)
     Set-Location $path
-    # try {Set-Location $path}
-    # catch {Write-Host 'didnt work'}
     if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
         # we are in a FileSystem drive, safe to look for git branches
         $Env:_PROMPT_GIT_MODIFIER = $(Prompt-Git-Branch-Name)
@@ -95,7 +82,7 @@ function Alias-GIT {
 New-Item -Path Alias:git -Value Alias-GIT -Force > $null
 $principal = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
 $admin_role = [Security.Principal.WindowsBuiltInRole]::Administrator
-if ($principal.IsInRole($admin_role)) {$ENV:_PROMPT_PRIVILEGE = "[$($color_characters_dict.bcol_Blue)ADMIN$($color_characters_dict.col_def)] "}
+if ($principal.IsInRole($admin_role)) {$ENV:_PROMPT_PRIVILEGE = "$($color_characters_dict.col_def)[$($color_characters_dict.bcol_Blue)ADMIN$($color_characters_dict.col_def)] "}
 else {$ENV:_PROMPT_PRIVILEGE = ''}
 Remove-Variable 'principal', 'admin_role'
 function Prompt {
@@ -110,12 +97,20 @@ function Prompt {
     $git_prompt = [string] $Env:_PROMPT_GIT_MODIFIER
     # default ("[int][char]'>'" to find the integer): [char]62
     # here: [int][char]'¤' => 164
-    $dynamic_color_char = [char] 62
+    # '>' => 62
+    # $dynamic_color_char = [char] 12903
+    # $char_1 = [char] 12903
+    $char_1 = [char] 12295
+    $char_2 = [char] 65376
     $cwd = $executionContext.SessionState.Path.CurrentLocation
     # [$env:COMPUTERNAME], [$Env:USERNAME]
-    # return "`nPS > "
-    # return "`nPS & "
-    "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd) $($git_prompt)`n$($color_characters_dict.col_def)$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)PS $($color_characters_dict.col_def)$($dynamic_color_char) "
+    # "PS > ""
+    # "PS¤> "
+    # ｠ ﹤ ﹥ ﹡ Ꚛ ꗞ ꗟ ꔻ ꔼ ꔬ ꖝ ꔭ ꔮ ꔜ ꔝ ꔅ ꔆ ꖜ ꖛ ꕼ ꕹ ꗬ ꕺ ꕬ ꕢ ꕔ ꕕ ꗢ ꗣ ꗤ ꗥ ꗨ ꗳ ꗻ ꘃ ꘈ ꘜ ꘠ ꘨ ꘩ ꘪ
+    # ꯁ ꯊ ꯌ ꯕ ꯖ ꯗ ꯘ ꯙ ꯱ ꯲ ꯳ ꯴ ꯵ ꯷ ㉤ ㉥ ㉦ ㉧ ㉨ ㉩ ㆍ ㆎ ㆆ 〇 Ⲑ Ⲫ Ⲋ Ⲱ ⯎ ⯏ ⫷ ⫸ ⪧ ⩥ ⨵ ⨳ ⨠ ⧁ ⦾ ⦿ ⦔ ⧂
+    # ⧃ ⥤ ⟢ ⟡ ➽ ➔ ❱ ⌾ ⊙ ⊚ ⊛ ∬ ൏ ಌ ಅ ఴ
+    # "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)PS $($color_characters_dict.col_def)$($dynamic_color_char) "
+    "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)$char_1$($color_characters_dict.col_def)> "
     # add nested prompts ?
 }
 
@@ -126,57 +121,15 @@ $dump = "$code\personal_dump"
 
 # edit this script in VSCode
 function Edit-Profile {
-    # edit $profile, resolve if it is a symlink
-
-    # code "$dump\code\powershell\profile\windows_custom_profile.ps1"
-    }
-New-Item -Path Alias:ep -Value Edit-Profile -Force > $null
-
-# override "conda" cmd to set it up only when it is called for the first time
-<#
-If (Test-Path "$home\anaconda3\Scripts\conda.exe") {
-    $Env:_is_conda_set_up = $False
-    function conda_set_up {
-        # Write-host "is conda not set up: $Env:_is_conda_set_up"
-        if ($Env:_is_conda_set_up -eq $False) {
-            # $f_tick = Get-Date
-            Write-Host 'Setting up conda ...'
-            # (& "$($home)\anaconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
-            # $test_output = & "$($home)\anaconda3\Scripts\conda.exe" shell.powershell hook # | ?{$_} | iex
-            # conda env
-            $Env:_CONDA_ROOT = "$home/anaconda3"
-            $Env:CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
-            # $Env:_CE_M = ""
-            # $Env:_CE_CONDA = ""
-            $Env:_CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
-            # conda hook (adds conda to path)
-            # & "$($home)\anaconda3\Scripts\conda.exe" shell.powershell hook | ?{$_} | iex
-            # & "$($Env:_CONDA_ROOT)\Scripts\conda.exe" 'shell.powershell' 'hook' > $null
-            # conda PS module
-            # Import-Module "$($Env:_CONDA_ROOT)\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False}
-            Import-Module "$dump\code\powershell\Conda.psm1" -ArgumentList @{ChangePs1 = $False} #-Verbose
-            # Conda.psm1 overrides "conda" alias by itself
-            $Env:_is_conda_set_up = $True
-            # $f_tock = Get-Date
-            # Write-Host "Conda load time: $([math]::Round($load_time, 3))"
-        }
-    }
-    function Alias-Conda-Profile {
-        # Write-Host 'Alias-Conda-Profile called'
-        conda_set_up
-        conda $args
-    }
-    New-Item -Path Alias:conda -Value Alias-Conda-Profile -Force > $null
+    # edit $profile, resolve if it is a symlink => actually, VSCode doesn't care about symlinks
+    # $profile_path = [string] $profile
+    # $profile_item = Get-Item $profile_path
+    # if ($profile_item.LinkType -eq 'SymbolicLink') {
+    #     $profile_path = Resolve-Path $profile_item.ResolvedTarget
+    # }
+    code $profile
 }
-#>
-# <# test conda
-Write-Host 'Setting up conda ...'
-$Env:_CONDA_ROOT = "$HOME\anaconda3"
-$Env:CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
-$Env:_CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
-Import-Module "$dump\code\powershell\FastConda.psm1" -ArgumentList @{ChangePs1 = $False}
-conda activate base
-#>
+New-Item -Path Alias:ep -Value Edit-Profile -Force > $null
 
 # conda shortcuts
 function Conda-Activate {
@@ -186,6 +139,13 @@ function Conda-Activate {
 New-Item -Path Alias:cda -Value Conda-Activate -Force > $null
 function Conda-Deactivate {conda deactivate}
 New-Item -Path Alias:cdd -Value Conda-Deactivate -Force > $null
+
+# activate workenv when python is not in the path
+function Alias-Python {
+    try {python.exe $args}
+    catch {cda; python.exe $args}
+}
+New-Item -Path Alias:python -Value Alias-Python -Force > $null
 
 # jupyter lab on workenv shortcut
 function Jupyter-Lab {cda; cd $code; jupyter lab}
@@ -305,6 +265,7 @@ function la {dir -Force}
 # la | Format-Table Length, Name
 function Find {Get-ChildItem -Recurse -Filter $args}
 function Touch {python "D:\code\personal_dump\code\python\touch.py" $args}
+# nf (new file) alias => checks if file exists
 # notepad alias
 # New-Item -Path Alias:np -Value c:\windows\notepad.exe
 # touch function with New-Item ?
@@ -413,6 +374,41 @@ function f_test_2 {
 function is_var_assigned {
     Param($var)
     return (!!$var)
+}
+
+If (Test-Path "$home\anaconda3\Scripts\conda.exe") {
+    $Env:_is_conda_set_up = $False
+    function conda_set_up {
+        # Write-host "is conda not set up: $Env:_is_conda_set_up"
+        if ($Env:_is_conda_set_up -eq $False) {
+            # $f_tick = Get-Date
+            Write-Host 'Setting up conda ...'
+            # (& "$($home)\anaconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
+            # $test_output = & "$($home)\anaconda3\Scripts\conda.exe" shell.powershell hook # | ?{$_} | iex
+            # conda env
+            $Env:_CONDA_ROOT = "$home/anaconda3"
+            $Env:CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
+            # $Env:_CE_M = ""
+            # $Env:_CE_CONDA = ""
+            $Env:_CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
+            # conda hook (adds conda to path)
+            # & "$($home)\anaconda3\Scripts\conda.exe" shell.powershell hook | ?{$_} | iex
+            # & "$($Env:_CONDA_ROOT)\Scripts\conda.exe" 'shell.powershell' 'hook' > $null
+            # conda PS module
+            # Import-Module "$($Env:_CONDA_ROOT)\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False}
+            Import-Module "$dump\code\powershell\Conda.psm1" -ArgumentList @{ChangePs1 = $False} #-Verbose
+            # Conda.psm1 overrides "conda" alias by itself
+            $Env:_is_conda_set_up = $True
+            # $f_tock = Get-Date
+            # Write-Host "Conda load time: $([math]::Round($load_time, 3))"
+        }
+    }
+    function Alias-Conda-Profile {
+        # Write-Host 'Alias-Conda-Profile called'
+        conda_set_up
+        conda $args
+    }
+    New-Item -Path Alias:conda -Value Alias-Conda-Profile -Force > $null
 }
 #>
 

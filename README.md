@@ -16,9 +16,9 @@ A random clutter of stuff I should remember.
 - [x] delete useless variables from the current scope after loading the profile
 - [x] speed up PS profile load => call "conda-hook" only when conda is called the first time ?
 - [x] add a mklink alias
+- [x] add a shortcut to edit the user profile in VSCode
 
 ### *WIP*
-- [ ] add a shortcut to edit the user profile in VSCode
 - [ ] add a function that prints example strings with the available colors
 - [ ] don't color git prompt parentheses
 - [ ] import conda tab completion before importing Conda.psm1
