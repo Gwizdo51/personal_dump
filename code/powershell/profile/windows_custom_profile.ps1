@@ -120,16 +120,20 @@ function Prompt {
 }
 
 # shortcuts to important folders
-$code = 'D:\Code'
+$code = 'D:\code'
 $horoview = "$code\projects\01_horoview"
 $dump = "$code\personal_dump"
 
 # edit this script in VSCode
-function Edit-Profile {code "$dump\code\powershell\profile\windows_custom_profile.ps1"}
+function Edit-Profile {
+    # edit $profile, resolve if it is a symlink
+
+    # code "$dump\code\powershell\profile\windows_custom_profile.ps1"
+    }
 New-Item -Path Alias:ep -Value Edit-Profile -Force > $null
 
 # override "conda" cmd to set it up only when it is called for the first time
-# <#
+<#
 If (Test-Path "$home\anaconda3\Scripts\conda.exe") {
     $Env:_is_conda_set_up = $False
     function conda_set_up {
@@ -142,42 +146,49 @@ If (Test-Path "$home\anaconda3\Scripts\conda.exe") {
             # conda env
             $Env:_CONDA_ROOT = "$home/anaconda3"
             $Env:CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
-            $Env:_CE_M = ""
-            $Env:_CE_CONDA = ""
+            # $Env:_CE_M = ""
+            # $Env:_CE_CONDA = ""
             $Env:_CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
             # conda hook (adds conda to path)
-            & "$($Env:_CONDA_ROOT)\Scripts\conda.exe" 'shell.powershell' 'hook' > $null
             # & "$($home)\anaconda3\Scripts\conda.exe" shell.powershell hook | ?{$_} | iex
+            # & "$($Env:_CONDA_ROOT)\Scripts\conda.exe" 'shell.powershell' 'hook' > $null
             # conda PS module
             # Import-Module "$($Env:_CONDA_ROOT)\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False}
             Import-Module "$dump\code\powershell\Conda.psm1" -ArgumentList @{ChangePs1 = $False} #-Verbose
-            # conda_test lol haha
-            New-Alias conda Invoke-Conda -Force
-            $Env:_is_conda_not_set_up = $True
+            # Conda.psm1 overrides "conda" alias by itself
+            $Env:_is_conda_set_up = $True
             # $f_tock = Get-Date
             # Write-Host "Conda load time: $([math]::Round($load_time, 3))"
         }
     }
-    function Alias-Conda {
-        # Write-Host 'Alias-Conda called'
+    function Alias-Conda-Profile {
+        # Write-Host 'Alias-Conda-Profile called'
         conda_set_up
         conda $args
     }
-    New-Item -Path Alias:conda -Value Alias-Conda -Force > $null
+    New-Item -Path Alias:conda -Value Alias-Conda-Profile -Force > $null
 }
+#>
+# <# test conda
+Write-Host 'Setting up conda ...'
+$Env:_CONDA_ROOT = "$HOME\anaconda3"
+$Env:CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
+$Env:_CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
+Import-Module "$dump\code\powershell\FastConda.psm1" -ArgumentList @{ChangePs1 = $False}
+conda activate base
 #>
 
 # conda shortcuts
 function Conda-Activate {
-    param($venv='workenv')
+    param($venv='workenv') # default to "workenv" instead of "base"
     conda activate $venv
 }
 New-Item -Path Alias:cda -Value Conda-Activate -Force > $null
 function Conda-Deactivate {conda deactivate}
 New-Item -Path Alias:cdd -Value Conda-Deactivate -Force > $null
 
-# jupyter lab shortcut
-function Jupyter-Lab {cda; cd "${code}"; jupyter lab}
+# jupyter lab on workenv shortcut
+function Jupyter-Lab {cda; cd $code; jupyter lab}
 New-Item -Path Alias:jupyter_lab -Value Jupyter-Lab -Force > $null
 
 # git shortcuts
@@ -298,10 +309,23 @@ function Touch {python "D:\code\personal_dump\code\python\touch.py" $args}
 # New-Item -Path Alias:np -Value c:\windows\notepad.exe
 # touch function with New-Item ?
 # maybe with "$null > empty.txt" ?
-function mklink {
-    # New-Item -ItemType SymbolicLink -Path '<link_path>' -Target '<original_item_path>'
-    # param()
+function Make-Link {
+    param(
+        [Parameter(Mandatory = $true)]$TargetPath, # what the link points to
+        [Parameter(Mandatory = $true)]$LinkPath # where the link will be
+    )
+    # check if the target exists
+    if (-not $(Test-Path $TargetPath)) {Write-Error "$TargetPath does not exist"; return}
+    $target_absolute_path = Resolve-Path $TargetPath
+    # link to the target's target if it is a SymbolicLink
+    # (Get-ChildItem .\ | where {$_.LinkType -eq 'SymbolicLink'}).ResolvedTarget
+    $target_item = Get-Item $target_absolute_path
+    if ($target_item.LinkType -eq 'SymbolicLink') {
+        $target_absolute_path = Resolve-Path $target_item.ResolvedTarget
+    }
+    New-Item -ItemType 'SymbolicLink' -Path $LinkPath -Target $target_absolute_path
 }
+New-Item -Path Alias:mklink -Value Make-Link -Force > $null
 # add a "lr" alias with get-childitem
 function Conda-Update {conda update conda -n base -c defaults}
 function Env-Path-Items {"${Env:path}".replace(";", "`n")}
@@ -326,17 +350,21 @@ New-Item -Path Alias:wt -Value wt-Alias -Force > $null
 
 ###
 
-function Get-Type {
-    foreach($arg in $args) {
-        Write-Output $arg.GetType().FullName
-    }
-}
+# write the names of the types of the objects passed
+function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
 New-Item -Path Alias:type -Value Get-Type -Force > $Null
+# why doesn't it work as a pipe ?
+
+# tests the string colors of the terminal
+function Text-Colors-Test {
+
+}
+New-Item -Path Alias:color_test -Value Text-Colors-Test -Force > $Null
 
 ###
 
-$tock = Get-Date
 # Start-Sleep .5
+$tock = Get-Date
 $load_time = ($tock - $tick).TotalMilliseconds
 # [math]::Round(($tock - $tick).TotalSeconds), 3)
 Write-Host "Profile load time: $([int][math]::Round($load_time))ms"
