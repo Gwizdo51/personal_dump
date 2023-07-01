@@ -44,6 +44,27 @@ Measure-Command{ powershell.exe -Command "exit" }
 Measure-Command{ pwsh.exe -Command "exit" }
 
 
+- processes and jobs:
+start a powershell terminal through a script with a hidden window:
+$jupyter_server_process = Start-Process -FilePath .\jupyter_server.ps1 -PassThru
+$jupyter_server_process = Start-Process -FilePath .\jupyter_server.ps1 -WindowStyle "Hidden" -PassThru
+kill the terminal and its childs:
+Stop-ProcessTree $jupyter_server_process.Id
+
+Start-Process -FilePath "pwsh.exe" -ArgumentList "-c","Write-Output","sleeping;","Start-Sleep","10;"
+Start-Process -FilePath "powershell.exe" -ArgumentList "-c","Write-Output","sleeping;","Start-Sleep","10;"
+
+$args_list = "Write-Output","sleeping;","Start-Sleep","10;"
+Start-Process powershell.exe -ArgumentList (@("-c") + $args_list)
+$command_str = "Write-Output 'sleeping...'; Start-Sleep 10;"
+Start-Process powershell.exe -ArgumentList (@("-c") + $command_str.Split(" "))
+Start-Process powershell.exe -ArgumentList ("-c " + $command_str)
+
+$server_dir = "$(Split-Path $custom_profile_dir -Parent)\jupyter_server"
+$command_str = "& `"$server_dir\jupyter_server.ps1`""
+Start-Process powershell.exe -ArgumentList ("-c " + $command_str)
+
+
 - show hastables as nice tables (ft = Format-Table) / lists of "key: value" (fl = Format-List):
 # only keys chosen by PS
 $my_hashtable | ft
@@ -57,7 +78,7 @@ $my_hashtable | fl <key1>,<key2>,...
 
 - try - catch - finally:
 "try" runs everything until a terminating error ("throw") is thrown.
-After that, it look for a corresponding "catch" block.
+After that, it stops running the "try" block and looks for a corresponding "catch" block.
 After that, it runs the "finally" block.
 All blocks must be next to each other.
 
@@ -65,6 +86,36 @@ All blocks must be next to each other.
 - Write-Output - Write-Host - Write-Verbose:
 Write-Host $null != Write-Output $null
 Write-Host @(1,2,3) != Write-Output @(1,2,3)
+
+
+- function vs. cmdlet:
+cmdlet inherits from "functions", but isn't a function
+
+
+- pipelines:
+X = Foo(Bar(Hello("World"))) not possible/practical => X = Hello "World" | Bar | Foo
+
+
+- jobs:
+background commands on the same process, on a different thread.
+- start a job:
+$myjob = Start-Job -ScriptBlock {jupyter lab}
+jupyter lab &
+- get all jobs:
+Get-Job
+Get-Job -State "Running"
+- getting a job result:
+Receive-Job -Job $myjob -keep
+Receive-Job 3 -keep
+- waiting for a job result with a timeout:
+Wait-Job -ID 10 -Timeout 120
+- force stop a job:
+Stop-Job -Id 9
+Stop-Job $myjob
+- remove a job from the list: (fails if the job is still running)
+Remove-Job $myjob
+Remove-Job *
+Get-Job | where {$_.State -ne "Running"} | Remove-Job
 
 
 keyboard shortcuts:
@@ -95,6 +146,7 @@ resources:
 cheat sheet console experience: https://devblogs.microsoft.com/powershell-community/cheat-sheet-console-experience/
 cheat sheet punctuation: https://www.red-gate.com/simple-talk/wp-content/uploads/2015/09/PSPunctuationWallChart_1_0_4.pdf
 automatic variables: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.3
+advanced functions: https://devblogs.microsoft.com/scripting/introduction-to-advanced-powershell-functions/
 
 
 to test:
@@ -103,3 +155,4 @@ to test:
 - test ForEach-Object (%)
 - test Where-Object (?)
 - test $MyInvocation
+- check preference variables https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.3
