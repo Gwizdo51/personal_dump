@@ -45,3 +45,5 @@ installed programs:
     lol
     powershell 7
     powertoys
+    fl studio
+    virtual dj

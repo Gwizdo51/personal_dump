@@ -53,7 +53,6 @@ A random clutter of stuff I should remember.
 
 ### *powershell profile*
 - add notepad alias "np" ?
-- touch alias with New-Item ?
 - add a script to interact with the trashbin ?
     - restore a file from the recycle bin if it is unique, or maybe the last one
     - [empty it completely](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/clear-recyclebin?view=powershell-7.3)

@@ -1,24 +1,19 @@
-delete a venv :
-- confirmation required: conda remove -n testenv --all
-- no confimation required: conda env remove -n testenv
-
 show the list of available channels
 conda config --show channels
 
-add/remove "conda-forge" to the list of available channels
+add/remove "conda-forge" to the list of available channels (bad idea)
 conda config --[add/remove] channels conda-forge
 
 create a new venv :
 conda create -n testenv
+conda create -n testenv python
 
 create new venv from YAML file :
 conda env create -f /path/to/environment.yml
+conda env create -f /path/to/environment.yml -n <alternative_name>
 
 create new venv in a directory :
 conda create --prefix /path/to/venv/directory
-
-create new venv with python installed :
-conda create -n testenv python
 
 list all venv :
 conda env list
@@ -35,6 +30,10 @@ conda list
 
 install python :
 conda install -n testenv python=3.9.1
+
+delete a venv :
+- confirmation required: conda remove -n testenv --all
+- no confimation required: conda env remove -n testenv
 
 clean conda cache :
 conda clean --all

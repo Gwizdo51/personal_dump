@@ -1,4 +1,4 @@
-function confirmation_prompt {
+function Confirmation-Prompt {
     param(
         [string] $Question = 'Are you sure you want to perform this action?',
         [hashtable] $ChoicesTable,
@@ -9,7 +9,7 @@ function confirmation_prompt {
     $Host.UI.PromptForChoice($title, $question, $choices, $DefaultChoice)
 }
 
-function default_confirmation_prompt {
+function Default-Confirmation-Prompt {
     param([string]$QuestionNewLine)
     $Question = 'Are you sure you want to perform this action?'
     if ($QuestionNewLine) {$Question = $Question + "`n" + $QuestionNewLine}
