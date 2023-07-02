@@ -26,5 +26,5 @@
 
 # binaries
 *.png       -text
-# keep .ipynb files with lf line endings on windows
-*.ipynb     -text
+# keep .ipynb files with lf line endings on windows, delete "jupyter notebook" from the list of languages used
+*.ipynb     -text linguist-vendored
