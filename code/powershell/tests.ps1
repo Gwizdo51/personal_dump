@@ -479,9 +479,6 @@ Write-Host "`"`$null`" evaluates to `$$([bool]$null)"
 #>
 <#
 # verbose:
-# - Write-Host:
-# - Write-Output:
-# - Write-Verbose:
 Write-Host ''
 Write-Host 'verbose:'
 function func_with_verbose {
@@ -506,6 +503,19 @@ function f_test {Write-Host $(-not $([bool] $args.Length))}
 f_test
 f_test lol
 f_test haha
+#>
+# <#
+# xor switches:
+function two_switches {
+    param([switch]$first, [switch]$second)
+    Write-Host ($first -and $second)
+    # Write-Host ($first -or $second)
+    # Write-Host ($first -xor $second)
+}
+two_switches
+two_switches -f
+two_switches -s
+two_switches -f -s
 #>
 <#
 # drives: https://learn.microsoft.com/en-us/powershell/scripting/samples/managing-windows-powershell-drives?view=powershell-7.3
@@ -738,7 +748,7 @@ $decision
 #     Write-Host 'cancelled'
 # }
 #>
-
+<#
 # give the choice to output URL, or start a new server anyways
 # 0) output URLs
 # 1) start new server anyways
@@ -755,3 +765,4 @@ $table = @{
 # $table.Keys | % {$_} | sort
 # $Table.Values | % {$_}
 confirmation_prompt -q 'A Jupyter Lab server is already running. Please advise:' -c $table -d 0
+#>
