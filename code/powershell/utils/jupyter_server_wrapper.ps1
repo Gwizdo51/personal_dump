@@ -35,7 +35,7 @@ function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" li
 
     if ($Env:CONDA_DEFAULT_ENV -eq 'workenv') {$jupyter_lab_list_output = jupyter server list}
     else {cda; $jupyter_lab_list_output = jupyter server list; cdd}
-    $url_regex_pattern = 'http:\/\/localhost:[\d]+\/\?token=[\w]+'
+    $url_regex_pattern = 'http://localhost:[\d]+/\?token=[\w]+'
     if ($jupyter_lab_list_output -match $url_regex_pattern) {
         $urls = ([regex]::matches($jupyter_lab_list_output, $url_regex_pattern)).Value
         Write-Verbose "Found $($urls.Count) jupyter lab servers currently running"
@@ -53,6 +53,8 @@ function Wrapper-JupyterLab {
         [switch] $Job,
         [switch] $URL,
         [switch] $Force,
+        [switch] $Kill,
+        [switch] $Logs,
         [switch] $Verbose,
         [switch] $Silent
     )
@@ -67,12 +69,24 @@ function Wrapper-JupyterLab {
     else {Write-Verbose "'-Silent' flag set, not printing information stream to host"}
     # $VEnv, $RootDir, $process_or_job
     # check if a server is already running
-    $running_servers = Get-JupyterLabURL 2> $null
-    if ($running_servers.Length -gt 0) {
+    if ($Kill) {
+        Write-Verbose "'-Kill' flag set, killing all jupyter servers"
+        $InformationPreference = 'SilentlyContinue'
+        Kill-JupyterLab
+        return
+    }
+    $running_servers_urls = Get-JupyterLabURL 2> $null
+    if ($Logs) {
+        Write-Verbose "'-Logs' flag set, writing the logs of the jupyter_server job"
+        if ($running_servers_urls.Count -eq 0) {Write-Error 'No jupyter server is currently running'}
+        else {Write-JobServerLogs}
+        return
+    }
+    if ($running_servers_urls.Count -gt 0) {
         if ($URL) {
             Write-Verbose "'-URL' flag set, returning the list of all running servers"
             Write-Information 'List of jupyter servers currently running:'
-            return $running_servers
+            return $running_servers_urls
         }
         # give the choice to output URL, or start a new server anyways
         $choice = 2
@@ -111,7 +125,7 @@ function Wrapper-JupyterLab {
         0 {
             Write-Verbose "Returning the list of all running servers"
             Write-Information 'List of jupyter servers currently running:'
-            return $running_servers
+            return $running_servers_urls
         }
         1 {
             Write-Verbose "Starting a new jupyter lab server"
@@ -150,20 +164,20 @@ function Wrapper-JupyterLab {
 New-Item -Path Alias:jupyter_lab -Value Wrapper-JupyterLab -Force > $null
 
 # make a function to print the logs of the jupyter server when running in a job
-function print_server_logs {
-
+function Write-JobServerLogs {
+    $running_job_servers = Get-Job | ? {($_.Name -eq 'jupyter_server') -and ($_.State -eq 'Running')}
+    if ($running_job_servers.Count -eq 0) {Write-Error 'No jupyter server is currently running'}
+    elseif ($running_job_servers.Count -eq 1) {Receive-Job $running_job_servers -keep}
+    else {
+        $ofs = ", "
+        $chosen_id = Read-Host "Multiple jupyter servers are running as jobs, please select one job ID ($($running_job_servers.Id)) (default is most recent)"
+        if ($chosen_id -eq "") {$chosen_id = ($running_job_servers.Id | Measure-Object -Maximum).Maximum}
+        Receive-Job -Id $chosen_id -keep
+    }
 }
+New-Item -Path Alias:jl -Value Write-JobServerLogs -Force > $null
 
-# jupyter_lab_kill
-# > if a file named "jupyter_lab_server.JSON" exists in the .jupyter directory in $HOME and it is not empty:
-# >     remove it
-function Kill-JupyterLab { # kill all jupyter lab servers => doesn't really work
-    # $current_conda_env = $Env:CONDA_DEFAULT_ENV
-    # if ($current_conda_env -eq 'workenv') {$jupyter_lab_list_output = jupyter server list}
-    # else {cda; $jupyter_lab_list_output = jupyter server list; cdd}
-    $port_regex_pattern = 'http:\/\/localhost:([\d]+)\/\?token=[\w]+'
-    # foreach ($url in $running_servers_url)
-    #     {[regex]::matches($url, $port_regex_pattern) | % {$_.Groups} | ? {$_.Name -eq 1} | % {$_.Value}}
-    # Get-JupyterLabURL 2> $null | % {[regex]::matches($_, $port_regex_pattern)} | % {$_.Groups} | ? {$_.Name -eq 1} | % {$_.Value}
-    Get-JupyterLabURL 2> $null | % {[regex]::matches($_, $port_regex_pattern).Groups} #| ? {$_.Name -eq 1} | % {jupyter server stop $_.Value}
+function Kill-JupyterLab { # kill all jupyter lab servers
+    $port_regex_pattern = 'http://localhost:([\d]+)/\?token=[\w]+'
+    Get-JupyterLabURL 2> $null | % {[regex]::matches($_, $port_regex_pattern).Groups} | ? {$_.Name -eq 1} | % {jupyter server stop $_.Value}
 }

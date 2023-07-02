@@ -184,7 +184,7 @@ New-Item -Path Alias:gfs -Value Git-Fetch-Status -Force > $null
 
 # New-Item -Path Alias:del -Value rm_alias -Force > $null
 New-Item -Path Alias:read -Value Get-Content -Force > $null
-function la {dir -Force}
+function la {dir -Force} # group-object, format-table
 # la | Format-Table Length, Name
 function Find {Get-ChildItem -Recurse -Filter $args}
 # function Touch {python "D:\code\personal_dump\code\python\touch.py" $args}
@@ -194,6 +194,7 @@ function Touch {
 }
 # nf (new file) alias => checks if file exists
 # notepad alias
+New-Item -Path Alias:np -Value notepad -Force > $null
 # New-Item -Path Alias:np -Value c:\windows\notepad.exe
 # maybe with "$null > empty.txt" ?
 function Make-Link {
@@ -231,6 +232,7 @@ function Windows-Terminal { # allows opening a windows terminal as admin with no
     else {wt.exe $args}
 }
 New-Item -Path Alias:wt -Value Windows-Terminal -Force > $null
+New-Item -Path Alias:gj -Value Get-Job -Force > $null
 function Clear-Job {Get-Job | ? {$_.State -ne "Running"} | Remove-Job}
 New-Item -Path Alias:cj -Value Clear-Job -Force > $null
 function Stop-ProcessTree {

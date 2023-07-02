@@ -15,13 +15,12 @@
 - [x] add a function that prints example strings with the available colors
 - [x] don't color git prompt parentheses
 - [x] test if .gitattributes is working as intended
+- [x] add a mechanism to run the jupyter lab server on a seperate hidden powershell process
 
 ### *WIP*
-- [ ] add a mechanism to run the jupyter lab server on a seperate hidden powershell process
 - [ ] add "Recycle" function
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
 - [ ] convert custom PS functions into aliases
-- [ ] add notepad.exe alias "np"
 - [ ] add powershell notes
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class

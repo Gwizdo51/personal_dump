@@ -242,6 +242,8 @@ filter string_case_filter {
 }
 'lol' | string_case_filter -lower
 'lol' | string_case_filter -upper
+# each element is processed down the pipeline before the next element is sent
+1,2,3 | % {Write-Host "1st processing $_"; $($_ + 10), $($_ + 100)} | % {Write-Host "2nd processing $_"}
 #>
 
 <#
