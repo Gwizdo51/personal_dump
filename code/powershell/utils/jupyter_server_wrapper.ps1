@@ -3,6 +3,13 @@
 # $server_dir = "$powershell_dir\jupyter_server"
 
 function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" lists all running servers
+    param(
+        [switch]$Verbose
+    )
+    # The Verbose parameter overrides the value of the $VerbosePreference variable for the current command.
+    # Setting a preference variable in a function overrides the variable for the duration of the function.
+    if ($Verbose) {$VerbosePreference = 'Continue'}
+
     # param([string]$process_or_job='process')
     # if ($process_or_job -notin 'process','job') {Write-Error "Expected 'process' or 'job', received '$process_or_job'"; return}
     # if ($process_or_job -eq 'job') { # get the URL from the job logs
@@ -27,31 +34,52 @@ function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" li
     # Remove-Job -Job $server_list_job
 
     # => maybe remembering conda env would be faster?
-    $current_conda_env = $Env:CONDA_DEFAULT_ENV
-    if ($current_conda_env -eq 'workenv') {$jupyter_lab_list_output = jupyter lab list}
-    else {cda; $jupyter_lab_list_output = jupyter lab list; cdd}
+    # $current_conda_env = $Env:CONDA_DEFAULT_ENV
+    if ($Env:CONDA_DEFAULT_ENV -eq 'workenv') {$jupyter_lab_list_output = jupyter server list}
+    else {cda; $jupyter_lab_list_output = jupyter server list; cdd}
     $url_regex_pattern = 'http:\/\/localhost:[\d]+\/\?token=[\w]+'
     if ($jupyter_lab_list_output -match $url_regex_pattern) {
-        ([regex]::matches($jupyter_lab_list_output, $url_regex_pattern)).Value
+        $urls = ([regex]::matches($jupyter_lab_list_output, $url_regex_pattern)).Value
+        Write-Verbose "Found $($urls.Count) jupyter lab servers currently running"
+        return $urls
     }
-    else {Write-Output 'Jupyter lab is not currently running'}
+    # else {Write-Error 'Jupyter lab is not currently running'}
+    else {Write-Verbose 'Found 0 jupyter lab servers currently running'}
 }
 
 # function Jupyter-Lab {cda; cd $code; jupyter lab}
 function Wrapper-JupyterLab {
     param(
-        [string] $Venv = 'workenv',
+        [string] $CondaVEnv = 'workenv',
         [string] $RootDir = $code,
-        [string] $ProcessOrJob = 'process',
-        [switch] $URL
+        [string] $ProcessType = 'pro',
+        [switch] $URL,
+        [switch] $Verbose,
+        [switch] $Silent
     )
-    # $Venv, $RootDir, $process_or_job
+    if ($Verbose) {
+        $VerbosePreference_backup = $VerbosePreference
+        $VerbosePreference = 'Continue'
+    }
+    if (!$Silent) {
+        $VerbosePreference_backup = $InformationPreference
+        $InformationPreference = 'Continue'
+    }
+    else {Write-Verbose "'-Silent' flag set, not printing information stream to host"}
+    # $VEnv, $RootDir, $process_or_job
     # check if a server is already running
     $running_servers = Get-JupyterLabURL 2> $null
-    # if (!$?) {}
-    # if ($URL) {return $running_servers}
+    # if ($URL) {
+    #     Write-Verbose "'-URL' flag set, returning the list of all running servers"
+    #     Write-Information 'List of jupyter servers currently running:' #-InformationAction 'Continue'
+    #     return $running_servers
+    # }
     if ($running_servers.Length -gt 0) {
-        if ($URL) {return $running_servers}
+        if ($URL) {
+            Write-Verbose "'-URL' flag set, returning the list of all running servers"
+            Write-Information 'List of jupyter servers currently running:' #-InformationAction 'Continue'
+            return $running_servers
+        }
         # give the choice to output URL, or start a new server anyways
         $choice = 2
         while ($choice -eq 2) {
@@ -61,34 +89,84 @@ function Wrapper-JupyterLab {
                 2 = '&Suspend', 'Pause this command and enter a nested prompt. Type "exit" to resume.'
             }
             $choice = Confirmation-Prompt -Question 'A Jupyter Lab server is already running. Please advise:' -ChoicesTable $choices_table
-            if ($choice -eq 2) {$host.EnterNestedPrompt()}
+            if ($choice -eq 2) {
+                Write-Verbose "Entering nested prompt"
+                # reset $VerbosePreference for the nested prompt
+                if ($Verbose) {$VerbosePreference = $VerbosePreference_backup}
+                $host.EnterNestedPrompt()
+                if ($Verbose) {$VerbosePreference = 'Continue'}
+            }
         }
     }
     else {
-        if ($URL) {Write-Output 'Jupyter lab is not currently running'; return}
+        if ($URL) {
+            Write-Verbose "'-URL' flag set, returning the list of all running servers"
+            Write-Information 'No jupyter server is currently running' #-InformationAction 'Continue'
+            return $running_servers
+        }
         # start a new server
         $choice = 1
-        }
-    switch ($choice) {
-        0 {$running_servers}
-        1 {
-            # run either a new process or a new job
-            if ($ProcessOrJob -eq 'process') {
-                # $command_str = "& '$server_dir\jupyter_server.ps1' -Venv $Venv -RootDir $RootDir"
-                # Start-Process -FilePath "pwsh.exe" -ArgumentList ("-c " + $command_str) -WindowStyle 'Minimized'
-                Start-Process -FilePath "pwsh.exe" -ArgumentList "-c", "&", "$powershell_dir\jupyter_server.ps1", $Venv, $RootDir -WindowStyle 'Minimized'
-            }
-            elseif ($ProcessOrJob -eq 'job') {
-                Start-Job -Name 'jupyter_server' -ScriptBlock {. $using:profile; cda -Venv $using:Venv; cd $using:RootDir; jupyter lab}
-            }
-            else {Write-Error "Expected 'process' or 'job', received '$ProcessOrJob'"; return}
-        }
-        default {throw 'smth went wrong'}
     }
-    # Start-Job -Name 'jupyter_server' -ScriptBlock {. $using:profile; cda -Venv $using:Venv; cd $using:RootDir; jupyter lab}
+    switch ($choice) {
+        0 {
+            Write-Verbose "Returning the list of all running servers"
+            Write-Information 'List of jupyter servers currently running:' -InformationAction 'Continue'
+            return $running_servers
+        }
+        1 {
+            Write-Verbose "starting a new jupyter lab server"
+            Write-Verbose "Conda virtual environment used: '$CondaVEnv'"
+            Write-Verbose "Root directory: '$RootDir'"
+            switch ($ProcessType) {
+                'pro' {
+                    # Write-Verbose "The server is hosted in a new powershell process"
+                    Write-Verbose "Starting a new powershell process to host the server"
+                    $args_list = @(
+                        "-NoProfile",
+                        "-c", "&", "$powershell_dir\utils\jupyter_lab_server.ps1",
+                        "-VEnv", $CondaVEnv,
+                        "-RootDir", $RootDir
+                    )
+                    Start-Process -FilePath "pwsh.exe" -ArgumentList $args_list -WindowStyle 'Minimized'
+                }
+                'hpro' {
+                    Write-Verbose "Starting a new hidden powershell process to host the server"
+                    $args_list = @(
+                        "-NoProfile",
+                        "-c", "&", "$powershell_dir\utils\jupyter_lab_server.ps1",
+                        "-VEnv", $CondaVEnv,
+                        "-RootDir", $RootDir
+                    )
+                    Start-Process -FilePath "pwsh.exe" -ArgumentList $args_list -WindowStyle 'Hidden'
+                }
+                'job' {
+                    Write-Verbose "Starting a new powershell job to host the server"
+                    # Start-Job -Name 'jupyter_server' -ScriptBlock {. $using:profile -S; cda -VEnv $using:CondaVEnv; cd $using:RootDir; jupyter lab}
+                    Start-Job -Name 'jupyter_server' -FilePath "$powershell_dir\utils\jupyter_lab_server.ps1" -ArgumentList $CondaVEnv, $RootDir
+                }
+                default {Write-Error "Expected either 'pro', 'hpro' or 'job', received '$ProcessOrJob'"; return}
+            }
+        }
+        default {throw 'This should never be thrown'}
+    }
 }
 New-Item -Path Alias:jupyter_lab -Value Wrapper-JupyterLab -Force > $null
+
+# make a function to print the logs of the jupyter server when running in a job
+function print_server_logs {
+
+}
 
 # jupyter_lab_kill
 # > if a file named "jupyter_lab_server.JSON" exists in the .jupyter directory in $HOME and it is not empty:
 # >     remove it
+function Kill-JupyterLab { # kill all jupyter lab servers => doesn't really work
+    # $current_conda_env = $Env:CONDA_DEFAULT_ENV
+    # if ($current_conda_env -eq 'workenv') {$jupyter_lab_list_output = jupyter server list}
+    # else {cda; $jupyter_lab_list_output = jupyter server list; cdd}
+    $port_regex_pattern = 'http:\/\/localhost:([\d]+)\/\?token=[\w]+'
+    # foreach ($url in $running_servers_url)
+    #     {[regex]::matches($url, $port_regex_pattern) | % {$_.Groups} | ? {$_.Name -eq 1} | % {$_.Value}}
+    # Get-JupyterLabURL 2> $null | % {[regex]::matches($_, $port_regex_pattern)} | % {$_.Groups} | ? {$_.Name -eq 1} | % {$_.Value}
+    Get-JupyterLabURL 2> $null | % {[regex]::matches($_, $port_regex_pattern).Groups} #| ? {$_.Name -eq 1} | % {jupyter server stop $_.Value}
+}

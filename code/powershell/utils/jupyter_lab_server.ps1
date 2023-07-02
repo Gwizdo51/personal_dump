@@ -1,16 +1,26 @@
 param(
-    # [string] $Venv = 'workenv',
-    # [string] $RootDir = $code
-    [string] $Venv,
-    [string] $RootDir
+    [string] $VEnv,
+    [string] $RootDir,
+    [switch] $SilentServer
 )
 
-Write-Host '$Venv:' $Venv
-Write-Host '$RootDir:' $RootDir
+try {. $profile -Silent}
+catch {. $using:profile -Silent}
 
-if (!$Venv) {$Venv = Read-Host 'Select a virtual environment'}
-if ($Venv -eq '') {$Venv = 'workenv'}
-Write-Host 'Running in virtual environment:' $Venv
+if (!$SilentServer) {
+    $InformationPreference = 'Continue'
+}
+
+######################
+### JUPYTER SERVER ###
+######################
+Write-Information "`n######################`n### JUPYTER SERVER ###`n######################`n"
+
+# if $VEnv is not set, request user input
+if (!$VEnv) {$VEnv = Read-Host 'Select a virtual environment'}
+if ($VEnv -eq '') {$VEnv = 'workenv'}
+Write-Information "Running in virtual environment: $VEnv"
+# if $RootDir is not set, request user input
 if (!$RootDir) {
     $RootDir_not_valid = $True
     while ($RootDir_not_valid) {
@@ -20,9 +30,11 @@ if (!$RootDir) {
             {$RootDir_not_valid = $False}
     }
 }
-Write-Host 'Root directory:' $RootDir
+Write-Information "Root directory: $RootDir"
 
-cda -Venv $Venv
+Write-Information "`nLaunching server ...`n"
+
+cda -VEnv $VEnv
 cd $RootDir
 jupyter lab
 

@@ -4,9 +4,8 @@ function Confirmation-Prompt {
         [hashtable] $ChoicesTable,
         [int] $DefaultChoice = 0
     )
-    $title = 'Confirm'
     $choices = $ChoicesTable.Keys | sort | % {New-Object -TypeName Management.Automation.Host.ChoiceDescription $ChoicesTable[$_][0], $ChoicesTable[$_][1]}
-    $Host.UI.PromptForChoice($title, $question, $choices, $DefaultChoice)
+    $Host.UI.PromptForChoice('Confirm', $question, $choices, $DefaultChoice)
 }
 
 function Default-Confirmation-Prompt {

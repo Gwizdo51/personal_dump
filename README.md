@@ -21,6 +21,7 @@
 - [ ] add "Recycle" function
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
 - [ ] convert custom PS functions into aliases
+- [ ] add notepad.exe alias "np"
 - [ ] add powershell notes
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
@@ -47,7 +48,6 @@
 - make pretty_string_factory print the class name when it is not a builtin type ?
 
 ### *powershell profile*
-- add notepad alias "np" ?
 - add a script to interact with the trashbin ?
     - restore a file from the recycle bin if it is unique, or maybe the last one
     - [empty it completely](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/clear-recyclebin?view=powershell-7.3)

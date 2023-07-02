@@ -1,9 +1,24 @@
+param([switch]$Silent)
 $tick = Get-Date
-Write-Host "Loading personal profile (custom_profile.ps1) ..."
+
+# setting $InformationPreference to 'Continue' for the profile load,
+# unless $Silent is on
+if (!$Silent) {
+    $InformationPreference_backup = $InformationPreference
+    $InformationPreference = 'Continue'
+}
+
+# if (!$NoWriteHost) {Write-Host "Loading personal profile (custom_profile.ps1) ..."}
+Write-Information "Loading personal profile (custom_profile.ps1)..."
+
 # Import-Module "D:\Code\personal_dump\code\powershell\Recycle.psm1"
+# $confirmPreference = 'High'
+
+# set up output and input console encoding to UTF-8
+$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
 
 # <#
-# Write-Host 'Setting up conda ...'
+Write-Verbose 'Setting up conda ...'
 $Env:_CONDA_ROOT = "$HOME\anaconda3"
 $Env:CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
 $Env:_CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
@@ -13,7 +28,7 @@ Import-Module "$Env:_CONDA_ROOT\shell\condabin\Conda.psm1" -ArgumentList @{Chang
 
 # prompt setup
 if (-not $color_characters_dict) { # only set up colors once
-    Write-Host 'Setting up prompt colors ...'
+    Write-Verbose 'Setting up prompt colors...'
     # set up the color variables
     # "ESC" character: [char]27
     function gen_color_char {
@@ -57,8 +72,9 @@ function Prompt-Git-Branch-Name {
     # if we're not in a git repo, don't return anything
 }
 function Alias-CD {
-    param([string]$path)
-    Set-Location $path
+    param([string]$DirPath)
+    # fail if DirPath is not a directory
+    Set-Location $DirPath
     if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
         # we are in a FileSystem drive, safe to look for git branches
         $Env:_PROMPT_GIT_MODIFIER = $(Prompt-Git-Branch-Name)
@@ -86,6 +102,7 @@ if ($principal.IsInRole($admin_role)) {$ENV:_PROMPT_PRIVILEGE = "$($color_charac
 else {$ENV:_PROMPT_PRIVILEGE = ''}
 Remove-Variable 'principal', 'admin_role'
 function Prompt {
+    # "PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
     ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT /!\ ###
     # if we want to keep the "turn red on error" feature
     # => needs to receive state from Env, like conda
@@ -100,11 +117,11 @@ function Prompt {
     # '>' => 62
     # $dynamic_color_char = [char] 12903
     # $char_1 = [char] 12903
-    $char_1 = [char] 12295
+    $char_0 = [char] 12295
     # $char_1 = [char] 124
     # $char_2 = [char] 65376
     # $char_2 = [char] 9002
-    $char_2 = [char] 10097
+    $char_1 = [char] 10097
     # $char_2 = [char] 124
     $cwd = $executionContext.SessionState.Path.CurrentLocation
     # [$env:COMPUTERNAME], [$Env:USERNAME]
@@ -114,8 +131,9 @@ function Prompt {
     # ꯁ ꯊ ꯌ ꯕ ꯖ ꯗ ꯘ ꯙ ꯱ ꯲ ꯳ ꯴ ꯵ ꯷ ㉤ ㉥ ㉦ ㉧ ㉨ ㉩ ㆍ ㆎ ㆆ 〇 Ⲑ Ⲫ Ⲋ Ⲱ ⯎ ⯏ ⫷ ⫸ ⪧ ⩥ ⨵ ⨳ ⨠ ⧁ ⦾ ⦿ ⦔ ⧂
     # ⧃ ⥤ ⟢ ⟡ ➽ ➔ ❱ ⌾ ⊙ ⊚ ⊛ ∬ ൏ ಌ ಅ ఴ ᐅ 〉 ⋮ ≻ ▶ ◣ ◤
     # "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)PS $($color_characters_dict.col_def)$($dynamic_color_char) "
-    "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd)$($color_characters_dict.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)$char_1$($color_characters_dict.col_def)$char_2 "
-    # add nested prompts ?
+    # "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd)$($color_characters_dict.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)$char_0$($color_characters_dict.col_def)$char_1 "
+    $nested_prompt = "$char_1" * ($nestedPromptLevel + 1)
+    "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd)$($color_characters_dict.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)$char_0$($color_characters_dict.col_def)$nested_prompt "
 }
 
 # shortcuts to important folders
@@ -136,24 +154,20 @@ function Edit-Profile {
 New-Item -Path Alias:ep -Value Edit-Profile -Force > $null
 
 # conda shortcuts
-function Conda-Activate {
-    param($venv='workenv') # default to "workenv" instead of "base"
-    conda activate $venv
+function conda_activate {
+    param($VEnv='workenv') # default to "workenv" instead of "base"
+    conda activate $VEnv
 }
-New-Item -Path Alias:cda -Value Conda-Activate -Force > $null
+New-Item -Path Alias:cda -Value conda_activate -Force > $null
 function Conda-Deactivate {conda deactivate}
 New-Item -Path Alias:cdd -Value Conda-Deactivate -Force > $null
 
 # activate workenv when python is not in the path
 function Alias-Python {
     try {python.exe $args}
-    catch {Write-Host "Python.exe not found, activating workenv"; cda; python.exe $args}
+    catch {Write-Error "Python.exe not found, activating workenv"; cda; python.exe $args}
 }
 New-Item -Path Alias:python -Value Alias-Python -Force > $null
-
-# jupyter lab on workenv shortcut
-function Jupyter-Lab {cda; cd $code; jupyter lab}
-New-Item -Path Alias:jupyter_lab -Value Jupyter-Lab -Force > $null
 
 # git shortcuts
 function Git-Tree {git log --graph --decorate --pretty=oneline --abbrev-commit}
@@ -165,114 +179,19 @@ New-Item -Path Alias:git_us -Value Git-Update-Submodules -Force > $null
 function Git-Fetch-Status {git fetch; git status}
 New-Item -Path Alias:gfs -Value Git-Fetch-Status -Force > $null
 
-# function rmd {
-#     param([switch]$f, [switch]$force)
-#     if ($f -or $force) {Remove-Item $args -r -force}
-#     else {Remove-Item $args -r}
-# }
-function Recycle { # move items to trash on "rm" calls
-    Param(
-        [Parameter(Mandatory = $true, ValueFromPipeline=$true)] # check pipeline
-        [SupportsWildcards()] # check wildcards (https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_wildcards?view=powershell-7.3)
-        [string[]]$Path # should be able to take a list of paths
-    )
-    # Write-Host $Path
-    # get the absolute path of the item + check if item exists
-    # try - catch here
-    $path_is_valid = Test-Path $Path
-    if (-not $path_is_valid) {Write-Error "$Path does not exist"; return $null}
-    $Path = Resolve-Path $Path
-    # if $Path is a drive, fail here
-    # /!\ "D:" != "D:/" /!\
-    # => the drives remember the state in which you left them
-    # so "<drive>:" refers to the last container the drive visited (root if never visited this session)
-    # and "<drive>:/" refers to the drive's root container
-    # check if the drive provider is a FileSystem
-    # $drives_names = $(Get-PSDrive).Name
-    # return $drives_names
-    # $drives_names_cleaned = @()
-    # foreach ($drive_name in $drives_names) {
-    #     $drives_names_cleaned += $($drive_name + ':\')
-    #     # $drives_names_cleaned += $($drive_name + ':')
-    # }
-    # $drives_names_cleaned
-    # Write-Host $($drives_names_cleaned -contains $Path)
-    $current_drive = $(Get-Location).Drive
-    if (-not $($current_drive.Provider.Name -eq 'FileSystem'))
-        {Write-Error 'Can only recycle files, folders and links'; return $null}
-    if ($Path -eq $($current_drive.Name + ':\'))
-        {Write-Error 'Cannot recycle a drive'; return $null}
-    $parent_dir_path = Split-Path $Path -Parent
-    $path_item_name = Split-Path $Path -Leaf
-    return $parent_dir_path, $path_item_name
-    # Write-Host $parent_dir_path
-    # Write-Host $path_item_name
-    $shell = New-Object -ComObject 'Shell.Application'
-    $shell_dir = $shell.Namespace($parent_dir_path)
-    $shell_item = $shell_dir.ParseName($path_item_name)
-    # $shell_item | Get-Member
-    if ($shell_item.IsFolder) {
-        $original_user_message = "Confirm deleting folder '$Path' ([y]/n) "
-        $user_message = $original_user_message
-        while (-not $(Test-Path 'Variable:\confirmed')) {
-            # ask for confirmation if trying to remove a directory
-            $user_input = [string] $(Read-Host $user_message)
-            Write-Host $user_input #> $null
-            # default to yes
-            if (!$user_input) {$user_input = 'y'}
-            # use RegEx here
-            $user_input -match '^([yn]|yes|no)$' # does not seem to work super well
-            # $(!!$Matches)
-            Write-Host $Matches.0
-
-            # $Matches = $null
-            # switch ($user_input) {
-            #     'y' {$confirmed = $True}
-            #     'Y' {$confirmed = $True}
-            #     'n' {$confirmed = $False}
-            #     'N' {$confirmed = $False}
-            #     default {}
-            # }
-            # if (-not $(Test-Path 'Variable:\confirmed')) {
-            # Write-Host $(!$Matches)
-            # Write-Host $(!!$Matches)
-            if (!$Matches) {
-                $user_message = "Did not understand.`n$original_user_message"
-            }
-            else {
-                # $Matches = $nul
-                # set $confirmed
-                # $user_message = "understood."
-                # $confirmed =
-
-            }
-        }
-        if (-not $confirmed) {Write-Error 'Abort'; return $null}
-        # Write-Host 'removing folder...'
-    }
-    return $null
-    $shell_item.InvokeVerb('delete')
-    # check success
-    $path_exists = Test-Path $Path
-    if ($path_exists) {Write-Error 'Some items were not removed'}
-    else {Write-Host "Moved '$($col_Red)$($Path)$($color_characters_dict.col_def)' to trashcan"}
-}
-New-Item -Path Alias:rm -Value Move-To-Trashcan -Force > $null
 # New-Item -Path Alias:del -Value rm_alias -Force > $null
-function Open-RecyleBin {start shell:RecycleBinFolder}
-function ii-Alias { # to allow opening the recycle bin with "ii" alias
-    # use a try catch here
-    # Invoke-Item $args
-}
-# New-Item -Path Alias:ii -Value ii-alias -Force > $null
+New-Item -Path Alias:read -Value Get-Content -Force > $null
 function la {dir -Force}
 # la | Format-Table Length, Name
 function Find {Get-ChildItem -Recurse -Filter $args}
-function Touch {python "D:\code\personal_dump\code\python\touch.py" $args}
+# function Touch {python "D:\code\personal_dump\code\python\touch.py" $args}
+function Touch {
+    param([string]$FilePath)
+    Out-File -FilePath $FilePath -Append
+}
 # nf (new file) alias => checks if file exists
 # notepad alias
 # New-Item -Path Alias:np -Value c:\windows\notepad.exe
-# touch function with New-Item ?
 # maybe with "$null > empty.txt" ?
 function Make-Link {
     param(
@@ -300,30 +219,45 @@ function Open-Ise {
     # opens a file in PowerShell ISE
 }
 New-Item -Path Alias:ise -Value Open-Ise -Force > $null
-function wt-Alias { # allows opening a windows terminal as admin with no confirmation
+function Windows-Terminal { # allows opening a windows terminal as admin with no confirmation
     # $wt_args = ($args | ? {($_) -or ($_)})
     $as_admin = $False
-    foreach ($arg in $args) {
-        if ($arg -match '^(--as-admin|-a)$')
-            {$as_admin = $True}
-    }
-    $wt_args = $args | ? {($_ -ne '--as-admin') -and ($_ -ne '-a')}
+    foreach ($arg in $args) {if ($arg -match '^(--as-admin|-a)$') {$as_admin = $True}}
+    # $wt_args = $args | ? {($_ -ne '--as-admin') -and ($_ -ne '-a')}
     if ($as_admin) {ii "$HOME\Desktop\wt_asadmin.lnk"}
-    else {wt.exe $wt_args}
+    else {wt.exe $args}
 }
-New-Item -Path Alias:wt -Value wt-Alias -Force > $null
+New-Item -Path Alias:wt -Value Windows-Terminal -Force > $null
+function Clear-Job {Get-Job | ? {$_.State -ne "Running"} | Remove-Job}
+New-Item -Path Alias:cj -Value Clear-Job -Force > $null
+function Stop-ProcessTree {
+    Param([int]$parent_id)
+    # ? = Where-Object | % = ForEach-Object
+    Get-Process | ? { $_.Parent.Id -eq $parent_id } | % { Stop-ProcessTree $_.Id }
+    Stop-Process -Id $parent_id -ErrorAction "SilentlyContinue" -Verbose
+    if (!$?) {Write-Output $Error[0].ToString()}
+    # Stop-Process -Id $parent_id -WhatIf
+}
+
+$powershell_dir = $custom_profile | Split-Path -Parent | Split-Path -Parent
+# user confirmation functions
+. "$powershell_dir\utils\Confirm.ps1"
+# jupyter lab wrapper
+. "$powershell_dir\utils\jupyter_server_wrapper.ps1"
+# Recycle bin package
+. "$powershell_dir\utils\Recycle.ps1"
 
 ###
 
 # write the names of the types of the objects passed
 function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
 New-Item -Path Alias:type -Value Get-Type -Force > $Null
-# why doesn't it work as a pipe ?
+# why doesn't it work as a pipe ? => $lol | % {type $_}
 
 # tests the string colors of the terminal
 function Text-Colors-Test {
-    foreach ($color_name in "Black", "Red", "Green", "Yellow", "Blue", "Magenta", "Cyan", "White") {
-    # foreach ($color_name in "Blue", "Cyan") {
+    param([string[]]$color_names=("Black","Red","Green","Yellow","Blue","Magenta","Cyan","White"))
+    foreach ($color_name in $color_names) {
         $reg_col = $color_characters_dict["col_$color_name"]
         $bri_col = $color_characters_dict["bcol_$color_name"]
         "$($reg_col)This is a sentence colored with regular $color_name"
@@ -333,12 +267,18 @@ function Text-Colors-Test {
 New-Item -Path Alias:color_test -Value Text-Colors-Test -Force > $Null
 
 ###
+# preference variables
+
+# $confirmPreference = 'Medium'
+
+###
 
 # Start-Sleep .5
 $tock = Get-Date
 $load_time = ($tock - $tick).TotalMilliseconds
 # [math]::Round(($tock - $tick).TotalSeconds), 3)
-Write-Host "Profile load time: $([int][math]::Round($load_time))ms"
+Write-Information "Profile load time: $([int][math]::Round($load_time))ms"
+if (!$Silent) {$InformationPreference = $InformationPreference_backup}
 
 
 ###############################################################################################

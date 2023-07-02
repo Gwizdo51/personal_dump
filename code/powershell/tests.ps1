@@ -63,6 +63,9 @@ Write-Host("$((10).GetType())")
 Write-Host ''
 Write-Host 'variables:'
 $myvar = 10
+# assign same value to multiple variables:
+$a = $b = $c = "same stuff"
+$a, $b, $c
 # does the variable exist
 Write-Host $(!!$myvar)
 Write-Host $(Test-Path 'Variable:myvar')
@@ -206,17 +209,17 @@ filter my_filter {
     if ($add2) {$PSItem + 2}
     else {$PSItem}
 }
-1,2,4 | my_filter
-1,2,5 | my_filter -add2
+# 1,2,4 | my_filter
+# 1,2,5 | my_filter -add2
 # my_filter @(2,4,6,8) -add2 # doesn't work => "my_filter" is not a pipe; only 2 goes into $_
 # my_filter 10 -add5 # doesn't work => same reason, nothing goes into $_
 function is_positive { process {
     if ($_ -ge 0) {$True}
     else {$False}
 }}
-18 | is_positive
--2.5, 7 | is_positive
-is_positive -5
+# 18 | is_positive
+# -2.5, 7 | is_positive
+# is_positive -5
 # is_positive @(-10, 5, 35) # doesn't work
 # regular function that expects a list of ints
 function print_plus_five {
@@ -240,6 +243,38 @@ filter string_case_filter {
 'lol' | string_case_filter -lower
 'lol' | string_case_filter -upper
 #>
+
+<#
+# advanced functions (cmdlets):
+Function Get-Something {
+    [CmdletBinding()]
+    Param($item)
+    Write-Host "You passed the parameter $item into the function"
+    Write-Verbose "verbose stuff"
+}
+# Get-Something "lol" -verbose
+Function Get-Something-2 { # this can exclusively be used as pipes
+    [CmdletBinding()]
+    Param([Parameter(ValueFromPipelineByPropertyName)]$Name) # properties of objects can be retrieved with Get-Members
+    process {
+        Write-Host "You passed the parameter $Name into the function"
+        # Write-Verbose "verbose stuff"
+    }
+}
+# Get-Service | Get-Something-2 -verbose
+function Get-ItemMode {
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipelineByPropertyName)]$Name,
+        [Parameter(ValueFromPipelineByPropertyName)]$Mode
+    )
+    process {
+        Write-Host "The item $Name has the mode $Mode"
+    }
+}
+dir "D:\code\personal_dump\code\powershell" | sort -Property "Name" | Get-ItemMode
+#>
+
 <#
 # character number:
 Write-Host ''
@@ -656,7 +691,7 @@ catch { Write-Host "catch: caught the error" } # this only runs if an error was 
 finally { Write-Host "finally: this always writes" } # this always run
 Write-Host "after finally: this always writes too"
 #>
-
+<#
 # 0 -> 65535
 # $all_chars_list = @()
 for ($i = 33; $i -ge 0; ++$i) {
@@ -677,3 +712,46 @@ for ($i = 33; $i -ge 0; ++$i) {
     # if ($i -eq 600) {break}
 }
 # foreach ($char in $all_chars_list)
+#>
+<#
+# prompt for choice:
+# Confirm
+# Are you sure you want to perform this action?
+# Performing the operation "Remove File" on target "D:\code\personal_dump\code\powershell\test.txt".
+# [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"):
+$title = 'Confirm'
+$question = "Are you sure you want to perform this action?`nPerforming the operation `"Remove File`" on target `"D:\code\personal_dump\code\powershell\lol.txt`"."
+# $choices = '&Yes', '&No'
+$choice_yes = New-Object -TypeName Management.Automation.Host.ChoiceDescription '&Yes', 'Continue with only the next step of the operation.'
+$choice_yesall = New-Object -TypeName Management.Automation.Host.ChoiceDescription 'Yes to &All', 'Continue with all the steps of the operation.'
+$choice_no = New-Object -TypeName Management.Automation.Host.ChoiceDescription '&No', 'Skip this operation and proceed with the next operation.'
+$choice_noall = New-Object -TypeName Management.Automation.Host.ChoiceDescription 'No to A&ll', 'Skip this operation and all subsequent operations.'
+$choice_suspend = New-Object -TypeName Management.Automation.Host.ChoiceDescription '&Suspend', 'Pause the current pipeline and return to the command prompt. Type "exit" to resume the pipeline.'
+$choices = $choice_yes, $choice_yesall, $choice_no, $choice_noall, $choice_suspend
+$decision = $Host.UI.PromptForChoice($title, $question, $choices, 0)
+$decision
+# $host.EnterNestedPrompt()
+# $host.ExitNestedPrompt()
+# if ($decision -eq 0) {
+#     Write-Host 'confirmed'
+# } else {
+#     Write-Host 'cancelled'
+# }
+#>
+
+# give the choice to output URL, or start a new server anyways
+# 0) output URLs
+# 1) start new server anyways
+# 2) suspend (start nested prompt)
+$table = @{
+    0 = @('Output &URL', 'Display the login URL of all the servers running.');
+    1 = @('Start &New server', 'Start a new Jupyter Lab server.');
+    2 = @('&Suspend', 'Pause this command and enter a nested prompt. Type "exit" to resume.')
+}
+# $table
+# $table | Get-Member
+# $table.Count
+# # foreach ($key in $table.Keys) {$key}
+# $table.Keys | % {$_} | sort
+# $Table.Values | % {$_}
+confirmation_prompt -q 'A Jupyter Lab server is already running. Please advise:' -c $table -d 0
