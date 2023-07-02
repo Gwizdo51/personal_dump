@@ -1,8 +1,14 @@
+"""
+dotdict.py docstring
+"""
+
 from __future__ import annotations
 import re
 from typing import Optional, Any, Union
 from types import MappingProxyType
 from collections.abc import Mapping, Iterator, ItemsView, ValuesView, KeysView
+
+import sys
 
 
 class KeyTypeError(Exception):
@@ -64,10 +70,10 @@ def is_iterable_not_string_like(obj: Any) -> bool:
     return obj_is_iterable and not obj_is_str_like
 
 
-# best attempt at defining a Regular Expression for an attribute name
+# best attempt at defining a Regular Expression for an attribute name (cf. check_key)
 CLASS_ATTRIBUTE_NAME_PATTERN = re.compile(r"^[a-zA-Z]\w*$")
 # dict class method names
-DICT_METHOD_NAMES = [meth_name for meth_name in dir(dict) if not ("_" in meth_name)]
+DICT_METHOD_NAMES = [meth_name for meth_name in dir(dict) if not meth_name.startswith("__")]
 
 
 def check_key(key: Any):
@@ -328,10 +334,11 @@ def pretty_string_factory(dict_to_print: dict, indent: int = 4) -> str:
     return "\n".join(pretty_string_lines)
 
 
-def get_view(dotdict: DotDict) -> dict[str, Any]:
+def get_dict_view(dotdict: DotDict) -> dict[str, Any]:
     """
-    Returns a version of the dictionary of a DotDict object where
-    its values are converted to DotDict when they are of the "dict" type.
+    Returns the dict "dict(dotdict)", with its values converted to
+    DotDict objects when they are of the "dict" type.
+    Added to make MappingProxyType return nested dicts as DotDict objects.
 
     PARAMETERS
     ----------
@@ -366,9 +373,6 @@ class DotDictItems:
         raise TypeError(f"cannot create '{self.__class__.__name__}' instances")
 
 
-# inherit from collections.abc.ValueView for the sole purpose of having
-# "issubclass(DotDictValues, ValuesView)"
-# evaluate to True
 class DotDictValues(ValuesView):
     """
     Provides a dynamic view of the DotDict's values. Works the same way as
@@ -382,7 +386,7 @@ class DotDictValues(ValuesView):
     def __new__(cls, _dotdict_hook: DotDict, /) -> DotDictValues:
         print("DotDictValues __new__ call") if _dotdict_hook._verbose else ...
         values_view_obj = object.__new__(cls)
-        # store the DotDict object to view the values of in self._dotdict
+        # store the DotDict object to view the values of in self._dotdict_hook;
         # bypass DotDictValues.__setattr__, which is meant to fail
         object.__setattr__(values_view_obj, "_dotdict_hook", _dotdict_hook)
         return values_view_obj
@@ -399,8 +403,7 @@ class DotDictValues(ValuesView):
 
     def __reversed__(self) -> Iterator:
         print("DotDictValues __reversed__ call") if self._dotdict_hook._verbose else ...
-        # returns a generator that returns the values
-        # in the opposite order of insertion
+        # return an iterator that returns the values in the opposite order of insertion
         return iter(reversed(self._dotdict_hook._view.values()))
 
     def __len__(self) -> int:
@@ -427,12 +430,6 @@ class DotDictValues(ValuesView):
         print("DotDictValues __repr__ call") if self._dotdict_hook._verbose else ...
         return f"{self.__class__.__name__}({str(list(self._dotdict_hook._view.values()))})"
 
-    # def __or__(self):
-    #     raise NotImplementedError
-
-    # def __ror__(self):
-    #     raise NotImplementedError
-
     def __getattr__(self, *_, **__):
         print("DotDictValues __getattr__ call") if self._dotdict_hook._verbose else ...
         raise AttributeError(f"Access to {self.__class__.__name__} attributes denied")
@@ -446,11 +443,6 @@ class DotDictValues(ValuesView):
         raise AttributeError(f"Access to {self.__class__.__name__} attributes denied")
 
 
-# make MappingProxyType return nested dicts as DotDict objects
-# => add a "_view" attribute that holds a copy of DotDict, but with
-# any value converted to DotDict when they are dicts
-
-
 class DotDict(dict):
     """
     This class allows handling dictionaries with the "dot" notation.
@@ -462,7 +454,8 @@ class DotDict(dict):
     - DotDict is recursive (dotdict.atr.subatr is the same as dotdict["atr"]["subatr"])
     - DotDict will raise exceptions when the keys cannot be accepted as attribute names
         (an attribute name cannot begin by a digit, but a dict key can)
-    => The accepted names for the attributes must begin by an uppercase or lowercase letter,
+    => The accepted names for the attributes must begin by an uppercase or lowercase letter
+    (no hidden attributes can be modified by the user, except upon the object creation),
     and cannot contain non-alphanumeric characters ("/w" from RegEx).
     - dir(dotdict_object) contains the keys/attributes of the underlying dictionary
     - adding DotDict objects as a DotDict attributes will work as intended (the underlying
@@ -472,6 +465,7 @@ class DotDict(dict):
     """
 
     def __init__(self,
+                #  mapping_iterable: Any, # is now necessary
                  *args,
                  _check: bool = True,
                  _root: Optional[DotDict] = None,
@@ -484,33 +478,48 @@ class DotDict(dict):
         PARAMETERS
         ----------
         _check: bool = True
-            Whether to check the keys of the dictionary.
+            Whether to check the keys of the dictionary. when set to True,
+            raises specific exceptions when
         _root: DotDict | None = None
-            The root DotDict object.
+            The root DotDict object. Handled by the calss
         _path_to_root: list[str] | None = None
-            The keys that lead to this object from the root object.
+            The list of keys that lead to this object from the root object.
         _verbose: bool = False
             Print stuff, mostly method calls. For debug purposes.
         """
         print("__init__ call") if _verbose else ...
-        # create a temporary dict from the arguments
-        # -> this creates a shallow copy of the original dict
-        dict_self = dict(*args, **kwargs)
-        if _check:
-            # if any values are mappings, convert them to dict, recursively
-            dict_self = clean_types(dict_self)
-            # test if all keys are valid as attribute names, recursively
-            check_keys(dict_self)
-        # init the "self" dict with the cleaned dict
-        dict.__init__(self, dict_self)
-        # add a reference to the root DotDict
-        # bypass DotDict.__setattr__ to protect the variable from rewrites
-        object.__setattr__(self, "_root", _root)
-        # remember how to get to this DotDict from the root DotDict as a list of attribute names
-        # bypass DotDict.__setattr__ to protect the variable from rewrites
-        object.__setattr__(self, "_path_to_root", _path_to_root)
-        # for debug purposes
-        object.__setattr__(self, "_verbose", _verbose)
+        # check if mapping_iterable is a DotDict object
+        # if args:
+        if args and isinstance(args[0], DotDict):
+            dotdict = args[0]
+            # print("DotDict is called with a DotDict object, send a copy")
+            DotDict.__init__(
+                self,
+                dict(dotdict),
+                _check=False,
+                _root=_root,
+                _path_to_root=_path_to_root,
+                _verbose=_verbose
+            )
+            print(self._verbose)
+        else:
+            # create a temporary dict from the args and kwargs
+            dict_self = dict(*args, **kwargs)
+            if _check:
+                # if any values are mappings, convert them to dict, recursively
+                dict_self = clean_types(dict_self)
+                # test if all keys are valid as attribute names, recursively
+                check_keys(dict_self)
+            # init the "self" dict with the cleaned dict
+            dict.__init__(self, dict_self)
+            # add a reference to the root DotDict
+            # bypass DotDict.__setattr__ to protect the variable from rewrites
+            object.__setattr__(self, "_root", _root)
+            # remember how to get to this DotDict from the root DotDict as a list of attribute names
+            # bypass DotDict.__setattr__ to protect the variable from rewrites
+            object.__setattr__(self, "_path_to_root", _path_to_root)
+            # for debug purposes
+            object.__setattr__(self, "_verbose", _verbose)
 
     def __getitem__(self, key: str, /) -> Any:
         """
@@ -648,7 +657,7 @@ class DotDict(dict):
     @property
     def __dict__(self) -> MappingProxyType:
         """
-        For compatibility with the 'vars' built-in function.
+        For compatibility with the "vars" built-in function ("vars(dotdict_object)" calls this method).
 
         RETURNS
         -------
@@ -659,6 +668,11 @@ class DotDict(dict):
         # return a MappingProxyType to enhance the fact that this isn't
         # the right way to modify attributes of DotDict objects
         return MappingProxyType(self._view)
+        # maybe ?
+        # return MappingProxyType(self)
+        # return dict(MappingProxyType(self))
+        # return self
+        # make self.__dict__ updatable, but don't show hidden variables
 
     def __str__(self) -> str:
         """
@@ -671,11 +685,13 @@ class DotDict(dict):
         """
         # lenient
         print("__str__ call") if self._verbose else ...
-        return pretty_string_factory(dict(self))
+        # "dict" type doesn't have a "__str__" method
+        return dict.__repr__(self)
 
     def __repr__(self):
         # strict
         print("__repr__ call") if self._verbose else ...
+        # needs to work with "eval"
         return f"{self.__class__.__name__}({dict.__repr__(self)})"
 
     def copy(self) -> DotDict:
@@ -762,26 +778,28 @@ class DotDict(dict):
     @property
     def _view(self) -> dict[str, Any]:
         """
-        See "get_view" docstring.
+        See "get_dict_view" docstring.
 
         RETURNS
         -------
-        dict
+        dict[str, Any]
             A dict whose nested dicts are DotDicts.
         """
         print("_view call") if self._verbose else ...
-        return get_view(self)
+        return get_dict_view(self)
+        # return MappingProxyType(self)
 
 
 if __name__ == "__main__":
+    pass
+
     # tests
-    # test = DotDict()
+
     # print(is_iterable_not_string_like("lol"))
     # print(is_iterable_not_string_like([1,2,3]))
     # print(is_iterable_not_string_like(["lol", "haha"]))
     # print(is_iterable_not_string_like("lol"))
     # print(is_iterable_not_string_like(set()))
-    # print(str(set()))
 
     # print(_pretty_string_factory_object_processor(("lol", "haha")))
     # print(_pretty_string_factory_object_processor("lol"))
@@ -795,5 +813,34 @@ if __name__ == "__main__":
     #     "b": 5
     # }))
 
-    test = DotDict({"a": {"b": "c"}})
-    print(repr(test["a"].copy))
+    # # why is DotDict.__repr__ called at all here ? why isn't __str__ called ?
+    # print("init dotdict test")
+    # test = DotDict({"a": {"b": "c"}}, _verbose=True)
+    # print()
+    # print("call _view")
+    # test_view = test._view
+    # print(type(test_view))
+    # print()
+    # print("print test_view")
+    # print(test_view)
+    # print()
+    # print("print repr test_view")
+    # print(repr(test_view))
+    # # => dict.__str__ calls __repr__ of its values
+
+    test = DotDict({"a": {"b": "c"}}, _verbose=True)
+    print(test)
+    # test_dict = test.__dict__
+    # print()
+    # print(test_dict)
+    # print(repr(test_dict))
+    # print(type(test_dict))
+    # print(type(DotDict.__dict__))
+    # for key in DotDict.__dict__.keys():
+    #     print(key)
+    # print()
+    # print(vars(test))
+
+    test_dict = {'a': {'foo': 'bar'}, 'b': {'lol': 'kekw', 'hehe': 'haha'}, 'c': {}}
+    test = DotDict(test_dict, _verbose=True)
+    print()
