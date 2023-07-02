@@ -1,12 +1,13 @@
 # docs: https://git-scm.com/docs/gitattributes
 
 # possible attributes:
-# - "text=auto": let git figure out if the file is a text or binary file (default behavior for all files)
-# - "text": file is text file, end of line should be normalised
-# - "-text": file is not a text file, end of line should not be normalised
-# - "eol=(lf,crlf)": file is text file, but should be checked out with linux (lf) or windows (crlf) line endings
+# - "text=auto": let git figure out if the files are text or binary files (default behavior for all files)
+# - "text": files are text files, end of line should be normalised
+# - "-text": files are not text files, end of line should not be normalised
+# - "eol=(lf,crlf)": files are text files, but should be checked out with linux (lf) or windows (crlf) line endings
+# - linguist-vendored: files will not be accounted for in the list of languages used
 
-# text files will always be checked in with LF line endings
+# text files will always be checked in with LF line endings, binary files will be checked in as-is
 
 # paths follow the same rules as .gitignore paths, except:
 # - negative patterns are forbidden
