@@ -33,8 +33,6 @@ function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" li
     # $job_logs = Receive-job $server_list_job
     # Remove-Job -Job $server_list_job
 
-    # => maybe remembering conda env would be faster?
-    # $current_conda_env = $Env:CONDA_DEFAULT_ENV
     if ($Env:CONDA_DEFAULT_ENV -eq 'workenv') {$jupyter_lab_list_output = jupyter server list}
     else {cda; $jupyter_lab_list_output = jupyter server list; cdd}
     $url_regex_pattern = 'http:\/\/localhost:[\d]+\/\?token=[\w]+'
@@ -43,7 +41,6 @@ function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" li
         Write-Verbose "Found $($urls.Count) jupyter lab servers currently running"
         return $urls
     }
-    # else {Write-Error 'Jupyter lab is not currently running'}
     else {Write-Verbose 'Found 0 jupyter lab servers currently running'}
 }
 
@@ -52,7 +49,7 @@ function Wrapper-JupyterLab {
     param(
         [string] $CondaVEnv = 'workenv',
         [string] $RootDir = $code,
-        [string] $ProcessType = 'pro',
+        [string] $ProcessType = 'pro', # => add switches: "jupyter_lab -j" for job, "jupyter_lab -h" for hidden process
         [switch] $URL,
         [switch] $Verbose,
         [switch] $Silent
@@ -62,22 +59,17 @@ function Wrapper-JupyterLab {
         $VerbosePreference = 'Continue'
     }
     if (!$Silent) {
-        $VerbosePreference_backup = $InformationPreference
+        $InformationPreference_backup = $InformationPreference
         $InformationPreference = 'Continue'
     }
     else {Write-Verbose "'-Silent' flag set, not printing information stream to host"}
     # $VEnv, $RootDir, $process_or_job
     # check if a server is already running
     $running_servers = Get-JupyterLabURL 2> $null
-    # if ($URL) {
-    #     Write-Verbose "'-URL' flag set, returning the list of all running servers"
-    #     Write-Information 'List of jupyter servers currently running:' #-InformationAction 'Continue'
-    #     return $running_servers
-    # }
     if ($running_servers.Length -gt 0) {
         if ($URL) {
             Write-Verbose "'-URL' flag set, returning the list of all running servers"
-            Write-Information 'List of jupyter servers currently running:' #-InformationAction 'Continue'
+            Write-Information 'List of jupyter servers currently running:'
             return $running_servers
         }
         # give the choice to output URL, or start a new server anyways
@@ -91,18 +83,20 @@ function Wrapper-JupyterLab {
             $choice = Confirmation-Prompt -Question 'A Jupyter Lab server is already running. Please advise:' -ChoicesTable $choices_table
             if ($choice -eq 2) {
                 Write-Verbose "Entering nested prompt"
-                # reset $VerbosePreference for the nested prompt
+                # reset $VerbosePreference and $InformationPreference for the nested prompt
                 if ($Verbose) {$VerbosePreference = $VerbosePreference_backup}
+                if (!$Silent) {$InformationPreference = $InformationPreference_backup}
                 $host.EnterNestedPrompt()
                 if ($Verbose) {$VerbosePreference = 'Continue'}
+                if (!$Silent) {$InformationPreference = 'Continue'}
             }
         }
     }
     else {
         if ($URL) {
             Write-Verbose "'-URL' flag set, returning the list of all running servers"
-            Write-Information 'No jupyter server is currently running' #-InformationAction 'Continue'
-            return $running_servers
+            Write-Information 'No jupyter server is currently running'
+            return
         }
         # start a new server
         $choice = 1
@@ -110,7 +104,7 @@ function Wrapper-JupyterLab {
     switch ($choice) {
         0 {
             Write-Verbose "Returning the list of all running servers"
-            Write-Information 'List of jupyter servers currently running:' -InformationAction 'Continue'
+            Write-Information 'List of jupyter servers currently running:'
             return $running_servers
         }
         1 {

@@ -4,8 +4,8 @@ param(
     [switch] $SilentServer
 )
 
-try {. $profile -Silent}
-catch {. $using:profile -Silent}
+try {. $profile -Silent} # process
+catch {. $using:profile -Silent} # job
 
 if (!$SilentServer) {
     $InformationPreference = 'Continue'

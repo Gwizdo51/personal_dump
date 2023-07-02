@@ -1,11 +1,14 @@
-param([switch]$Silent)
+param([switch]$Silent, [switch]$Verbose)
 $tick = Get-Date
 
-# setting $InformationPreference to 'Continue' for the profile load,
-# unless $Silent is on
+# setting $InformationPreference to 'Continue' for the profile load, unless $Silent is on
 if (!$Silent) {
     $InformationPreference_backup = $InformationPreference
     $InformationPreference = 'Continue'
+}
+if ($Verbose) {
+    $VerbosePreference_backup = $VerbosePreference
+    $VerbosePreference = 'Continue'
 }
 
 # if (!$NoWriteHost) {Write-Host "Loading personal profile (custom_profile.ps1) ..."}
@@ -22,7 +25,7 @@ Write-Verbose 'Setting up conda ...'
 $Env:_CONDA_ROOT = "$HOME\anaconda3"
 $Env:CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
 $Env:_CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
-Import-Module "$Env:_CONDA_ROOT\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False}
+Import-Module "$Env:_CONDA_ROOT\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False} -Verbose:$False
 # conda activate base
 #>
 
@@ -279,6 +282,7 @@ $load_time = ($tock - $tick).TotalMilliseconds
 # [math]::Round(($tock - $tick).TotalSeconds), 3)
 Write-Information "Profile load time: $([int][math]::Round($load_time))ms"
 if (!$Silent) {$InformationPreference = $InformationPreference_backup}
+if ($Verbose) {$VerbosePreference = $VerbosePreference_backup}
 
 
 ###############################################################################################
