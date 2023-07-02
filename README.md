@@ -19,6 +19,7 @@ A random clutter of stuff I should remember.
 - [x] add a shortcut to edit the user profile in VSCode
 - [x] add a function that prints example strings with the available colors
 - [x] don't color git prompt parentheses
+- [x] test if .gitattributes is working as intended
 
 ### *WIP*
 - [ ] add a mechanism to run the jupyter lab server on a seperate hidden powershell process
@@ -30,8 +31,7 @@ A random clutter of stuff I should remember.
 - [ ] make every DotDict dict method consistent with the dict class
 
 ### *TODO*
-- [ ] make feedbacks to Anaconda about updating conda base with not default channel
-- [ ] test if .gitattributes is working as intended
+- [ ] mess with [PSReadLine](https://learn.microsoft.com/en-us/powershell/module/psreadline/?view=powershell-7.3)
 - [ ] make pretty_string_factory a module on its own
 - [ ] add a docstring to logger_factory.py and touch.py
 - [ ] add unit tests for dotdict.py

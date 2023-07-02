@@ -83,9 +83,16 @@ After that, it runs the "finally" block.
 All blocks must be next to each other.
 
 
-- Write-Output - Write-Host - Write-Verbose:
+- Write-Output - Write-Host - Write-Verbose - Write-Information:
 Write-Host $null != Write-Output $null
 Write-Host @(1,2,3) != Write-Output @(1,2,3)
+- Write-Output writes the specified objects to the pipeline. If Write-Output is the last command in the pipeline, the objects are displayed in the console.
+=> Write-Output returns its input as output of the function that calls it
+- Write-Host writes customized output to a host.
+- Write-Verbose writes text to the verbose message stream. (-Verbose to show)
+=> Write-Verbose -Message "lol" -Verbose
+- Write-Verbose writes text to the information message stream. (-Information "Continue", or $InformationPreference = 'Continue')
+Write-Information -MessageData "Processes starting with 'P'" -InformationAction "Continue"
 
 
 - function vs. cmdlet:
