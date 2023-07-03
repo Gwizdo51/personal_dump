@@ -14,10 +14,10 @@ if ($Verbose) {
 # if (!$NoWriteHost) {Write-Host "Loading personal profile (custom_profile.ps1) ..."}
 Write-Information "Loading personal profile (custom_profile.ps1)..."
 
-# Import-Module "D:\Code\personal_dump\code\powershell\Recycle.psm1"
+# Import-Module "D:\Code\personal_dump\code\powershell\Recycle.psm1" -Verbose:$False
 # $confirmPreference = 'High'
 
-# set up output and input console encoding to UTF-8
+# set up output and input shell encoding to UTF-8
 $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
 
 # <#
@@ -30,34 +30,26 @@ Import-Module "$Env:_CONDA_ROOT\shell\condabin\Conda.psm1" -ArgumentList @{Chang
 #>
 
 # prompt setup
-if (-not $color_characters_dict) { # only set up colors once
-    Write-Verbose 'Setting up prompt colors...'
-    # set up the color variables
-    # "ESC" character: [char]27
-    function gen_color_char {
-        param ([int]$char_number)
-        "$([char]27)[$($char_number)m"
-    }
-    $color_characters_dict = @{} # empty hashtable
-    # $col_def = color_char_gen 0
-    $color_characters_dict.col_def = gen_color_char 0
-    # $color_name_array = "Black", "Red", "Green", "Yellow", "Blue", "Magenta", "Cyan", "White"
+Write-Verbose 'Setting up prompt colors...'
+function Gen-ColorsHashtable {
+    function gen_color_char {param ([int]$color_char_number); "$([char]27)[$($color_char_number)m"}
+    $colors_table = @{} # empty hashtable
+    $colors_table['col_def'] = gen_color_char 0
     # $($col_Black)  $($col_Red)  $($col_Green)  $($col_Yellow)  $($col_Blue)  $($col_Magenta)  $($col_Cyan)  $($col_White)
     # $($bcol_Black) $($bcol_Red) $($bcol_Green) $($bcol_Yellow) $($bcol_Blue) $($bcol_Magenta) $($bcol_Cyan) $($bcol_White)
     $i = 30
-    foreach ($color_name in "Black", "Red", "Green", "Yellow", "Blue", "Magenta", "Cyan", "White") {
+    foreach ($color_name in 'Black', 'Red', 'Green', 'Yellow', 'Blue', 'Magenta', 'Cyan', 'White') {
         $reg_col_var_name = "col_$color_name"
         $reg_col_var_value = gen_color_char $i
-        $color_characters_dict["$reg_col_var_name"] = $reg_col_var_value
+        $colors_table["$reg_col_var_name"] = $reg_col_var_value
         $bri_col_var_name = "bcol_$color_name"
         $bri_col_var_value = gen_color_char $($i + 60)
-        $color_characters_dict["$bri_col_var_name"] = $bri_col_var_value
+        $colors_table["$bri_col_var_name"] = $bri_col_var_value
         ++$i
     }
-    # delete gen_color_char function
-    # Remove-Item -path 'function:\gen_color_char'
-    Remove-Variable 'color_name', 'reg_col_var_name', 'reg_col_var_value', 'bri_col_var_name', 'bri_col_var_value', 'i'
+    return $colors_table
 }
+$colors_table = Gen-ColorsHashtable
 function Prompt-Git-Branch-Name {
     # look for possible branch name, silence git "not in git repo" error
     $branch = $(& "C:\Program Files\Git\cmd\git.exe" rev-parse --abbrev-ref HEAD 2> $null)
@@ -65,11 +57,11 @@ function Prompt-Git-Branch-Name {
         # we're in a git repo
         if ($branch -eq 'HEAD') {
             # we're in detached HEAD state, so print the SHA
-            "($($color_characters_dict.col_Red)$(& "C:\Program Files\Git\cmd\git.exe" rev-parse --short HEAD)$($color_characters_dict.col_def))"
+            "($($colors_table.col_Red)$(& "C:\Program Files\Git\cmd\git.exe" rev-parse --short HEAD)$($colors_table.col_def))"
         }
         else {
             # we're on an actual branch, so print it
-            "($($color_characters_dict.col_Blue)$($branch)$($color_characters_dict.col_def))"
+            "($($colors_table.col_Blue)$($branch)$($colors_table.col_def))"
         }
     }
     # if we're not in a git repo, don't return anything
@@ -101,7 +93,7 @@ function Alias-GIT {
 New-Item -Path Alias:git -Value Alias-GIT -Force > $null
 $principal = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
 $admin_role = [Security.Principal.WindowsBuiltInRole]::Administrator
-if ($principal.IsInRole($admin_role)) {$ENV:_PROMPT_PRIVILEGE = "$($color_characters_dict.col_def)[$($color_characters_dict.bcol_Blue)ADMIN$($color_characters_dict.col_def)] "}
+if ($principal.IsInRole($admin_role)) {$ENV:_PROMPT_PRIVILEGE = "$($colors_table.col_def)[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)] "}
 else {$ENV:_PROMPT_PRIVILEGE = ''}
 Remove-Variable 'principal', 'admin_role'
 function Prompt {
@@ -111,7 +103,7 @@ function Prompt {
     # => needs to receive state from Env, like conda
     # check if a conda venv is activated, if so color only the venv name
     if ($Env:CONDA_PROMPT_MODIFIER -match '\(([\w\- ]+)\)')
-        {$conda_prompt = "($($color_characters_dict.col_Cyan)$($Matches.1)$($color_characters_dict.col_def))`n"}
+        {$conda_prompt = "($($colors_table.col_Cyan)$($Matches.1)$($colors_table.col_def))`n"}
     else
         {$conda_prompt = ''}
     $git_prompt = [string] $Env:_PROMPT_GIT_MODIFIER
@@ -133,10 +125,10 @@ function Prompt {
     # ｠ ﹤ ﹥ ﹡ Ꚛ ꗞ ꗟ ꔻ ꔼ ꔬ ꖝ ꔭ ꔮ ꔜ ꔝ ꔅ ꔆ ꖜ ꖛ ꕼ ꕹ ꗬ ꕺ ꕬ ꕢ ꕔ ꕕ ꗢ ꗣ ꗤ ꗥ ꗨ ꗳ ꗻ ꘃ ꘈ ꘜ ꘠ ꘨ ꘩ ꘪ
     # ꯁ ꯊ ꯌ ꯕ ꯖ ꯗ ꯘ ꯙ ꯱ ꯲ ꯳ ꯴ ꯵ ꯷ ㉤ ㉥ ㉦ ㉧ ㉨ ㉩ ㆍ ㆎ ㆆ 〇 Ⲑ Ⲫ Ⲋ Ⲱ ⯎ ⯏ ⫷ ⫸ ⪧ ⩥ ⨵ ⨳ ⨠ ⧁ ⦾ ⦿ ⦔ ⧂
     # ⧃ ⥤ ⟢ ⟡ ➽ ➔ ❱ ⌾ ⊙ ⊚ ⊛ ∬ ൏ ಌ ಅ ఴ ᐅ 〉 ⋮ ≻ ▶ ◣ ◤
-    # "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)PS $($color_characters_dict.col_def)$($dynamic_color_char) "
-    # "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd)$($color_characters_dict.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)$char_0$($color_characters_dict.col_def)$char_1 "
+    # "$($conda_prompt)$($colors_table.col_Green)$($cwd) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)PS $($colors_table.col_def)$($dynamic_color_char) "
+    # "$($conda_prompt)$($colors_table.col_Green)$($cwd)$($colors_table.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)$char_0$($colors_table.col_def)$char_1 "
     $nested_prompt = "$char_1" * ($nestedPromptLevel + 1)
-    "$($conda_prompt)$($color_characters_dict.col_Green)$($cwd)$($color_characters_dict.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($color_characters_dict.col_Yellow)$char_0$($color_characters_dict.col_def)$nested_prompt "
+    "$($conda_prompt)$($colors_table.col_Green)$($cwd)$($colors_table.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)$char_0$($colors_table.col_def)$nested_prompt "
 }
 
 # shortcuts to important folders
@@ -263,8 +255,8 @@ New-Item -Path Alias:type -Value Get-Type -Force > $Null
 function Text-Colors-Test {
     param([string[]]$color_names=("Black","Red","Green","Yellow","Blue","Magenta","Cyan","White"))
     foreach ($color_name in $color_names) {
-        $reg_col = $color_characters_dict["col_$color_name"]
-        $bri_col = $color_characters_dict["bcol_$color_name"]
+        $reg_col = $colors_table["col_$color_name"]
+        $bri_col = $colors_table["bcol_$color_name"]
         "$($reg_col)This is a sentence colored with regular $color_name"
         "$($bri_col)This is a sentence colored with bright $color_name"
     }

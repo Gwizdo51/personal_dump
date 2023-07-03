@@ -18,9 +18,10 @@
 - [x] add a mechanism to run the jupyter lab server on a seperate hidden powershell process
 
 ### *WIP*
-- [ ] add "Recycle" function
+- [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
 - [ ] convert custom PS functions into aliases
+- [ ] make a Get-Size cmdlet
 - [ ] add powershell notes
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
