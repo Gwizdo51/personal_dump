@@ -506,7 +506,7 @@ f_test
 f_test lol
 f_test haha
 #>
-# <#
+<#
 # xor switches:
 function two_switches {
     param([switch]$first, [switch]$second)

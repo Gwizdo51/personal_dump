@@ -18,6 +18,7 @@
 - [x] add a mechanism to run the jupyter lab server on a seperate hidden powershell process
 
 ### *WIP*
+- [ ] make a UNIX-style "sudo" alias
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
 - [ ] convert custom PS functions into aliases
