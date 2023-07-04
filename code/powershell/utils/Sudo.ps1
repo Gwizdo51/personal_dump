@@ -1,7 +1,12 @@
 # maybe restrict to a single command at a time => disallow strings containing ";" ?
 # need to work:
 # sudo echo "lol"
+# sudo '"lol"'
 # sudo Write-Output "This is a 'great' message"
+# sudo Write-Error "this is not good"
+# sudo echo "This is a `"great`" message with 'both' kinds of quotes"
+# sudo 1 + 2
+# sudo echo $(34 + 70)
 
 # => in cmd.exe: gotta escape every double quote characters
 # pwsh.exe -Command echo '\"lol\"' => "lol"
@@ -31,19 +36,15 @@
 # sudo Write-Output "This is a 'great' message" => args = 'Write-Output', 'This is a "great" message'
 
 function Run-AsAdmin {
-    # run command in current session if it has admin rights
-
-    # /!\ cant use:
-    # - quotes, double-quotes (sudo strips everything, but sometimes fucky wucky)
-    # - multiple commands in a row (';' disallowed)
-    # => maybe store command in file, not send it as string?
+    # /!\ does not work with PS 5.1 /!\
 
     # replace all '"' with '\"'
     $processed_args = @()
     foreach ($arg in $args) {
         # $arg
         if ((type $arg) -eq 'System.String') {
-            if ($arg -match ' ') {
+            # if ($arg -match ' ') {
+            if (($arg -match ' ') -or ($arg -match '"')) {
                 $processed_arg = $arg -replace '"', '`\"'
                 $processed_args += '\"' + $processed_arg + '\"'
             }
@@ -70,7 +71,8 @@ function Run-AsAdmin {
     # $processed_args is a list of strings
     # pwsh.exe -Command echo 'This is a \"great\" string'; pause; Get-WinEvent -LogName security; pause
     # $bat_file_content = "pwsh.exe -Command ''; '$('-'*27)'; $processed_args; '$('-'*27)'; ''; pause;"
-    $bat_file_content = "pwsh.exe -Command Start-Transcript -Path $_ps_buffer; ''; '[SUDO]' + '$('~'*50)'; ''; $processed_args; ''; '$('~'*56)'; ''; Stop-Transcript; pause;"
+    # $bat_file_content = "pwsh.exe -Command Start-Transcript -Path $_ps_buffer; ''; '[SUDO]' + '$('~'*50)'; ''; $processed_args; ''; '$('~'*56)'; ''; Stop-Transcript; pause;"
+    $bat_file_content = "pwsh.exe -NoProfile -Command . $profile -Silent; cd \`"$(Get-Location)\`"; $processed_args > $_ps_buffer"
     # return $bat_file_content
     $bat_script_path = "$_powershell_dir\utils\sudo.bat"
     $bat_file_content | Out-File -FilePath $bat_script_path
@@ -79,29 +81,27 @@ function Run-AsAdmin {
     # try {Start-Process -FilePath 'pwsh.exe' -ArgumentList $args_list -Verb 'RunAs' -PassThru | Wait-Process}
     # try {Start-Process -FilePath 'pwsh.exe' -ArgumentList $args_list -PassThru | Wait-Process}
     # try {Start-Process -FilePath $bat_script_path -PassThru | Wait-Process}
-    try {Start-Process -FilePath $bat_script_path -Verb 'RunAs' -PassThru | Wait-Process}
-    catch [System.InvalidOperationException] {
-        # $PSItem | select *
-        Write-Error "The operation was canceled by the user"
-        return
-    }
+    try {Start-Process -FilePath $bat_script_path -Verb 'RunAs' -WindowStyle 'Minimized' -PassThru | Wait-Process}
+    catch [System.InvalidOperationException] {Write-Error "The operation was canceled by the user"; return}
     catch {"another error"; return}
+    # catch {$PSItem | select *}
     # return
 
-    $ps_buffer_lines = read $_ps_buffer
-    # only print what is after [SUDO]~~~ and before ~~~
-    $sudo_output = @()
-    $is_sudo_output = $False
-    foreach ($line in $ps_buffer_lines) {
-        if ($line -eq '[SUDO]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~') {
-            $is_sudo_output = $True
-        }
-        elseif ($line -eq '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~') {
-            $is_sudo_output = $False
-        }
-        elseif ($is_sudo_output) {$sudo_output += $line}
-    }
-    if ($sudo_output.Count -gt 2) {$sudo_output[1..($sudo_output.Count - 2)] | % {'[ADMIN]: ' + $_}}
+    # $ps_buffer_lines = read $_ps_buffer
+    # # only print what is after [SUDO]~~~ and before ~~~
+    # $sudo_output = @()
+    # $is_sudo_output = $False
+    # foreach ($line in $ps_buffer_lines) {
+    #     if ($line -eq '[SUDO]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~') {
+    #         $is_sudo_output = $True
+    #     }
+    #     elseif ($line -eq '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~') {
+    #         $is_sudo_output = $False
+    #     }
+    #     elseif ($is_sudo_output) {$sudo_output += $line}
+    # }
+    # if ($sudo_output.Count -gt 2) {$sudo_output[1..($sudo_output.Count - 2)] | % {"[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)] " + $_}}
+    read $_ps_buffer | % {"[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)] " + $_}
 
     # empty sudo.bat and ps_buffer.txt
     # Out-File -FilePath $bat_script_path

@@ -68,11 +68,9 @@ function Wrapper-JupyterLab {
     }
     else {Write-Verbose "'-Silent' flag set, not printing information stream to host"}
     # $VEnv, $RootDir, $process_or_job
-    # check if a server is already running
     if ($Kill) {
         Write-Verbose "'-Kill' flag set, killing all jupyter servers"
-        $InformationPreference = 'SilentlyContinue'
-        Kill-JupyterLab
+        Kill-Jupyter
         return
     }
     $running_servers_urls = Get-JupyterLabURL 2> $null
@@ -82,6 +80,7 @@ function Wrapper-JupyterLab {
         else {Write-JobServerLogs}
         return
     }
+    # check if a server is already running
     if ($running_servers_urls.Count -gt 0) {
         if ($URL) {
             Write-Verbose "'-URL' flag set, returning the list of all running servers"
@@ -169,7 +168,14 @@ function Write-JobServerLogs {
 }
 New-Item -Path Alias:jl -Value Write-JobServerLogs -Force > $null
 
-function Kill-JupyterLab { # kill all jupyter lab servers
+function Kill-Jupyter { # kill all jupyter lab servers
     $port_regex_pattern = 'http://localhost:([\d]+)/\?token=[\w]+'
-    Get-JupyterLabURL 2> $null | % {[regex]::matches($_, $port_regex_pattern).Groups} | ? {$_.Name -eq 1} | % {jupyter server stop $_.Value}
+    if ($Env:CONDA_DEFAULT_ENV -eq 'workenv') {
+        Get-JupyterLabURL 2> $null | % {[regex]::matches($_, $port_regex_pattern).Groups} | ? {$_.Name -eq 1} | % {jupyter server stop $_.Value}
+    }
+    else {
+        cda
+        Get-JupyterLabURL 2> $null | % {[regex]::matches($_, $port_regex_pattern).Groups} | ? {$_.Name -eq 1} | % {jupyter server stop $_.Value}
+        cdd
+    }
 }

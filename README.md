@@ -16,9 +16,9 @@
 - [x] don't color git prompt parentheses
 - [x] test if .gitattributes is working as intended
 - [x] add a mechanism to run the jupyter lab server on a seperate hidden powershell process
+- [x] make a UNIX-style "sudo" alias
 
 ### *WIP*
-- [ ] make a UNIX-style "sudo" alias
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
 - [ ] convert custom PS functions into aliases
