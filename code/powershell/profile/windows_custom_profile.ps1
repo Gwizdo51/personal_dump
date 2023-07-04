@@ -105,7 +105,7 @@ function Prompt {
     # if we want to keep the "turn red on error" feature (from PSReadLine)
     # => needs to receive state from Env, like conda
     # check if a conda venv is activated, if so color only the venv name
-    if ($Env:CONDA_PROMPT_MODIFIER -match '\(([\w\- ]+)\)')
+    if ($Env:CONDA_PROMPT_MODIFIER -match '\(([\w\- ]+)\)') # => use [regex] instead, more robust
         {$conda_prompt = "($($colors_table.col_Cyan)$($Matches.1)$($colors_table.col_def))`n"}
     else
         {$conda_prompt = ''}
@@ -142,6 +142,9 @@ function Prompt {
 $code = 'D:\code'
 $horoview = "$code\projects\01_horoview"
 $dump = "$code\personal_dump"
+
+$_powershell_dir = $custom_profile | Split-Path -Parent | Split-Path -Parent
+$_ps_buffer = "$_powershell_dir\profile\ps_buffer.txt"
 
 
 ###############
@@ -251,13 +254,14 @@ New-Item -Path Alias:color_test -Value Text-Colors-Test -Force > $Null
 ### MODULES ###
 ###############
 
-$powershell_dir = $custom_profile | Split-Path -Parent | Split-Path -Parent
 # user confirmation functions
-. "$powershell_dir\utils\Confirm.ps1"
+. "$_powershell_dir\utils\Confirm.ps1"
 # jupyter lab wrapper
-. "$powershell_dir\utils\jupyter_server_wrapper.ps1"
-# Recycle bin package
-. "$powershell_dir\utils\Recycle.ps1"
+. "$_powershell_dir\utils\jupyter_server_wrapper.ps1"
+# Recycle bin
+. "$_powershell_dir\utils\Recycle.ps1"
+# Sudo
+. "$_powershell_dir\utils\Sudo.ps1"
 
 
 $tock = Get-Date

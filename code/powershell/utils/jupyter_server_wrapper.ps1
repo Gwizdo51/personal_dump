@@ -77,7 +77,7 @@ function Wrapper-JupyterLab {
     }
     $running_servers_urls = Get-JupyterLabURL 2> $null
     if ($Logs) {
-        Write-Verbose "'-Logs' flag set, writing the logs of the jupyter_server job"
+        Write-Verbose "'-Logs' flag set, writing the logs of the jupyter_server currently running as a job"
         if ($running_servers_urls.Count -eq 0) {Write-Error 'No jupyter server is currently running'}
         else {Write-JobServerLogs}
         return
@@ -131,30 +131,22 @@ function Wrapper-JupyterLab {
             Write-Verbose "Starting a new jupyter lab server"
             Write-Verbose "Conda virtual environment used: '$CondaVEnv'"
             Write-Verbose "Root directory: '$RootDir'"
+            $jupyer_lab_server_path = "$_powershell_dir\utils\jupyter_lab_server.ps1"
+            $commmand_str = "& $jupyer_lab_server_path -VEnv $CondaVEnv -RootDir $RootDir"
+            $args_list = "-NoProfile", "-Command", $commmand_str
             if ($HiddenProcess -and $Job) {Write-Error 'Both -HiddenProcess and -Job flags are set'; return}
             elseif (!($HiddenProcess -or $Job)) { # process
                 Write-Verbose "Starting a new powershell process to host the server"
-                $args_list = @(
-                    "-NoProfile",
-                    "-c", "&", "$powershell_dir\utils\jupyter_lab_server.ps1",
-                    "-VEnv", $CondaVEnv,
-                    "-RootDir", $RootDir
-                )
                 Start-Process -FilePath "pwsh.exe" -ArgumentList $args_list -WindowStyle 'Minimized'
             }
             elseif ($HiddenProcess) {
                 Write-Verbose "Starting a new hidden powershell process to host the server"
-                $args_list = @(
-                    "-c", "&", "$powershell_dir\utils\jupyter_lab_server.ps1",
-                    "-VEnv", $CondaVEnv,
-                    "-RootDir", $RootDir
-                )
                 Start-Process -FilePath "pwsh.exe" -ArgumentList $args_list -WindowStyle 'Hidden'
             }
             elseif ($Job) {
                 Write-Verbose "Starting a new powershell job to host the server"
                 # Start-Job -Name 'jupyter_server' -ScriptBlock {. $using:profile -S; cda -VEnv $using:CondaVEnv; cd $using:RootDir; jupyter lab}
-                Start-Job -Name 'jupyter_server' -FilePath "$powershell_dir\utils\jupyter_lab_server.ps1" -ArgumentList $CondaVEnv, $RootDir
+                Start-Job -Name 'jupyter_server' -FilePath $jupyer_lab_server_path -ArgumentList $CondaVEnv, $RootDir
             }
             else {throw 'This should never be thrown'}
         }

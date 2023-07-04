@@ -30,3 +30,5 @@ __pycache__/
 
 # specific
 code/python/tests_dir/
+ps_buffer.txt
+sudo.bat
