@@ -95,8 +95,33 @@ Write-Host @(1,2,3) != Write-Output @(1,2,3)
 Write-Information -MessageData "Processes starting with 'P'" -InformationAction "Continue"
 
 
-- function vs. cmdlet:
-cmdlet inherits from "functions", but isn't a function
+- cmdlet: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.3
+cmdlet inherits from "functions", but isn't a function => has more functionalities
+- to turn a function into a cmdlet:
+function Do-Smth {[CmdletBinding()] param(...) ...}
+- CmdletBinding: transforms a standard function into a full-fledged cmdlet
+[CmdletBinding(
+    ConfirmImpact=<String>,             # 'None', 'Low', 'Medium', 'High' (default 'Medium')
+    DefaultParameterSetName=<String>,   # smth about parameter set, not rly useful
+    HelpURI=<URI>,                      # internet address of the online version of the help topic that describes the function
+    SupportsPaging=<Boolean>,           # adds the First, Skip, and IncludeTotalCount parameters to the function. Useful when a ton of data is being processed.
+    SupportsShouldProcess=<Boolean>,    # adds -Confirm and -WhatIf switches to the function. The cmdlet will request confirmation if
+                                        # $ConfirmPreference is equal to or less than the value of ConfirmImpact. (default $False)
+    PositionalBinding=<Boolean>         # determines whether parameters in the function are positional by default (default $True)
+                                        # => set to $False to disable positional parameter binding.
+)]
+- parameter attributes: gives more control on cmdlet arguments
+Parameter(Argument=value)
+-> Mandatory argument (optional parameter when unspecified): Parameter(Mandatory)
+    -> HelpMessage argument (displayed when command is used with missing mandatory arguments, type "!?" to see during prompt): Parameter(Mandatory, HelpMessage="help message content")
+-> Positional argument (overrides PositionalBinding of CmdletBinding for this parameter) (can still be named): Parameter(Position=0)
+-> ValueFromPipeline argument (accepts entire objects from pipeline): Parameter(ValueFromPipeline)
+-> ValueFromPipelineByPropertyName argument (accepts input from a property of a pipeline object, the object property must have the same name or alias): Parameter(ValueFromPipelineByPropertyName)
+-> ValueFromRemainingArguments argument (): Parameter(ValueFromRemainingArguments)
+- Alias attribute: [Alias("...")]
+- SupportsWildcards attribute: [SupportsWildcards()]
+- ValidatePattern validation attribute (compares string to the regex): [ValidatePattern("[0-9]{4}")]
+- ValidateDrive validation attribute (raises error when the value is outside the drives given): [ValidateDrive("C", "D", "Variable", "Function")]
 
 
 - pipelines:

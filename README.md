@@ -19,6 +19,7 @@
 - [x] make a UNIX-style "sudo" alias
 
 ### *WIP*
+- [ ] convert jupyter_lab and sudo to cmdlets
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
 - [ ] convert custom PS functions into aliases

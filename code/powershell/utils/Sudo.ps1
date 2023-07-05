@@ -1,12 +1,20 @@
 # maybe restrict to a single command at a time => disallow strings containing ";" ?
 # need to work:
 # sudo echo "lol"
+# sudo echo '"lol"'
 # sudo '"lol"'
+# sudo echo "'lol'"
+# sudo "'lol'"
 # sudo Write-Output "This is a 'great' message"
 # sudo Write-Error "this is not good"
 # sudo echo "This is a `"great`" message with 'both' kinds of quotes"
 # sudo 1 + 2
 # sudo echo $(34 + 70)
+# sudo iex "`$host.Version.Major" (=> 7)
+# sudo -s iex "`$host.Version.Major" (=> 5)
+# => require interaction with the admin shell:
+# => sudo read-host "test read host"
+# => sudo pause
 
 # => in cmd.exe: gotta escape every double quote characters
 # pwsh.exe -Command echo '\"lol\"' => "lol"
@@ -21,61 +29,42 @@
 # {pwsh.exe -Command echo 'This is a \"great\" string'; pause; Get-WinEvent -LogName security; pause} | Out-File -FilePath '.\sudo.bat'
 # start-Process -FilePath '.\sudo.bat' -Verb 'RunAs'
 
-# regex replace:
-# 'This is a "Great" string' -replace '"', '\"'
-
-# sudo Write-Output 'This is a "great" message' => args = 'Write-Output', 'This is a "great" message'
-# > for each $arg in $args:
-# >     if the arg is a string:
-# >         if it has spaces:
-# >             add '\"' at the beginning and at the end
-# >             replace '"' with '`\"'
-# >         else: add as is
-# >     else: add it as a string
-
-# sudo Write-Output "This is a 'great' message" => args = 'Write-Output', 'This is a "great" message'
-
 function Run-AsAdmin {
-    # /!\ does not work with PS 5.1 /!\
+    # convert into cmdlet ?
+    param ([switch]$SystemPS)
+    # pass "-s" to use powershell.exe instead of pwsh.exe (slightly faster, it seems)
 
-    # replace all '"' with '\"'
-    $processed_args = @()
+    $cmd_prompt_args = @()
     foreach ($arg in $args) {
         # $arg
-        if ((type $arg) -eq 'System.String') {
-            # if ($arg -match ' ') {
-            if (($arg -match ' ') -or ($arg -match '"')) {
-                $processed_arg = $arg -replace '"', '`\"'
-                $processed_args += '\"' + $processed_arg + '\"'
-            }
-            else {$processed_args += $arg}
+        if (((type $arg) -eq 'System.String') -and ($arg -match '[ ''"]')) {
+            # if a string argument contains either spaces or quotes,
+            # replace all '"' with '`\"', and add '\"' at both ends
+            $cmd_prompt_args += '\"' + ($arg -replace '"', '`\"') + '\"'
         }
-        else {$processed_args += [string] $arg}
-        # $processed_args[-1]
+        else {$cmd_prompt_args += [string] $arg}
+        # $cmd_prompt_args[-1]
     }
     # return
-    # return $processed_args
-    # return {$processed_args}
-
-    # # Start-Process -FilePath 'pwsh.exe' -ArgumentList "-NoExit", "-NonInteractive", "-Command", "echo lol" -Verb 'RunAs'
-    # # $args_list = "-NoProfile", "-Command", '. $profile -Silent; echo lol; while ($true) {sleep 1}'
-    # # $command_string = ". `$profile -Silent; '$('-'*27)'; $args | Out-File -FilePath $powershell_dir\profile\ps_buffer.txt; '$('-'*27)'; pause"
-    # $command_string = ". `$profile -Silent; '$('-'*27)'; Start-Transcript -Path $powershell_dir\profile\ps_buffer.txt | Out-Null;"
-    # $command_string += " $args; Stop-Transcript | Out-Null; '$('-'*27)'; Write-Host ''; pause;"
-    # # Write-Host $command_string
-    # # $args_list = '-NoProfile', '-Command', $command_string
-    # Write-Host $args_list
-    # # return
+    # return $cmd_prompt_args
+    # return {$cmd_prompt_args}
 
     # make a .bat file (.\sudo.bat)
-    # $processed_args is a list of strings
+    # $cmd_prompt_args is a list of strings
     # pwsh.exe -Command echo 'This is a \"great\" string'; pause; Get-WinEvent -LogName security; pause
-    # $bat_file_content = "pwsh.exe -Command ''; '$('-'*27)'; $processed_args; '$('-'*27)'; ''; pause;"
-    # $bat_file_content = "pwsh.exe -Command Start-Transcript -Path $_ps_buffer; ''; '[SUDO]' + '$('~'*50)'; ''; $processed_args; ''; '$('~'*56)'; ''; Stop-Transcript; pause;"
-    $bat_file_content = "pwsh.exe -NoProfile -Command . $profile -Silent; cd \`"$(Get-Location)\`"; $processed_args > $_ps_buffer"
+    # $bat_file_content = "pwsh.exe -Command Start-Transcript -Path $_ps_buffer; ''; '[SUDO]' + '$('~'*50)'; ''; $cmd_prompt_args; ''; '$('~'*56)'; ''; Stop-Transcript; pause;"
+    if (($host.Version.Major -eq 5) -or ($SystemPS)) {
+        $pwsh_exe = 'powershell.exe'
+        $sudo_output_prefix = "[$($colors_table.bcol_Blue)SYSADMIN$($colors_table.col_def)]"
+    }
+    else {
+        $pwsh_exe = 'pwsh.exe'
+        $sudo_output_prefix = "[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)]"
+    }
+    $bat_file_content = "$pwsh_exe -NoProfile -Command .  \`"`$profile\`" -Silent; cd \`"$(Get-Location)\`"; $cmd_prompt_args > $_ps_buffer"
     # return $bat_file_content
     $bat_script_path = "$_powershell_dir\utils\sudo.bat"
-    $bat_file_content | Out-File -FilePath $bat_script_path
+    $bat_file_content | Out-File -FilePath $bat_script_path -Encoding 'ascii' # need to add encoding because ps5 is a dumbass
     # return
 
     # try {Start-Process -FilePath 'pwsh.exe' -ArgumentList $args_list -Verb 'RunAs' -PassThru | Wait-Process}
@@ -83,25 +72,11 @@ function Run-AsAdmin {
     # try {Start-Process -FilePath $bat_script_path -PassThru | Wait-Process}
     try {Start-Process -FilePath $bat_script_path -Verb 'RunAs' -WindowStyle 'Minimized' -PassThru | Wait-Process}
     catch [System.InvalidOperationException] {Write-Error "The operation was canceled by the user"; return}
-    catch {"another error"; return}
-    # catch {$PSItem | select *}
+    catch {"another error"; $PSItem | select *; return}
     # return
 
-    # $ps_buffer_lines = read $_ps_buffer
-    # # only print what is after [SUDO]~~~ and before ~~~
-    # $sudo_output = @()
-    # $is_sudo_output = $False
-    # foreach ($line in $ps_buffer_lines) {
-    #     if ($line -eq '[SUDO]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~') {
-    #         $is_sudo_output = $True
-    #     }
-    #     elseif ($line -eq '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~') {
-    #         $is_sudo_output = $False
-    #     }
-    #     elseif ($is_sudo_output) {$sudo_output += $line}
-    # }
-    # if ($sudo_output.Count -gt 2) {$sudo_output[1..($sudo_output.Count - 2)] | % {"[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)] " + $_}}
-    read $_ps_buffer | % {"[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)] " + $_}
+    # read $_ps_buffer | % {"[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)] " + $_}
+    foreach ($line in $(read $_ps_buffer)) {Write-Host $sudo_output_prefix $line}
 
     # empty sudo.bat and ps_buffer.txt
     # Out-File -FilePath $bat_script_path
