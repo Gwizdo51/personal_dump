@@ -151,7 +151,7 @@ $_ps_buffer = "$_powershell_dir\profile\ps_buffer.txt"
 ### ALIASES ###
 ###############
 
-### conda shortcuts
+### conda / python shortcuts
 function conda_activate {
     param($VEnv='workenv') # default to "workenv" instead of "base"
     conda activate $VEnv
@@ -161,11 +161,14 @@ function Conda-Deactivate {conda deactivate}
 New-Item -Path Alias:cdd -Value Conda-Deactivate -Force > $null
 function Conda-Update {conda update conda -n base -c defaults}
 New-Item -Path Alias:cdu -Value Conda-Update -Force > $null
-
-### activate workenv when python is not in the path
 function Alias-Python {
+    $fake_pythons_path = 'C:\Users\Arthur\AppData\Local\Microsoft\WindowsApps\python*.exe'
+    if (Test-Path $fake_pythons_path) {
+        Write-Error 'Found fake python executables'
+        Remove-Item -Confirm -Path $fake_pythons_path
+    }
     try {python.exe $args}
-    catch {Write-Error "Python.exe not found, activating workenv"; cda; python.exe $args}
+    catch {Write-Error "python.exe not found, activating workenv"; cda; python.exe $args}
 }
 New-Item -Path Alias:python -Value Alias-Python -Force > $null
 
