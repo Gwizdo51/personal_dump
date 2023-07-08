@@ -60,7 +60,7 @@ $colors_table = _gen_colors_hashtable
 function _gen_git_prompt {
     # look for possible branch name, silence git "not in git repo" error
     $branch = $(& "C:\Program Files\Git\cmd\git.exe" rev-parse --abbrev-ref HEAD 2> $null)
-    if (!$?) {return} # not in a git repo, don't return anything
+    if ($branch -eq $null) {return} # not in a git repo, don't return anything
     if ($branch -eq 'HEAD') { # we're in detached HEAD state, so print the SHA
         "($($colors_table.col_Red)$(& "C:\Program Files\Git\cmd\git.exe" rev-parse --short HEAD)$($colors_table.col_def))"
     }

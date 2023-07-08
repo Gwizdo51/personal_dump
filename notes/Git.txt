@@ -103,3 +103,6 @@ shows the diff between the commits of HEAD (stage included) and the online branc
 shows the modifications made to a specific file since the last commit
 - git diff --no-index <original_file_path> <modified_file_path>
 shows the diff between two different files in the working directory
+
+remove the "WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!" error:
+ssh-keygen -R github.com
