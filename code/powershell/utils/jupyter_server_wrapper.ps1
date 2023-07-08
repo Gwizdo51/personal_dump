@@ -36,12 +36,9 @@ function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" li
     if ($Env:CONDA_DEFAULT_ENV -eq 'workenv') {$jupyter_lab_list_output = jupyter server list}
     else {cda; $jupyter_lab_list_output = jupyter server list; cdd}
     $url_regex_pattern = 'http://localhost:[\d]+/\?token=[\w]+'
-    if ($jupyter_lab_list_output -match $url_regex_pattern) {
-        $urls = ([regex]::matches($jupyter_lab_list_output, $url_regex_pattern)).Value
-        Write-Verbose "Found $($urls.Count) jupyter lab servers currently running"
-        return $urls
-    }
-    else {Write-Verbose 'Found 0 jupyter lab servers currently running'}
+    $urls = ([regex]::matches($jupyter_lab_list_output, $url_regex_pattern)).Value
+    Write-Verbose "Found $($urls.Count) jupyter lab servers currently running"
+    return $urls
 }
 
 # function Jupyter-Lab {cda; cd $code; jupyter lab}

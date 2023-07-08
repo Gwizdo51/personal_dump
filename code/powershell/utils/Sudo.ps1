@@ -34,6 +34,11 @@ function Run-AsAdmin {
     param ([switch]$SystemPS)
     # pass "-s" to use powershell.exe instead of pwsh.exe (slightly faster, it seems)
 
+    # create/clear sudo.bat and ps_buffer.txt
+    $bat_script_path = "$_powershell_dir\utils\sudo.bat"
+    Out-File -FilePath $bat_script_path
+    Out-File -FilePath $_ps_buffer
+
     $cmd_prompt_args = @()
     foreach ($arg in $args) {
         # $arg
@@ -63,7 +68,6 @@ function Run-AsAdmin {
     }
     $bat_file_content = "$pwsh_exe -NoProfile -Command .  \`"`$profile\`" -Silent; cd \`"$(Get-Location)\`"; $cmd_prompt_args > $_ps_buffer"
     # return $bat_file_content
-    $bat_script_path = "$_powershell_dir\utils\sudo.bat"
     $bat_file_content | Out-File -FilePath $bat_script_path -Encoding 'ascii' # need to add encoding because ps5 is a dumbass
     # return
 

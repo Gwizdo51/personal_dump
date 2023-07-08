@@ -104,12 +104,15 @@ function Prompt {
     ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT /!\ ###
     # if we want to keep the "turn red on error" feature (from PSReadLine)
     # => needs to receive state from Env, like conda
+
     # check if a conda venv is activated, if so color only the venv name
-    if ($Env:CONDA_PROMPT_MODIFIER -match '\(([\w\- ]+)\)') # => use [regex] instead, more robust
-        {$conda_prompt = "($($colors_table.col_Cyan)$($Matches.1)$($colors_table.col_def))`n"}
-    else
-        {$conda_prompt = ''}
+    $conda_venv_regex_match = [regex]::matches($Env:CONDA_PROMPT_MODIFIER, '\(([\w\- ]+)\)')
+    if ($conda_venv_regex_match.Count -eq 1)
+        {$conda_prompt = "($($colors_table.col_Cyan)$($conda_venv_regex_match.Groups[1].Value)$($colors_table.col_def))`n"}
+    else {$conda_prompt = ''}
     $git_prompt = [string] $Env:_PROMPT_GIT_MODIFIER
+    $cwd = $executionContext.SessionState.Path.CurrentLocation
+
     # default ("[int][char]'>'" to find the integer): [char]62
     # here: [int][char]'¤' => 164
     # '>' => 62
@@ -121,13 +124,13 @@ function Prompt {
     # $char_1 = [char] 9002
     $char_1 = [char] 10097
     # $char_1 = [char] 124
-    $cwd = $executionContext.SessionState.Path.CurrentLocation
     # [$env:COMPUTERNAME], [$Env:USERNAME]
     # "PS > " |>
     # "PS¤> "
     # ｠ ﹤ ﹥ ﹡ Ꚛ ꗞ ꗟ ꔻ ꔼ ꔬ ꖝ ꔭ ꔮ ꔜ ꔝ ꔅ ꔆ ꖜ ꖛ ꕼ ꕹ ꗬ ꕺ ꕬ ꕢ ꕔ ꕕ ꗢ ꗣ ꗤ ꗥ ꗨ ꗳ ꗻ ꘃ ꘈ ꘜ ꘠ ꘨ ꘩ ꘪ
     # ꯁ ꯊ ꯌ ꯕ ꯖ ꯗ ꯘ ꯙ ꯱ ꯲ ꯳ ꯴ ꯵ ꯷ ㉤ ㉥ ㉦ ㉧ ㉨ ㉩ ㆍ ㆎ ㆆ 〇 Ⲑ Ⲫ Ⲋ Ⲱ ⯎ ⯏ ⫷ ⫸ ⪧ ⩥ ⨵ ⨳ ⨠ ⧁ ⦾ ⦿ ⦔ ⧂
     # ⧃ ⥤ ⟢ ⟡ ➽ ➔ ❱ ⌾ ⊙ ⊚ ⊛ ∬ ൏ ಌ ಅ ఴ ᐅ 〉 ⋮ ≻ ▶ ◣ ◤
+
     # "$($conda_prompt)$($colors_table.col_Green)$($cwd) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)PS $($colors_table.col_def)$($dynamic_color_char) "
     # "$($conda_prompt)$($colors_table.col_Green)$($cwd)$($colors_table.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)$char_0$($colors_table.col_def)$char_1 "
     $nested_prompt = "$char_1" * ($nestedPromptLevel + 1)
