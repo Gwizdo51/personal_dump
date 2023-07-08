@@ -130,17 +130,19 @@ function Wrapper-JupyterLab {
             Write-Verbose "Starting a new jupyter lab server"
             Write-Verbose "Conda virtual environment used: '$CondaVEnv'"
             Write-Verbose "Root directory: '$RootDir'"
+            if ($host.Version.Major -eq 5) {$pwsh_exe = 'powershell.exe'}
+            else {$pwsh_exe = 'pwsh.exe'}
             $jupyer_lab_server_path = "$_powershell_dir\utils\jupyter_lab_server.ps1"
             $commmand_str = "& $jupyer_lab_server_path -VEnv $CondaVEnv -RootDir $RootDir"
             $args_list = "-NoProfile", "-Command", $commmand_str
             if ($HiddenProcess -and $Job) {Write-Error 'Both -HiddenProcess and -Job flags are set'; return}
             elseif (!($HiddenProcess -or $Job)) { # process
                 Write-Verbose "Starting a new powershell process to host the server"
-                Start-Process -FilePath "pwsh.exe" -ArgumentList $args_list -WindowStyle 'Minimized'
+                Start-Process -FilePath $pwsh_exe -ArgumentList $args_list -WindowStyle 'Minimized'
             }
             elseif ($HiddenProcess) {
                 Write-Verbose "Starting a new hidden powershell process to host the server"
-                Start-Process -FilePath "pwsh.exe" -ArgumentList $args_list -WindowStyle 'Hidden'
+                Start-Process -FilePath $pwsh_exe -ArgumentList $args_list -WindowStyle 'Hidden'
             }
             elseif ($Job) {
                 Write-Verbose "Starting a new powershell job to host the server"
