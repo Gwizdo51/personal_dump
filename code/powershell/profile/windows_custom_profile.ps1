@@ -13,10 +13,7 @@ if ($Verbose) {
     $VerbosePreference_backup = $VerbosePreference
     $VerbosePreference = 'Continue'
 }
-if ($ConfirmPreference -eq 'Medium') {
-    Write-Verbose "`$ConfirmPreference is 'Medium', setting to 'High' for the profile load"
-    $ConfirmPreference = 'High'
-}
+$InformationPreference = 'Continue'
 
 # if (!$NoWriteHost) {Write-Host "Loading personal profile (custom_profile.ps1) ..."}
 Write-Information "Loading personal profile (custom_profile.ps1)..."
@@ -280,7 +277,6 @@ $load_time = ($tock - $tick).TotalMilliseconds
 Write-Information "Profile load time: $([int][math]::Round($load_time))ms"
 if (!$Silent) {$InformationPreference = $InformationPreference_backup}
 if ($Verbose) {$VerbosePreference = $VerbosePreference_backup}
-$ConfirmPreference = 'Medium'
 
 
 ############
