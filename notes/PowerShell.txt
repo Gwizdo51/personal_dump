@@ -96,10 +96,15 @@ Write-Information -MessageData "Processes starting with 'P'" -InformationAction 
 
 
 - cmdlet: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.3
+https://devblogs.microsoft.com/scripting/introduction-to-advanced-powershell-functions/
+https://powershellexplained.com/2020-03-15-Powershell-shouldprocess-whatif-confirm-shouldcontinue-everything/
+https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.pscmdlet?view=powershellsdk-7.2.0
 cmdlet inherits from "functions", but isn't a function => has more functionalities
 - to turn a function into a cmdlet:
 function Do-Smth {[CmdletBinding()] param(...) ...}
-- CmdletBinding: transforms a standard function into a full-fledged cmdlet
+- CmdletBinding: transforms a standard function into a full-fledged cmdlet (adds $PSCmdlet inside the function, $Args variable is not available)
+-> adds the switches:
+    -Verbose, -WarningAction, -WarningVariable, -OutBuffer, -Debug, -InformationAction, -InformationVariable, -PielineVariable, -ErrorAction, -ErrorVariable, -OutVariable
 [CmdletBinding(
     ConfirmImpact=<String>,             # 'None', 'Low', 'Medium', 'High' (default 'Medium')
     DefaultParameterSetName=<String>,   # smth about parameter set, not rly useful
@@ -110,11 +115,14 @@ function Do-Smth {[CmdletBinding()] param(...) ...}
     PositionalBinding=<Boolean>         # determines whether parameters in the function are positional by default (default $True)
                                         # => set to $False to disable positional parameter binding.
 )]
+- ShouldProcess vs ShouldContinue:
+    - ShouldProcess listens to $ConfirmPreference and the -Confirm switch; ShouldContinue always prompts.
+    - ShouldProcess allows the "Yes to all" and "No to all" options; ShouldContinue only allows "Yes", "No", and "Suspend" options.
 - parameter attributes: gives more control on cmdlet arguments
 Parameter(Argument=value)
 -> Mandatory argument (optional parameter when unspecified): Parameter(Mandatory)
     -> HelpMessage argument (displayed when command is used with missing mandatory arguments, type "!?" to see during prompt): Parameter(Mandatory, HelpMessage="help message content")
--> Positional argument (overrides PositionalBinding of CmdletBinding for this parameter) (can still be named): Parameter(Position=0)
+-> Positional argument (overrides PositionalBinding from CmdletBinding for this parameter) (can still be named): Parameter(Position=0)
 -> ValueFromPipeline argument (accepts entire objects from pipeline): Parameter(ValueFromPipeline)
 -> ValueFromPipelineByPropertyName argument (accepts input from a property of a pipeline object, the object property must have the same name or alias): Parameter(ValueFromPipelineByPropertyName)
 -> ValueFromRemainingArguments argument (accepts all the parameter's values in the command that aren't assigned to other parameters of the function): Parameter(ValueFromRemainingArguments)

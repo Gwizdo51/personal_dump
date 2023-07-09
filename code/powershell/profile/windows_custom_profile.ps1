@@ -13,6 +13,10 @@ if ($Verbose) {
     $VerbosePreference_backup = $VerbosePreference
     $VerbosePreference = 'Continue'
 }
+if ($ConfirmPreference -eq 'Medium') {
+    Write-Verbose "`$ConfirmPreference is 'Medium', setting to 'High' for the profile load"
+    $ConfirmPreference = 'High'
+}
 
 # if (!$NoWriteHost) {Write-Host "Loading personal profile (custom_profile.ps1) ..."}
 Write-Information "Loading personal profile (custom_profile.ps1)..."
@@ -36,7 +40,7 @@ Import-Module "$Env:_CONDA_ROOT\shell\condabin\Conda.psm1" -ArgumentList @{Chang
 ### PROMPT ###
 ##############
 
-Write-Verbose 'Setting up prompt colors...'
+Write-Verbose 'Setting up prompt colors ...'
 function _gen_colors_hashtable {
     function gen_color_char {param ([int]$color_char_number); "$([char]27)[$($color_char_number)m"}
     $colors_table = @{} # empty hashtable
@@ -276,6 +280,7 @@ $load_time = ($tock - $tick).TotalMilliseconds
 Write-Information "Profile load time: $([int][math]::Round($load_time))ms"
 if (!$Silent) {$InformationPreference = $InformationPreference_backup}
 if ($Verbose) {$VerbosePreference = $VerbosePreference_backup}
+$ConfirmPreference = 'Medium'
 
 
 ############
