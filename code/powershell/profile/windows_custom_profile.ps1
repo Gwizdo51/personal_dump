@@ -5,15 +5,15 @@ $tick = Get-Date
 $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
 
 # setting $InformationPreference to 'Continue' for the profile load, unless $Silent is on
-if (!$Silent) {
+$InformationPreference = 'Continue'
+if ($Silent) {
     $InformationPreference_backup = $InformationPreference
-    $InformationPreference = 'Continue'
+    $InformationPreference = 'SilentlyContinue'
 }
 if ($Verbose) {
     $VerbosePreference_backup = $VerbosePreference
     $VerbosePreference = 'Continue'
 }
-$InformationPreference = 'Continue'
 
 # if (!$NoWriteHost) {Write-Host "Loading personal profile (custom_profile.ps1) ..."}
 Write-Information "Loading personal profile (custom_profile.ps1)..."
@@ -107,10 +107,10 @@ function Prompt {
     # => needs to receive state from Env, like conda
 
     # check if a conda venv is activated, if so color only the venv name
-    $conda_venv_regex_match = [regex]::matches($Env:CONDA_PROMPT_MODIFIER, '\(([\w\- ]+)\)')
-    if ($conda_venv_regex_match.Count -eq 1)
-        {$conda_prompt = "($($colors_table.col_Cyan)$($conda_venv_regex_match.Groups[1].Value)$($colors_table.col_def))`n"}
-    else {$conda_prompt = ''}
+    if ($Env:CONDA_PROMPT_MODIFIER -match '\(([\w\- ]+)\)') # => use [regex] instead, more robust
+        {$conda_prompt = "($($colors_table.col_Cyan)$($Matches.1)$($colors_table.col_def))`n"}
+    else
+        {$conda_prompt = ''}
     $git_prompt = [string] $Env:_PROMPT_GIT_MODIFIER
     $cwd = $executionContext.SessionState.Path.CurrentLocation
 
@@ -275,7 +275,7 @@ $tock = Get-Date
 $load_time = ($tock - $tick).TotalMilliseconds
 # [math]::Round(($tock - $tick).TotalSeconds), 3)
 Write-Information "Profile load time: $([int][math]::Round($load_time))ms"
-if (!$Silent) {$InformationPreference = $InformationPreference_backup}
+if ($Silent) {$InformationPreference = $InformationPreference_backup}
 if ($Verbose) {$VerbosePreference = $VerbosePreference_backup}
 
 

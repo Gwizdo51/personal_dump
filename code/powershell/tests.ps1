@@ -169,7 +169,8 @@ $($mynumber)
 "@
 Write-Host($multiple_lines_formatted_string)
 
-# references (allows to change variables in place):
+# references: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_ref?view=powershell-7.3
+# -> allows to change variables in place
 function change_in_place {
     param ([ref]$ref) # parameter received by reference
     # $value.Value *= 2
@@ -246,8 +247,9 @@ filter string_case_filter {
 1,2,3 | % {Write-Host "1st processing $_"; $($_ + 10), $($_ + 100)} | % {Write-Host "2nd processing $_"}
 #>
 
-<#
+# <#
 # advanced functions (cmdlets):
+# https://powershellexplained.com/2020-03-15-Powershell-shouldprocess-whatif-confirm-shouldcontinue-everything/?utm_source=blog&utm_medium=blog&utm_content=recent
 Function Get-Something {
     [CmdletBinding()]
     Param($item)
@@ -274,7 +276,76 @@ function Get-ItemMode {
         Write-Host "The item $Name has the mode $Mode"
     }
 }
-dir "D:\code\personal_dump\code\powershell" | sort -Property "Name" | Get-ItemMode
+# dir "D:\code\personal_dump\code\powershell" | sort -Property "Name" | Get-ItemMode
+function Test-CmdLet {
+    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')]
+    # [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string[]]$Path,
+        [switch]$Force,
+        [switch]$Confirm, # empty placeholder when using ShouldContinue
+        [switch]$WhatIf
+    )
+    begin {
+        $ConfirmPreference
+        if ($Force) {
+            # the 'Confirm' switch is not accessible, gotta look at the value of $ConfirmPreference
+            # => High: bypass all confirmation
+            # => Low: confirm every step
+            # -Confirm takes precedence over -Force => talks directly to $PSCmdlet, unless $ConfirmPreference is forced to 'None'
+            Write-Host '-Force flag is set'
+            # $ConfirmPreference = 'High'
+            $ConfirmPreference = 'Low'
+            # $ConfirmPreference = 'None'
+        }
+        $ConfirmPreference
+    }
+    process {
+        # $PSBoundParameters
+        Write-Host $Path
+        # $PSCmdlet | Get-Member
+        $yes_to_all = $no_to_all = $False
+        foreach ($path_to_process in $Path) {
+            # if ($PSCmdlet.ShouldProcess('TARGET')) {
+            # if ($PSCmdlet.ShouldProcess('TARGET', 'OPERATION')) {
+            # if ($PSCmdlet.ShouldProcess('custom WhatIf message', 'TARGET', 'OPERATION')) {
+            # if ($PSCmdlet.ShouldProcess('custom WhatIf message', 'custom Confirm message', '')) {
+            # if (-not $Force -and $Confirm -and $PSCmdlet.ShouldContinue('Question', 'Title')) {
+            # if (-not $Force -and $PSCmdlet.ShouldContinue('Are you sure?', '', [ref]$yes_to_all, [ref]$no_to_all)) {
+                # Write-Host "doing the thing"
+            # }
+            if ($WhatIf) {
+                $user_answer = $False
+                Write-Host "What if: Custom WhatIf message"
+            }
+            elseif (-not $Force -and $Confirm) {
+                # ShouldProcess
+                # $user_answer = $PSCmdlet.ShouldProcess('custom WhatIf message', 'custom Confirm message', '')
+
+                # ShouldContinue => always prompts by design; gotta implement -WhatIf ourselves
+                # => impossible to use both in the same function
+                # $WhatIf
+                $user_answer = $PSCmdlet.ShouldContinue('Custom Confirm question', '')
+
+                $user_answer
+            }
+            else {$user_answer = $True}
+            if ($user_answer) {Write-Host "doing the thing"}
+            # Write-Host $yes_to_all $no_to_all
+        }
+    }
+    end {}
+}
+# $ConfirmPreference = 'Low'
+$cmdlet_params = @{
+    # 'Path' = '.\', '.\code\'
+    'Path' = '.\'
+    # 'Confirm' = $True
+    # 'Verbose' = $True
+    'WhatIf' = $True
+    # 'Force' = $True
+}
+Test-CmdLet @cmdlet_params
 #>
 
 <#
