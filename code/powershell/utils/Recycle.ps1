@@ -4,6 +4,7 @@
 #     else {Remove-Item $args -r}
 # }
 function Recycle { # move items to trash on "rm" calls
+    # needs to check if recycle is used on an item from the FileSystem drive
     [CmdletBinding(DefaultParameterSetName='Path', SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     Param(
         [Parameter(Mandatory, ValueFromPipeline)] # check pipeline
@@ -71,6 +72,7 @@ function Recycle { # move items to trash on "rm" calls
     elseif ($user_confirmation) {
         $shell_item.InvokeVerb('delete')
     }
+    # add a recycle sound effect ? https://devblogs.microsoft.com/scripting/powertip-use-powershell-to-play-wav-files/
     # check success
     $path_exists = Test-Path $absolute_path
     if ($path_exists) {Write-Error 'Some items were not removed'}

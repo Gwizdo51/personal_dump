@@ -220,13 +220,14 @@ function Stop-ProcessTree {
 ### Windows specific stuff
 New-Item -Path Alias:np -Value notepad -Force > $null
 function Make-SymLink {
+    [CmdletBinding()]
     param(
-        [Parameter(Mandatory = $true)]$TargetPath, # what the link points to
-        [Parameter(Mandatory = $true)]$LinkPath # where the link will be
+        [Parameter(Mandatory)] $TargetPath, # what the link points to
+        [Parameter(Mandatory)] $LinkPath # where the link will be
     )
     # check if the target exists
-    if (-not $(Test-Path $TargetPath)) {Write-Error "$TargetPath does not exist"; return}
-    New-Item -ItemType 'SymbolicLink' -Path $LinkPath -Target (Get-Item $TargetPath).ResolvedTarget
+    if (-not $(Test-Path $TargetPath)) {Write-Error "$TargetPath does not exist"}
+    else {New-Item -ItemType 'SymbolicLink' -Path $LinkPath -Target (Get-Item $TargetPath).ResolvedTarget}
 }
 New-Item -Path Alias:mklink -Value Make-SymLink -Force > $null
 function Open-Ise {

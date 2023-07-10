@@ -35,12 +35,13 @@ function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" li
     else {cda; $jupyter_lab_list_output = jupyter server list; cdd}
     $url_regex_pattern = 'http://localhost:[\d]+/\?token=[\w]+'
     $urls = ([regex]::matches($jupyter_lab_list_output, $url_regex_pattern)).Value
-    Write-Verbose "Found $($urls.Count) jupyter lab servers currently running"
+    $PSCmdlet.WriteVerbose("Found $($urls.Count) jupyter lab servers currently running")
     return $urls
 }
 
 
 function Wrapper-JupyterLab {
+    # TODO: use splatting to reduce the length of the line that calls ShouldProcess-Yes-No
     [CmdletBinding()]
     param(
         [string] $EnvConda = 'workenv',
@@ -56,19 +57,19 @@ function Wrapper-JupyterLab {
         [switch] $Silent
     )
     if ($Silent) {
-        Write-Verbose "'-Silent' flag set, not printing information stream to host"
+        $PSCmdlet.WriteVerbose("'-Silent' flag set, not printing information stream to host")
         $InformationPreference_backup = $InformationPreference
         $InformationPreference = 'SilentlyContinue'
     }
     # $VEnv, $RootDir, $process_or_job
     if ($Kill) {
-        Write-Verbose "'-Kill' flag set, killing all jupyter servers"
+        $PSCmdlet.WriteVerbose("'-Kill' flag set, killing all jupyter servers")
         Kill-Jupyter -Force:$Force -Confirm:$Confirm -WhatIf:$WhatIf -Silent:$Silent
         return
     }
     $running_servers_urls = Get-JupyterLabURL -ErrorAction 'SilentlyContinue'
     if ($Logs) {
-        Write-Verbose "'-Logs' flag set, writing the logs of the jupyter_server currently running as a job"
+        $PSCmdlet.WriteVerbose("'-Logs' flag set, writing the logs of the jupyter_server currently running as a job")
         if ($running_servers_urls.Count -eq 0) {Write-Error 'No jupyter server is currently running'}
         else {Write-JobServerLogs}
         return
@@ -159,8 +160,7 @@ function Wrapper-JupyterLab {
 New-Item -Path Alias:jupyter_lab -Value Wrapper-JupyterLab -Force > $null
 
 
-# make a function to print the logs of the jupyter server when running in a job
-function Write-JobServerLogs {
+function Write-JobServerLogs { # print the logs of the jupyter server when running in a job
     [CmdletBinding()]
     param()
     $running_job_servers = Get-Job | ? {($_.Name -eq 'jupyter_server') -and ($_.State -eq 'Running')}
@@ -181,9 +181,10 @@ New-Item -Path Alias:jl -Value Write-JobServerLogs -Force > $null
 
 
 function Kill-Jupyter { # kill all jupyter lab servers
+    # TODO: implement -Silent, begin-process-end
     [CmdletBinding(SupportsShouldProcess=$True, ConfirmImpact='High')]
     param(
-        [int] $Port = -1,
+        [Parameter(ValueFromPipeline = $true)] [int[]] $Port = @(-1),
         [switch] $Force,
         [switch] $Silent
     )

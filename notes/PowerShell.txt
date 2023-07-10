@@ -129,18 +129,26 @@ function Do-Smth {[CmdletBinding()] param(...) ...}
 - ShouldProcess vs ShouldContinue:
     - ShouldProcess listens to $ConfirmPreference and the -Confirm switch; ShouldContinue always prompts
     - ShouldContinue doesn't need SupportsShouldProcess to prompt for confirmation
-- parameter attributes: gives more control on cmdlet arguments
-Parameter(Argument=value)
--> Mandatory argument (optional parameter when unspecified): Parameter(Mandatory)
-    -> HelpMessage argument (displayed when command is used with missing mandatory arguments, type "!?" to see during prompt): Parameter(Mandatory, HelpMessage="help message content")
--> Positional argument (overrides PositionalBinding from CmdletBinding for this parameter) (can still be named): Parameter(Position=0)
--> ValueFromPipeline argument (accepts entire objects from pipeline): Parameter(ValueFromPipeline)
--> ValueFromPipelineByPropertyName argument (accepts input from a property of a pipeline object, the object property must have the same name or alias): Parameter(ValueFromPipelineByPropertyName)
--> ValueFromRemainingArguments argument (accepts all the parameter's values in the command that aren't assigned to other parameters of the function): Parameter(ValueFromRemainingArguments)
+- parameter attributes: gives more control on cmdlet arguments: [Parameter(Argument=value)]
+-> Mandatory argument (optional parameter when unspecified): [Parameter(Mandatory)]
+    -> HelpMessage argument (displayed when command is used with missing mandatory arguments, type "!?" to see during prompt): [Parameter(Mandatory, HelpMessage="help message content")]
+-> Positional argument (overrides PositionalBinding from CmdletBinding for this parameter) (can still be named): [Parameter(Position=0)]
+-> ValueFromPipeline argument (accepts entire objects from pipeline): [Parameter(ValueFromPipeline)]
+-> ValueFromPipelineByPropertyName argument (accepts input from a property of a pipeline object, the object property must have the same name or alias): [Parameter(ValueFromPipelineByPropertyName)]
+-> ValueFromRemainingArguments argument (accepts all the parameter's values in the command that aren't assigned to other parameters of the function): [Parameter(ValueFromRemainingArguments)]
 - Alias attribute: [Alias("...")]
 - SupportsWildcards attribute: [SupportsWildcards()]
 - ValidatePattern validation attribute (compares string to the regex): [ValidatePattern("[0-9]{4}")]
 - ValidateDrive validation attribute (raises error when the value is outside the drives given): [ValidateDrive("C", "D", "Variable", "Function")]
+
+
+- ErrorRecord: https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.cmdlet.writeerror?view=powershellsdk-7.2.0
+While inside a Cmdlet, "Write-Error" doesn't actually raises an exception => gotta use $PSCmdlet.WriteError(ErrorRecord)
+create an ErrorRecord from scratch: ErrorRecord(Exception, String, ErrorCategory, Object)
+- exception (Exception)             ->
+- errorId (String)                  -
+- errorCategory (ErrorCategory)     -
+- targetObject (Object)             -
 
 
 - pipelines:

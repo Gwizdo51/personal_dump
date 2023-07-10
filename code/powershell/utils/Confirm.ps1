@@ -1,3 +1,5 @@
+# Helper functions to request user confirmation
+
 function Confirmation-Prompt {
     param(
         [string] $Question = 'Are you sure you want to perform this action?',
