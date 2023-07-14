@@ -61,3 +61,4 @@
 
 ### *other*
 - install WSL ?
+- make a script to download all listed urls with youtube-dl
