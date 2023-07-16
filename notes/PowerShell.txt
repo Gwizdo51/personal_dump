@@ -142,13 +142,14 @@ function Do-Smth {[CmdletBinding()] param(...) ...}
 - ValidateDrive validation attribute (raises error when the value is outside the drives given): [ValidateDrive("C", "D", "Variable", "Function")]
 
 
+- Error reporting: https://learn.microsoft.com/en-us/powershell/scripting/developer/cmdlet/windows-powershell-error-reporting?view=powershell-7.3
 - ErrorRecord: https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.cmdlet.writeerror?view=powershellsdk-7.2.0
 While inside a Cmdlet, "Write-Error" doesn't actually raises an exception => gotta use $PSCmdlet.WriteError(ErrorRecord)
 create an ErrorRecord from scratch: ErrorRecord(Exception, String, ErrorCategory, Object)
-- exception (Exception)             ->
-- errorId (String)                  -
-- errorCategory (ErrorCategory)     -
-- targetObject (Object)             -
+- exception (Exception)             -> Exception which describes the error https://learn.microsoft.com/en-us/dotnet/api/system.exception?view=net-7.0#choosing-standard-exceptions
+- errorId (String)                  -> Global identifier of the error condition (fully qualified error id: "PathNotFound,Microsoft.PowerShell.Commands.RemoveItemCommand")
+- errorCategory (ErrorCategory)     -> This is the ErrorCategory which best describes the error https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.errorcategory?view=powershellsdk-7.3.0
+- targetObject (Object)             -> Object against which the cmdlet or provider was operating when the error occurred (optional)
 
 
 - pipelines:
@@ -177,7 +178,35 @@ Remove-Job *
 Get-Job | where {$_.State -ne "Running"} | Remove-Job
 
 
-keyboard shortcuts:
+    Registry provider:
+-> most registry changes should be done by an admin shell
+- create a new registry drive:
+New-PSDrive -Name 'HKCR' -PSProvider 'Registry' -Root 'HKEY_CLASSES_ROOT'
+-> the registry is divided into keys, subkeys, and entries
+-> each key is a container
+- get all properties of a key:
+(Get-Item <key_path>).Property
+- get all subkeys of a key:
+(Get-Item <key_path>).GetSubKeyNames()
+- get all subkeys and subkey properties of a key:
+dir <key_path>
+- key values are stored as properties of each registry key => get a list (PSCustomObject) of properties names/values:
+Get-ItemProperty <key_path>
+- get a specific property value:
+Get-ItemPropertyValue -Path <key_path> -Name <property_name>
+- create a new property/value pair:
+New-ItemProperty -Path <key_path> -Name <property_name> -Value <property_value>
+- changing key value:
+Set-ItemProperty -Path <key_path> -Name <property_name> -Value <property_value>
+- create new key:
+mkdir <key_path>
+- remove a key:
+rm <key_path>
+- remove a key property:
+Remove-ItemProperty -Path <key_path> -Name <property_name>
+
+
+- keyboard shortcuts:
 - ctrl + alt + shift + ,
 get the list of all keyboard shortcuts
 - ctrl + L
@@ -194,14 +223,14 @@ new line, new execution
 last used argument
 
 
-windows terminal:
+- windows terminal:
 open a new tab in current window:
 wt -w 0 nt
 with custom profile:
 wt -w 0 nt -p
 
 
-resources:
+- resources:
 cheat sheet console experience: https://devblogs.microsoft.com/powershell-community/cheat-sheet-console-experience/
 cheat sheet punctuation: https://www.red-gate.com/simple-talk/wp-content/uploads/2015/09/PSPunctuationWallChart_1_0_4.pdf
 automatic variables: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.3
@@ -209,9 +238,5 @@ advanced functions: https://devblogs.microsoft.com/scripting/introduction-to-adv
 
 
 to test:
-- test try - catch - finally
-- test diff between Write-Output - Write-Host - Write-Verbose
-- test ForEach-Object (%)
-- test Where-Object (?)
 - test $MyInvocation
 - check preference variables https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.3

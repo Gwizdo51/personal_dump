@@ -19,6 +19,7 @@
 - [x] make a UNIX-style "sudo" alias
 
 ### *WIP*
+- [ ] repair sudo when current directory is a drive root => remove \" at both ends
 - [ ] convert jupyter_lab and sudo to cmdlets
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation

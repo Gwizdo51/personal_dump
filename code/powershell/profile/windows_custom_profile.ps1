@@ -3,7 +3,6 @@ $tick = Get-Date
 
 # set up output and input shell encoding to UTF-8
 $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
-
 # setting $InformationPreference to 'Continue' for the profile load, unless $Silent is on
 $InformationPreference = 'Continue'
 if ($Silent) {
@@ -15,7 +14,6 @@ if ($Verbose) {
     $VerbosePreference = 'Continue'
 }
 
-# if (!$NoWriteHost) {Write-Host "Loading personal profile (custom_profile.ps1) ..."}
 Write-Information "Loading personal profile (custom_profile.ps1)..."
 
 
@@ -25,10 +23,10 @@ Write-Information "Loading personal profile (custom_profile.ps1)..."
 
 # <#
 Write-Verbose 'Setting up Conda ...'
-$Env:_CONDA_ROOT = "$HOME\anaconda3"
-$Env:CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
-$Env:_CONDA_EXE = "$($Env:_CONDA_ROOT)\Scripts\conda.exe"
-Import-Module "$Env:_CONDA_ROOT\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False} -Verbose:$False
+$Env:_CONDA_ROOT = "C:\ProgramData\anaconda3"
+$Env:CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
+$Env:_CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
+Import-Module "${Env:_CONDA_ROOT}\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False} -Verbose:$False
 # conda activate base
 #>
 
@@ -46,10 +44,10 @@ function _gen_colors_hashtable {
     # $($bcol_Black) $($bcol_Red) $($bcol_Green) $($bcol_Yellow) $($bcol_Blue) $($bcol_Magenta) $($bcol_Cyan) $($bcol_White)
     $i = 30
     foreach ($color_name in 'Black', 'Red', 'Green', 'Yellow', 'Blue', 'Magenta', 'Cyan', 'White') {
-        $reg_col_var_name = "col_$color_name"
+        $reg_col_var_name = "col_${color_name}"
         $reg_col_var_value = gen_color_char $i
         $colors_table["$reg_col_var_name"] = $reg_col_var_value
-        $bri_col_var_name = "bcol_$color_name"
+        $bri_col_var_name = "bcol_${color_name}"
         $bri_col_var_value = gen_color_char $($i + 60)
         $colors_table["$bri_col_var_name"] = $bri_col_var_value
         ++$i
@@ -144,11 +142,22 @@ function Prompt {
 #################
 
 $code = 'D:\code'
-$horoview = "$code\projects\01_horoview"
-$dump = "$code\personal_dump"
+$horoview = "${code}\projects\01_horoview"
+$dump = "${code}\personal_dump"
 
 $_powershell_dir = $custom_profile | Split-Path -Parent | Split-Path -Parent
-$_ps_buffer = "$_powershell_dir\profile\ps_buffer.txt"
+$_ps_buffer = "${_powershell_dir}\profile\ps_buffer.txt"
+
+
+
+##############
+### DRIVES ###
+##############
+
+# registry
+New-PSDrive -Name 'HKCR' -PSProvider 'Registry' -Root 'HKEY_CLASSES_ROOT' *> $null
+New-PSDrive -Name 'HKU' -PSProvider 'Registry' -Root 'HKEY_USERS' *> $null
+New-PSDrive -Name 'HKCC' -PSProvider 'Registry' -Root 'HKEY_CURRENT_CONFIG' *> $null
 
 
 ###############
@@ -163,13 +172,14 @@ function conda_activate {
 New-Item -Path Alias:cda -Value conda_activate -Force > $null
 function Conda-Deactivate {conda deactivate}
 New-Item -Path Alias:cdd -Value Conda-Deactivate -Force > $null
-function Conda-Update {conda update conda -n base -c defaults}
+function Conda-Update {conda update conda -n base -c defaults -y}
 New-Item -Path Alias:cdu -Value Conda-Update -Force > $null
 function Alias-Python {
-    $fake_pythons_path = 'C:\Users\Arthur\AppData\Local\Microsoft\WindowsApps\python*.exe'
-    if (Test-Path $fake_pythons_path) {
-        Write-Error 'Found fake python executables'
-        Remove-Item -Confirm -Path $fake_pythons_path
+    # $fake_python_path = 'C:\Users\Arthur\AppData\Local\Microsoft\WindowsApps\python*.exe'
+    $fake_python_path = 'C:\Users\Arthur\AppData\Local\Microsoft\WindowsApps\python.exe'
+    if (Test-Path $fake_python_path) {
+        Write-Error 'Found fake python executable'
+        Remove-Item -Confirm -Path $fake_python_path
     }
     try {python.exe $args}
     catch {Write-Error "python.exe not found, activating workenv"; cda; python.exe $args}
@@ -206,13 +216,13 @@ New-Item -Path Alias:touch -Value Touch-File -Force > $null
 function Get-Path {"${Env:path}".Split(';')}
 New-Item -Path Alias:path -Value Get-Path -Force > $null
 New-Item -Path Alias:gj -Value Get-Job -Force > $null
-function Clear-Job {Get-Job | ? {$_.State -ne "Running"} | Remove-Job}
+function Clear-Job {Get-Job | ? {$_.State -ne 'Running'} | Remove-Job}
 New-Item -Path Alias:cj -Value Clear-Job -Force > $null
 function Stop-ProcessTree {
     Param([int]$parent_id)
     # ? = Where-Object | % = ForEach-Object
     Get-Process | ? { $_.Parent.Id -eq $parent_id } | % { Stop-ProcessTree $_.Id }
-    Stop-Process -Id $parent_id -ErrorAction "SilentlyContinue" -Verbose
+    Stop-Process -Id $parent_id -ErrorAction 'SilentlyContinue' -Verbose
     if (!$?) {Write-Output $Error[0].ToString()}
     # Stop-Process -Id $parent_id -WhatIf
 }
@@ -226,7 +236,10 @@ function Make-SymLink {
         [Parameter(Mandatory)] $LinkPath # where the link will be
     )
     # check if the target exists
-    if (-not $(Test-Path $TargetPath)) {Write-Error "$TargetPath does not exist"}
+    # if (-not $(Test-Path $TargetPath)) {Write-Error "$TargetPath does not exist"}
+    if (-not $(Test-Path $TargetPath)) {$PSCmdlet.ThrowTerminatingError("${TargetPath} does not exist")}
+    # ErrorRecord:
+    # exception -> ArgumentException, FileNotFoundException, DirectoryNotFoundException
     else {New-Item -ItemType 'SymbolicLink' -Path $LinkPath -Target (Get-Item $TargetPath).ResolvedTarget}
 }
 New-Item -Path Alias:mklink -Value Make-SymLink -Force > $null
@@ -238,10 +251,12 @@ function Windows-Terminal { # allows opening a windows terminal as admin with no
     $as_admin = $False
     foreach ($arg in $args) {if ($arg -match '^(--as-admin|-a)$') {$as_admin = $True}}
     # $wt_args = $args | ? {($_ -ne '--as-admin') -and ($_ -ne '-a')}
-    if ($as_admin) {ii "$HOME\Desktop\wt_asadmin.lnk"}
+    if ($as_admin) {ii "${HOME}\Desktop\wt_asadmin.lnk"}
     else {wt.exe $args}
 }
 New-Item -Path Alias:wt -Value Windows-Terminal -Force > $null
+function Update_PS7 {winget upgrade --name powershell}
+New-Item -Path Alias:psupdate -Value Update_PS7 -Force > $null
 
 ### powershell stuff
 function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
@@ -251,9 +266,10 @@ function Text-Colors-Test { # tests the string colors of the terminal
     foreach ($color_name in $color_names) {
         $reg_col = $colors_table["col_$color_name"]
         $bri_col = $colors_table["bcol_$color_name"]
-        "$($reg_col)This is a sentence colored with regular $color_name"
-        "$($bri_col)This is a sentence colored with bright $color_name"
+        "${reg_col}This is a sentence colored with regular ${color_name}"
+        "${bri_col}This is a sentence colored with bright ${color_name}"
     }
+    "$($colors_table.col_def)"
 }
 New-Item -Path Alias:color_test -Value Text-Colors-Test -Force > $Null
 
@@ -263,13 +279,13 @@ New-Item -Path Alias:color_test -Value Text-Colors-Test -Force > $Null
 ###############
 
 # user confirmation functions
-. "$_powershell_dir\utils\Confirm.ps1"
+. "${_powershell_dir}\utils\Confirm.ps1"
 # jupyter lab wrapper
-. "$_powershell_dir\utils\jupyter_server_wrapper.ps1"
+. "${_powershell_dir}\utils\jupyter_server_wrapper.ps1"
 # Recycle bin
-. "$_powershell_dir\utils\Recycle.ps1"
+. "${_powershell_dir}\utils\Recycle.ps1"
 # Sudo
-. "$_powershell_dir\utils\Sudo.ps1"
+. "${_powershell_dir}\utils\Sudo.ps1"
 
 
 $tock = Get-Date

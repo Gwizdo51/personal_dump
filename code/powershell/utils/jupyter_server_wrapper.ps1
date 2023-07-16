@@ -119,18 +119,19 @@ function Wrapper-JupyterLab {
         }
         1 {
             Write-Verbose 'Starting a new jupyter lab server'
-            Write-Verbose "Conda virtual environment used: '$EnvConda'"
-            Write-Verbose "Root directory: '$RootDir'"
+            Write-Verbose "Conda virtual environment used: '${EnvConda}'"
+            Write-Verbose "Root directory: '${RootDir}'"
             if ($host.Version.Major -eq 5) {$pwsh_exe = 'powershell.exe'}
             else {$pwsh_exe = 'pwsh.exe'}
-            $jupyer_lab_server_path = "$_powershell_dir\utils\jupyter_lab_server.ps1"
-            $commmand_str = "& $jupyer_lab_server_path -VEnv $EnvConda -RootDir $RootDir"
+            $jupyer_lab_server_path = "${_powershell_dir}\utils\jupyter_lab_server.ps1"
+            $commmand_str = "& ${jupyer_lab_server_path} -VEnv ${EnvConda} -RootDir ${RootDir}"
             $args_list = '-NoProfile', '-Command', $commmand_str
             if ($HiddenProcess -and $Job) {Write-Error 'Both -HiddenProcess and -Job flags are set'; return}
             elseif (!($HiddenProcess -or $Job)) { # process
                 # if ($PSCmdlet.ShouldProcess("Starting a new powershell process to host the server", "Start a new powershell process to host the server?", ''))
                 if (ShouldProcess-Yes-No -PSCmdlet:$PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
-                    -ConfirmQuestion 'Start a new powershell process to host the server?' -WhatIf:$WhatIf -WhatIfMessage 'Starting a new powershell process to host the server') {
+                    -ConfirmQuestion 'Start a new powershell process to host the server?' -WhatIf:$WhatIf `
+                    -WhatIfMessage 'Starting a new powershell process to host the server') {
                     Write-Verbose 'Starting a new powershell process to host the server'
                     Start-Process -FilePath $pwsh_exe -ArgumentList $args_list -WindowStyle 'Minimized'
                 }
@@ -138,7 +139,8 @@ function Wrapper-JupyterLab {
             elseif ($HiddenProcess) {
                 # if ($PSCmdlet.ShouldProcess("Starting a new hidden powershell process to host the server", "Start a new hidden powershell process to host the server?", ''))
                 if (ShouldProcess-Yes-No -PSCmdlet:$PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
-                    -ConfirmQuestion 'Start a new hidden powershell process to host the server?' -WhatIf:$WhatIf -WhatIfMessage 'Starting a new hidden powershell process to host the server') {
+                    -ConfirmQuestion 'Start a new hidden powershell process to host the server?' -WhatIf:$WhatIf `
+                    -WhatIfMessage 'Starting a new hidden powershell process to host the server') {
                     Write-Verbose 'Starting a new hidden powershell process to host the server'
                     Start-Process -FilePath $pwsh_exe -ArgumentList $args_list -WindowStyle 'Hidden'
                 }
@@ -184,7 +186,7 @@ function Kill-Jupyter { # kill all jupyter lab servers
     # TODO: implement -Silent, begin-process-end
     [CmdletBinding(SupportsShouldProcess=$True, ConfirmImpact='High')]
     param(
-        [Parameter(ValueFromPipeline = $true)] [int[]] $Port = @(-1),
+        [Parameter(ValueFromPipeline)] [int[]] $Port = @(-1),
         [switch] $Force,
         [switch] $Silent
     )
@@ -196,15 +198,15 @@ function Kill-Jupyter { # kill all jupyter lab servers
     if ($Env:CONDA_DEFAULT_ENV -eq 'workenv') {$conda_deactivate = $False}
     else {Write-Verbose 'Activating workenv for the command'; $conda_deactivate = $True; cda}
     if ($Port -ge 0) {
-        Get-JupyterLabURL -Verbose:$Verbose | ? {$_} | % {[regex]::matches($_, $port_regex_pattern).Groups} | ? {$_.Name -eq 1} | % {[int] $_.Value}
-            | ? {$_ -eq $Port} | ? {$PSCmdlet.ShouldProcess("Killing the server running at the '$_' port", "Kill the server running at the '$_' port ?", '')}
+        Get-JupyterLabURL | ? {$_} | % {[regex]::matches($_, $port_regex_pattern).Groups} | ? {$_.Name -eq 1} | % {[int] $_.Value} `
+            | ? {$_ -eq $Port} | ? {$PSCmdlet.ShouldProcess("Killing the server running at the '${_}' port", "Kill the server running at the '${_}' port ?", '')} `
             | % {jupyter server stop $_}
     }
     else {
         Write-Verbose 'Killing every Jupyter server currently running'
         # $PSCmdlet.ShouldProcess('custom WhatIf message', 'custom Confirm message', '')
-        Get-JupyterLabURL -Verbose:$Verbose | ? {$_} | % {[regex]::matches($_, $port_regex_pattern).Groups} | ? {$_.Name -eq 1} | % {$_.Value}
-            | ? {$PSCmdlet.ShouldProcess("Killing the server running at the '$_' port", "Kill the server running at the '$_' port ?", '')} | % {jupyter server stop $_}
+        Get-JupyterLabURL | ? {$_} | % {[regex]::matches($_, $port_regex_pattern).Groups} | ? {$_.Name -eq 1} | % {$_.Value} `
+            | ? {$PSCmdlet.ShouldProcess("Killing the server running at the '${_}' port", "Kill the server running at the '${_}' port ?", '')} | % {jupyter server stop $_}
     }
     if ($conda_deactivate) {cdd}
 }

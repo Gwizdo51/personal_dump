@@ -1,13 +1,10 @@
 param(
     [string] $VEnv,
     [string] $RootDir
-    # [switch] $SilentServer
 )
 
 try {. $profile -Silent} # process
 catch {. $using:profile -Silent} # job
-
-# if (!$SilentServer) {$InformationPreference = 'Continue'}
 
 ######################
 ### JUPYTER SERVER ###
@@ -17,7 +14,7 @@ Write-Output "`n######################`n### JUPYTER SERVER ###`n################
 # if $VEnv is not set, request user input
 if (!$VEnv) {$VEnv = Read-Host 'Select a virtual environment'}
 if ($VEnv -eq '') {$VEnv = 'workenv'}
-Write-Output "Running in virtual environment: $VEnv"
+Write-Output "Running in virtual environment: ${VEnv}"
 # if $RootDir is not set, request user input
 if (!$RootDir) {
     $RootDir_not_valid = $True
@@ -28,7 +25,7 @@ if (!$RootDir) {
             {$RootDir_not_valid = $False}
     }
 }
-Write-Output "Root directory: $RootDir"
+Write-Output "Root directory: ${RootDir}"
 
 Write-Output "`nLaunching server ...`n"
 
