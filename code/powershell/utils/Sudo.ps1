@@ -35,7 +35,7 @@ function Run-AsAdmin {
     # pass "-s" to use powershell.exe instead of pwsh.exe (slightly faster, it seems)
 
     # create/clear sudo.bat and ps_buffer.txt
-    $bat_script_path = "$_powershell_dir\utils\sudo.bat"
+    $bat_script_path = "${_powershell_dir}\utils\sudo.bat"
     Out-File -FilePath $bat_script_path
     Out-File -FilePath $_ps_buffer
 
@@ -66,7 +66,10 @@ function Run-AsAdmin {
         $pwsh_exe = 'pwsh.exe'
         $sudo_output_prefix = "[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)]"
     }
-    $bat_file_content = "$pwsh_exe -NoProfile -Command .  \`"`$profile\`" -Silent; cd \`"$(Get-Location)\`"; $cmd_prompt_args > $_ps_buffer"
+    $cwd = (Get-Location).Path
+    # if the current location path ends with a "\", add another to escape it
+    if ($cwd[-1] -eq '\') {$cwd += '\'}
+    $bat_file_content = "${pwsh_exe} -NoProfile -Command .  \`"`$profile\`" -Silent; cd \`"${cwd}\`"; ${cmd_prompt_args} > ${_ps_buffer}"
     # return $bat_file_content
     $bat_file_content | Out-File -FilePath $bat_script_path -Encoding 'ascii' # need to add encoding because ps5 is a dumbass
     # return

@@ -17,9 +17,10 @@
 - [x] test if .gitattributes is working as intended
 - [x] add a mechanism to run the jupyter lab server on a seperate hidden powershell process
 - [x] make a UNIX-style "sudo" alias
+- [x] repair sudo when current directory is a drive root
 
 ### *WIP*
-- [ ] repair sudo when current directory is a drive root => remove \" at both ends
+- [ ] make sudo scan ps_buffer for new lines to print while waiting for the process to finish
 - [ ] convert jupyter_lab and sudo to cmdlets
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
