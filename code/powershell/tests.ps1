@@ -247,7 +247,7 @@ filter string_case_filter {
 1,2,3 | % {Write-Host "1st processing $_"; $($_ + 10), $($_ + 100)} | % {Write-Host "2nd processing $_"}
 #>
 
-# <#
+<#
 # advanced functions (cmdlets):
 # https://powershellexplained.com/2020-03-15-Powershell-shouldprocess-whatif-confirm-shouldcontinue-everything/?utm_source=blog&utm_medium=blog&utm_content=recent
 Function Get-Something {
@@ -838,4 +838,55 @@ $table = @{
 # $table.Keys | % {$_} | sort
 # $Table.Values | % {$_}
 confirmation_prompt -q 'A Jupyter Lab server is already running. Please advise:' -c $table -d 0
+#>
+
+# <#
+# progress bar:
+function Write-Status {
+    param(
+        [int] $Current,
+        [int] $Total,
+        [string] $Statustext,
+        [string] $CurStatusText,
+        [int] $ProgressbarLength = 35
+    )
+
+    # Save current Cursorposition for later
+    # $org_pos = $host.UI.RawUI.CursorPosition
+
+    # Create Progressbar
+    $progressbar = ''
+    $progress = $([math]::Round($(([math]::Round(($($Current) / $Total) * 100, 2) * $ProgressbarLength) / 100), 0))
+    for ($i = 0 ; $i -lt $progress; $i++) {
+        $progressbar = $progressbar + $([char]9608) # white square
+    }
+    for ($i = 0 ; $i -lt ($ProgressbarLength - $progress); $i++) {
+        $progressbar = $progressbar + $([char]9617) # space
+    }
+    # Overwrite Current Line with the current Status
+    # Write-Host -NoNewline "`r$Statustext $progressbar [$($Current.ToString("#,###").PadLeft($Total.ToString("#,###").Length)) / $($Total.ToString("#,###"))] ($($( ($Current / $Total) * 100).ToString("##0.00").PadLeft(6)) %) $CurStatusText"
+
+    Write-Host "$Statustext $progressbar [$($Current.ToString("#,###").PadLeft($Total.ToString("#,###").Length)) / $($Total.ToString("#,###"))] ($($( ($Current / $Total) * 100).ToString("##0.00").PadLeft(6)) %) $CurStatusText"
+    # $host.UI.RawUI.CursorPosition = $org_pos
+
+    # There might be old Text behing the current Cursor, so let's write some blanks to the Position of $XOrg
+    # [int]$XNow = $host.UI.RawUI.CursorPosition.X
+    # for ([int]$i = $XNow; $i -lt $XOrg; $i++) {
+    #     Write-Host -NoNewline " "
+    # }
+    # Just for optical reasons: Go back to the last Position of current Line
+    # for ([int]$i = $XNow; $i -lt $XOrg; $i++) {
+    #     Write-Host -NoNewline "`b"
+    # }
+}
+# clear
+$list_test = @(1,2,3,4,5)
+$org_pos = $host.UI.RawUI.CursorPosition
+for ($i=0; $i -lt $list_test.Count; $i++) {
+    # Write-Status -Current $i -Total 10 -Statustext "Running a long Task" -CurStatusText "Working on Position $i"
+    [Console]::SetCursorPosition($org_pos.X,$org_pos.Y)
+    # ...
+    $list_test[0..$i]
+    Start-Sleep 1
+}
 #>

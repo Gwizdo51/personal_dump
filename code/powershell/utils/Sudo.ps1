@@ -29,6 +29,21 @@
 # {pwsh.exe -Command echo 'This is a \"great\" string'; pause; Get-WinEvent -LogName security; pause} | Out-File -FilePath '.\sudo.bat'
 # start-Process -FilePath '.\sudo.bat' -Verb 'RunAs'
 
+# ps buffer line scanning:
+# > start sudo process
+# > $org_pos = $host.UI.RawUI.CursorPosition
+# > $last_read_time = 0
+# > while the process has not exited:
+# >     if current_time >= $last_read_time + 1s:
+# >         [Console]::SetCursorPosition($org_pos.X,$org_pos.Y)
+# >         foreach ($line in $(read $_ps_buffer)) {Write-Host $sudo_output_prefix $line}
+# >         $last_read_time = current_time
+# > [Console]::SetCursorPosition($org_pos.X,$org_pos.Y)
+# > foreach ($line in $(read $_ps_buffer)) {Write-Host $sudo_output_prefix $line}
+
+# $my_process = Start-Process -FilePath .\test.bat -PassThru
+# $my_process.HasExited
+
 function Run-AsAdmin {
     # convert into cmdlet ?
     param ([switch]$SystemPS)
@@ -58,14 +73,8 @@ function Run-AsAdmin {
     # $cmd_prompt_args is a list of strings
     # pwsh.exe -Command echo 'This is a \"great\" string'; pause; Get-WinEvent -LogName security; pause
     # $bat_file_content = "pwsh.exe -Command Start-Transcript -Path $_ps_buffer; ''; '[SUDO]' + '$('~'*50)'; ''; $cmd_prompt_args; ''; '$('~'*56)'; ''; Stop-Transcript; pause;"
-    if (($host.Version.Major -eq 5) -or ($SystemPS)) {
-        $pwsh_exe = 'powershell.exe'
-        $sudo_output_prefix = "[$($colors_table.bcol_Blue)SYSADMIN$($colors_table.col_def)]"
-    }
-    else {
-        $pwsh_exe = 'pwsh.exe'
-        $sudo_output_prefix = "[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)]"
-    }
+    if (($host.Version.Major -eq 5) -or ($SystemPS)) {$pwsh_exe = 'powershell.exe'}
+    else {$pwsh_exe = 'pwsh.exe'}
     $cwd = (Get-Location).Path
     # if the current location path ends with a "\", add another to escape it
     if ($cwd[-1] -eq '\') {$cwd += '\'}
@@ -83,6 +92,7 @@ function Run-AsAdmin {
     # return
 
     # read $_ps_buffer | % {"[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)] " + $_}
+    $sudo_output_prefix = "[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)]"
     foreach ($line in $(read $_ps_buffer)) {Write-Host $sudo_output_prefix $line}
 
     # empty sudo.bat and ps_buffer.txt
