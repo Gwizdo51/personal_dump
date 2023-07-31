@@ -18,9 +18,10 @@
 - [x] add a mechanism to run the jupyter lab server on a seperate hidden powershell process
 - [x] make a UNIX-style "sudo" alias
 - [x] repair sudo when current directory is a drive root
+- [x] make sudo scan ps_buffer for new lines to print while waiting for the process to finish
 
 ### *WIP*
-- [ ] make sudo scan ps_buffer for new lines to print while waiting for the process to finish
+- [ ] make sudo rewrite the last line written every second to account for updates
 - [ ] convert jupyter_lab and sudo to cmdlets
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation

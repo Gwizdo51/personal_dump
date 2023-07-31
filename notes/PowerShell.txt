@@ -64,6 +64,10 @@ $server_dir = "$(Split-Path $custom_profile_dir -Parent)\jupyter_server"
 $command_str = "& `"$server_dir\jupyter_server.ps1`""
 Start-Process powershell.exe -ArgumentList ("-c " + $command_str)
 
+whether process has exited:
+$my_process = Start-Process -FilePath .\test.bat -PassThru
+$my_process.HasExited
+
 
 - show hastables as nice tables (ft = Format-Table) / lists of "key: value" (fl = Format-List):
 # only keys chosen by PS

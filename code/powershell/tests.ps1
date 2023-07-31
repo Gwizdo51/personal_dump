@@ -840,7 +840,7 @@ $table = @{
 confirmation_prompt -q 'A Jupyter Lab server is already running. Please advise:' -c $table -d 0
 #>
 
-# <#
+<#
 # progress bar:
 function Write-Status {
     param(
@@ -888,5 +888,21 @@ for ($i=0; $i -lt $list_test.Count; $i++) {
     # ...
     $list_test[0..$i]
     Start-Sleep 1
+}
+#>
+
+<#
+# read file
+$index_last_line_printed = -1
+for ($i = 0; $i -le 5; ++$i) {
+    # $index_last_line_printed
+    $index_line = 0
+    foreach ($line in $(read .\test.txt)) {
+        if ($index_line -gt $index_last_line_printed) {
+            Write-Host "line #${index_line}:" $line
+            $index_last_line_printed = $index_line
+        }
+        ++$index_line
+    }
 }
 #>

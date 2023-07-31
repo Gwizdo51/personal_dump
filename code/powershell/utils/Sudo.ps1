@@ -31,18 +31,26 @@
 
 # ps buffer line scanning:
 # > start sudo process
-# > $org_pos = $host.UI.RawUI.CursorPosition
 # > $last_read_time = 0
+# > $index_last_line_printed = -1
 # > while the process has not exited:
 # >     if current_time >= $last_read_time + 1s:
-# >         [Console]::SetCursorPosition($org_pos.X,$org_pos.Y)
-# >         foreach ($line in $(read $_ps_buffer)) {Write-Host $sudo_output_prefix $line}
+# >         $index_line = 0
+# >         foreach ($line in $(read $_ps_buffer)) {
+# >             if ($index_line > $index_last_line_printed) {
+# >                 Write-Host $sudo_output_prefix $line
+# >                 $index_last_line_printed = $index_line
+# >             }
+# >             ++$index_line
+# >         }
 # >         $last_read_time = current_time
-# > [Console]::SetCursorPosition($org_pos.X,$org_pos.Y)
-# > foreach ($line in $(read $_ps_buffer)) {Write-Host $sudo_output_prefix $line}
+# >     sleep 0.1s
 
 # $my_process = Start-Process -FilePath .\test.bat -PassThru
 # $my_process.HasExited
+
+# seconds until epoch:
+# (New-TimeSpan -Start (Get-Date "01/01/1970") -End (Get-Date)).TotalSeconds
 
 function Run-AsAdmin {
     # convert into cmdlet ?
@@ -83,17 +91,40 @@ function Run-AsAdmin {
     $bat_file_content | Out-File -FilePath $bat_script_path -Encoding 'ascii' # need to add encoding because ps5 is a dumbass
     # return
 
-    # try {Start-Process -FilePath 'pwsh.exe' -ArgumentList $args_list -Verb 'RunAs' -PassThru | Wait-Process}
-    # try {Start-Process -FilePath 'pwsh.exe' -ArgumentList $args_list -PassThru | Wait-Process}
-    # try {Start-Process -FilePath $bat_script_path -PassThru | Wait-Process}
-    try {Start-Process -FilePath $bat_script_path -Verb 'RunAs' -WindowStyle 'Minimized' -PassThru | Wait-Process}
+    # try {Start-Process -FilePath $bat_script_path -Verb 'RunAs' -WindowStyle 'Minimized' -PassThru | Wait-Process}
+    try {$sudo_process = Start-Process -FilePath $bat_script_path -Verb 'RunAs' -WindowStyle 'Minimized' -PassThru}
     catch [System.InvalidOperationException] {Write-Error "The operation was canceled by the user"; return}
     catch {"another error"; $PSItem | select *; return}
-    # return
 
-    # read $_ps_buffer | % {"[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)] " + $_}
     $sudo_output_prefix = "[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)]"
-    foreach ($line in $(read $_ps_buffer)) {Write-Host $sudo_output_prefix $line}
+    # foreach ($line in $(read $_ps_buffer)) {Write-Host $sudo_output_prefix $line}
+    # scan $_ps_buffer every second until the process is over
+    $last_read_time = 0
+    $index_last_line_printed = -1
+    while (-not $sudo_process.HasExited) {
+        $seconds_since_epoch = (New-TimeSpan -Start (Get-Date "01/01/1970") -End (Get-Date)).TotalSeconds
+        if ($seconds_since_epoch -ge $($last_read_time + 1)) {
+            $index_line = 0
+            foreach ($line in $(read $_ps_buffer)) {
+                if ($index_line -gt $index_last_line_printed) {
+                    Write-Host $sudo_output_prefix $line
+                    $index_last_line_printed = $index_line
+                }
+                ++$index_line
+            }
+            $last_read_time = $seconds_since_epoch
+        }
+        Start-Sleep .1
+    }
+    # scan $_ps_buffer one last time before exiting command
+    $index_line = 0
+    foreach ($line in $(read $_ps_buffer)) {
+        if ($index_line -gt $index_last_line_printed) {
+            Write-Host $sudo_output_prefix $line
+            $index_last_line_printed = $index_line
+        }
+        ++$index_line
+    }
 
     # empty sudo.bat and ps_buffer.txt
     # Out-File -FilePath $bat_script_path

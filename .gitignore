@@ -20,9 +20,10 @@
 #         "**/foo" matches anything named "foo" (default behavior, equivalent to "foo")
 #         "**/foo/bar" matches anything named "bar" belonging to a directory named "foo"
 #         "foo/**" matches anything in the directory "foo/"
-#         "foo/**/bar" matches anything named "bar" in the directory "foo/"
+#         "foo/**/bar" matches anything named "bar" in the directory "foo/", recursively
 #     add "!" at the start of the pattern to reinclude patterns that have been previously excluded
 #     "\" escapes special characters in the pattern
+
 
 # generic
 .ipynb_checkpoints/
