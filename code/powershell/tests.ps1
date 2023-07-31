@@ -760,7 +760,7 @@ Write-Host ""
 #>
 <#
 # try - catch - finally, trap:
-# /!\ PowerShell doesn't crash; it just prints an error message(Write-Error), does nothing and moves on
+# /!\ PowerShell doesn't crash; it just prints an error message (Write-Error), does nothing and moves on
 # => "try" will try to catch that error message
 try {
     Write-Host "try: before error"
@@ -905,4 +905,24 @@ for ($i = 0; $i -le 5; ++$i) {
         ++$index_line
     }
 }
+#>
+
+# <#
+# ErrorRecords:
+function MyCmdlet {
+    [CmdletBinding()]
+    param()
+    $PSCmdlet.WriteVerbose("before")
+    $Exception = [Exception]::new("error message")
+    $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+        $Exception,
+        "errorID",
+        [System.Management.Automation.ErrorCategory]::NotSpecified,
+        # $TargetObject # usually the object that triggered the error, if possible
+        $null
+    )
+    $PSCmdlet.WriteError($ErrorRecord)
+    $PSCmdlet.WriteVerbose("after")
+}
+MyCmdlet -v
 #>
