@@ -113,8 +113,16 @@ function Run-AsAdmin {
                 ++$index_line
             }
             $last_read_time = $seconds_since_epoch
+            # if any line was printed ...
+            if ($index_last_line_printed -ge 0) {
+                # place the cursor at the start of the last line printed
+                $cursor_pos = $host.UI.RawUI.Cursorposition
+                [Console]::SetCursorPosition(0, $cursor_pos.Y - 1)
+                # decrement index_last_line_printed
+                --$index_last_line_printed
+            }
         }
-        Start-Sleep .1
+        Start-Sleep .2
     }
     # scan $_ps_buffer one last time before exiting command
     $index_line = 0

@@ -19,9 +19,9 @@
 - [x] make a UNIX-style "sudo" alias
 - [x] repair sudo when current directory is a drive root
 - [x] make sudo scan ps_buffer for new lines to print while waiting for the process to finish
+- [x] make sudo rewrite the last line written every second to account for updates
 
 ### *WIP*
-- [ ] make sudo rewrite the last line written every second to account for updates
 - [ ] convert jupyter_lab and sudo to cmdlets
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
