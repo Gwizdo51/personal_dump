@@ -38,35 +38,44 @@ Import-Module "${Env:_CONDA_ROOT}\shell\condabin\Conda.psm1" -ArgumentList @{Cha
 Write-Verbose 'Setting up prompt colors ...'
 function _gen_colors_hashtable {
     function gen_color_char {param ([int]$color_char_number); "$([char]27)[$($color_char_number)m"}
-    $colors_table = @{} # empty hashtable
+    # empty hashtable:
+    $colors_table = @{}
     $colors_table['col_def'] = gen_color_char 0
-    # $($col_Black)  $($col_Red)  $($col_Green)  $($col_Yellow)  $($col_Blue)  $($col_Magenta)  $($col_Cyan)  $($col_White)
-    # $($bcol_Black) $($bcol_Red) $($bcol_Green) $($bcol_Yellow) $($bcol_Blue) $($bcol_Magenta) $($bcol_Cyan) $($bcol_White)
+    # regular colors:
+    # $($colors_table.col_Black) $($colors_table.col_Red) $($colors_table.col_Green) $($colors_table.col_Yellow)
+    # $($colors_table.col_Blue) $($colors_table.col_Magenta) $($colors_table.col_Cyan) $($colors_table.col_White)
+    # bright colors:
+    # $($colors_table.bcol_Black) $($colors_table.bcol_Red) $($colors_table.bcol_Green) $($colors_table.bcol_Yellow)
+    # $($colors_table.bcol_Blue) $($colors_table.bcol_Magenta) $($colors_table.bcol_Cyan) $($colors_table.bcol_White)
     $i = 30
     foreach ($color_name in 'Black', 'Red', 'Green', 'Yellow', 'Blue', 'Magenta', 'Cyan', 'White') {
         $reg_col_var_name = "col_${color_name}"
         $reg_col_var_value = gen_color_char $i
-        $colors_table["$reg_col_var_name"] = $reg_col_var_value
+        $colors_table["${reg_col_var_name}"] = $reg_col_var_value
         $bri_col_var_name = "bcol_${color_name}"
         $bri_col_var_value = gen_color_char $($i + 60)
-        $colors_table["$bri_col_var_name"] = $bri_col_var_value
+        $colors_table["${bri_col_var_name}"] = $bri_col_var_value
         ++$i
     }
     return $colors_table
 }
 $colors_table = _gen_colors_hashtable
-# function Prompt-Git-Branch-Name {
+
+# path to the git executable
+$Env:GIT_EXE = "C:\Program Files\Git\cmd\git.exe"
+
 function _gen_git_prompt {
     # look for possible branch name, silence git "not in git repo" error
-    $branch = $(& "C:\Program Files\Git\cmd\git.exe" rev-parse --abbrev-ref HEAD 2> $null)
+    $branch = $(& $Env:GIT_EXE rev-parse --abbrev-ref HEAD 2> $null)
     if ($branch -eq $null) {return} # not in a git repo, don't return anything
     if ($branch -eq 'HEAD') { # we're in detached HEAD state, so print the SHA
-        "($($colors_table.col_Red)$(& "C:\Program Files\Git\cmd\git.exe" rev-parse --short HEAD)$($colors_table.col_def))"
+        "($($colors_table.col_Red)$(& $Env:GIT_EXE rev-parse --short HEAD)$($colors_table.col_def))"
     }
     else { # we're on an actual branch, so print it
         "($($colors_table.col_Blue)$($branch)$($colors_table.col_def))"
     }
 }
+
 function Alias-CD {
     param([string]$DirPath)
     # (todo: fail if $DirPath is not a directory)
@@ -79,25 +88,26 @@ function Alias-CD {
         # we are not in a FileSystem drive, clear $Env:_PROMPT_GIT_MODIFIER
         $Env:_PROMPT_GIT_MODIFIER = $null
     }
-    # put the git prompt in $Env
-    # $Env:_PROMPT_GIT_MODIFIER = git_branch_name
 }
 # override "cd" alias with cd_alias
 New-Item -Path Alias:cd -Value Alias-CD -Force > $null
+
 function Alias-GIT {
     # call git
-    & "C:\Program Files\Git\cmd\git.exe" $args
+    & $Env:GIT_EXE $args
     # udpate $Env:_PROMPT_GIT_MODIFIER
     cd .
 }
 # override "git" alias with git_alias
 New-Item -Path Alias:git -Value Alias-GIT -Force > $null
+
 function _gen_privilege_prompt { # add "[ADMIN]" to the prompt if the shell is opened as admin
     $principal = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
     $admin_role = [Security.Principal.WindowsBuiltInRole]::Administrator
     if ($principal.IsInRole($admin_role)) {$ENV:_PROMPT_PRIVILEGE = "$($colors_table.col_def)[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)] "}
 }
 _gen_privilege_prompt
+
 function Prompt {
     # "PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
     ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT /!\ ###
@@ -105,7 +115,7 @@ function Prompt {
     # => needs to receive state from Env, like conda
 
     # check if a conda venv is activated, if so color only the venv name
-    if ($Env:CONDA_PROMPT_MODIFIER -match '\(([\w\- ]+)\)') # => use [regex] instead, more robust
+    if ($Env:CONDA_PROMPT_MODIFIER -match '\(([\w\- ]+)\)')
         {$conda_prompt = "($($colors_table.col_Cyan)$($Matches.1)$($colors_table.col_def))`n"}
     else
         {$conda_prompt = ''}
@@ -132,8 +142,8 @@ function Prompt {
 
     # "$($conda_prompt)$($colors_table.col_Green)$($cwd) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)PS $($colors_table.col_def)$($dynamic_color_char) "
     # "$($conda_prompt)$($colors_table.col_Green)$($cwd)$($colors_table.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)$char_0$($colors_table.col_def)$char_1 "
-    $nested_prompt = "$char_1" * ($nestedPromptLevel + 1)
-    "$($conda_prompt)$($colors_table.col_Green)$($cwd)$($colors_table.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)$char_0$($colors_table.col_def)$nested_prompt "
+    $nested_prompt = "${char_1}" * ($nestedPromptLevel + 1)
+    "$($conda_prompt)$($colors_table.col_Green)$($cwd)$($colors_table.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)${char_0}$($colors_table.col_def)${nested_prompt} "
 }
 
 

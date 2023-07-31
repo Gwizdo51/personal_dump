@@ -19,6 +19,8 @@
 
 # text
 *.py        text
+*.ps1       text
+*.psm1      text
 *.tex       text
 *.bib       text
 # keep bash files with lf line endings on Windows
