@@ -63,6 +63,9 @@ Write-Host("$((10).GetType())")
 Write-Host ''
 Write-Host 'variables:'
 $myvar = 10
+# assign same value to multiple variables:
+$a = $b = $c = "same stuff"
+$a, $b, $c
 # does the variable exist
 Write-Host $(!!$myvar)
 Write-Host $(Test-Path 'Variable:myvar')
@@ -166,7 +169,8 @@ $($mynumber)
 "@
 Write-Host($multiple_lines_formatted_string)
 
-# references (allows to change variables in place):
+# references: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_ref?view=powershell-7.3
+# -> allows to change variables in place
 function change_in_place {
     param ([ref]$ref) # parameter received by reference
     # $value.Value *= 2
@@ -206,17 +210,17 @@ filter my_filter {
     if ($add2) {$PSItem + 2}
     else {$PSItem}
 }
-1,2,4 | my_filter
-1,2,5 | my_filter -add2
+# 1,2,4 | my_filter
+# 1,2,5 | my_filter -add2
 # my_filter @(2,4,6,8) -add2 # doesn't work => "my_filter" is not a pipe; only 2 goes into $_
 # my_filter 10 -add5 # doesn't work => same reason, nothing goes into $_
 function is_positive { process {
     if ($_ -ge 0) {$True}
     else {$False}
 }}
-18 | is_positive
--2.5, 7 | is_positive
-is_positive -5
+# 18 | is_positive
+# -2.5, 7 | is_positive
+# is_positive -5
 # is_positive @(-10, 5, 35) # doesn't work
 # regular function that expects a list of ints
 function print_plus_five {
@@ -239,7 +243,111 @@ filter string_case_filter {
 }
 'lol' | string_case_filter -lower
 'lol' | string_case_filter -upper
+# each element is processed down the pipeline before the next element is sent
+1,2,3 | % {Write-Host "1st processing $_"; $($_ + 10), $($_ + 100)} | % {Write-Host "2nd processing $_"}
 #>
+
+<#
+# advanced functions (cmdlets):
+# https://powershellexplained.com/2020-03-15-Powershell-shouldprocess-whatif-confirm-shouldcontinue-everything/?utm_source=blog&utm_medium=blog&utm_content=recent
+Function Get-Something {
+    [CmdletBinding()]
+    Param($item)
+    Write-Host "You passed the parameter $item into the function"
+    Write-Verbose "verbose stuff"
+}
+# Get-Something "lol" -verbose
+Function Get-Something-2 { # this can exclusively be used as pipes
+    [CmdletBinding()]
+    Param([Parameter(ValueFromPipelineByPropertyName)]$Name) # properties of objects can be retrieved with Get-Members
+    process {
+        Write-Host "You passed the parameter $Name into the function"
+        # Write-Verbose "verbose stuff"
+    }
+}
+# Get-Service | Get-Something-2 -verbose
+function Get-ItemMode {
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipelineByPropertyName)]$Name,
+        [Parameter(ValueFromPipelineByPropertyName)]$Mode
+    )
+    process {
+        Write-Host "The item $Name has the mode $Mode"
+    }
+}
+# dir "D:\code\personal_dump\code\powershell" | sort -Property "Name" | Get-ItemMode
+function Test-CmdLet {
+    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')]
+    # [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string[]]$Path,
+        [switch]$Force,
+        [switch]$Confirm, # empty placeholder when using ShouldContinue
+        [switch]$WhatIf
+    )
+    begin {
+        $ConfirmPreference
+        if ($Force) {
+            # the 'Confirm' switch is not accessible, gotta look at the value of $ConfirmPreference
+            # => High: bypass all confirmation
+            # => Low: confirm every step
+            # -Confirm takes precedence over -Force => talks directly to $PSCmdlet, unless $ConfirmPreference is forced to 'None'
+            Write-Host '-Force flag is set'
+            # $ConfirmPreference = 'High'
+            $ConfirmPreference = 'Low'
+            # $ConfirmPreference = 'None'
+        }
+        $ConfirmPreference
+    }
+    process {
+        # $PSBoundParameters
+        Write-Host $Path
+        # $PSCmdlet | Get-Member
+        $yes_to_all = $no_to_all = $False
+        foreach ($path_to_process in $Path) {
+            # if ($PSCmdlet.ShouldProcess('TARGET')) {
+            # if ($PSCmdlet.ShouldProcess('TARGET', 'OPERATION')) {
+            # if ($PSCmdlet.ShouldProcess('custom WhatIf message', 'TARGET', 'OPERATION')) {
+            # if ($PSCmdlet.ShouldProcess('custom WhatIf message', 'custom Confirm message', '')) {
+            # if (-not $Force -and $Confirm -and $PSCmdlet.ShouldContinue('Question', 'Title')) {
+            # if (-not $Force -and $PSCmdlet.ShouldContinue('Are you sure?', '', [ref]$yes_to_all, [ref]$no_to_all)) {
+                # Write-Host "doing the thing"
+            # }
+            if ($WhatIf) {
+                $user_answer = $False
+                Write-Host "What if: Custom WhatIf message"
+            }
+            elseif (-not $Force -and $Confirm) {
+                # ShouldProcess
+                # $user_answer = $PSCmdlet.ShouldProcess('custom WhatIf message', 'custom Confirm message', '')
+
+                # ShouldContinue => always prompts by design; gotta implement -WhatIf ourselves
+                # => impossible to use both in the same function
+                # $WhatIf
+                $user_answer = $PSCmdlet.ShouldContinue('Custom Confirm question', '')
+
+                $user_answer
+            }
+            else {$user_answer = $True}
+            if ($user_answer) {Write-Host "doing the thing"}
+            # Write-Host $yes_to_all $no_to_all
+        }
+    }
+    end {}
+}
+# $ConfirmPreference = 'Low'
+$cmdlet_params = @{
+    # 'Path' = '.\', '.\code\'
+    'Path' = '.\'
+    # 'Confirm' = $True
+    # 'Verbose' = $True
+    'WhatIf' = $True
+    # 'Force' = $True
+}
+Test-CmdLet @cmdlet_params
+#>
+
 <#
 # character number:
 Write-Host ''
@@ -444,9 +552,6 @@ Write-Host "`"`$null`" evaluates to `$$([bool]$null)"
 #>
 <#
 # verbose:
-# - Write-Host:
-# - Write-Output:
-# - Write-Verbose:
 Write-Host ''
 Write-Host 'verbose:'
 function func_with_verbose {
@@ -471,6 +576,19 @@ function f_test {Write-Host $(-not $([bool] $args.Length))}
 f_test
 f_test lol
 f_test haha
+#>
+<#
+# xor switches:
+function two_switches {
+    param([switch]$first, [switch]$second)
+    Write-Host ($first -and $second)
+    # Write-Host ($first -or $second)
+    # Write-Host ($first -xor $second)
+}
+two_switches
+two_switches -f
+two_switches -s
+two_switches -f -s
 #>
 <#
 # drives: https://learn.microsoft.com/en-us/powershell/scripting/samples/managing-windows-powershell-drives?view=powershell-7.3
@@ -642,7 +760,7 @@ Write-Host ""
 #>
 <#
 # try - catch - finally, trap:
-# /!\ PowerShell doesn't crash; it just prints an error message(Write-Error), does nothing and moves on
+# /!\ PowerShell doesn't crash; it just prints an error message (Write-Error), does nothing and moves on
 # => "try" will try to catch that error message
 try {
     Write-Host "try: before error"
@@ -656,7 +774,7 @@ catch { Write-Host "catch: caught the error" } # this only runs if an error was 
 finally { Write-Host "finally: this always writes" } # this always run
 Write-Host "after finally: this always writes too"
 #>
-
+<#
 # 0 -> 65535
 # $all_chars_list = @()
 for ($i = 33; $i -ge 0; ++$i) {
@@ -677,3 +795,134 @@ for ($i = 33; $i -ge 0; ++$i) {
     # if ($i -eq 600) {break}
 }
 # foreach ($char in $all_chars_list)
+#>
+<#
+# prompt for choice:
+# Confirm
+# Are you sure you want to perform this action?
+# Performing the operation "Remove File" on target "D:\code\personal_dump\code\powershell\test.txt".
+# [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"):
+$title = 'Confirm'
+$question = "Are you sure you want to perform this action?`nPerforming the operation `"Remove File`" on target `"D:\code\personal_dump\code\powershell\lol.txt`"."
+# $choices = '&Yes', '&No'
+$choice_yes = New-Object -TypeName Management.Automation.Host.ChoiceDescription '&Yes', 'Continue with only the next step of the operation.'
+$choice_yesall = New-Object -TypeName Management.Automation.Host.ChoiceDescription 'Yes to &All', 'Continue with all the steps of the operation.'
+$choice_no = New-Object -TypeName Management.Automation.Host.ChoiceDescription '&No', 'Skip this operation and proceed with the next operation.'
+$choice_noall = New-Object -TypeName Management.Automation.Host.ChoiceDescription 'No to A&ll', 'Skip this operation and all subsequent operations.'
+$choice_suspend = New-Object -TypeName Management.Automation.Host.ChoiceDescription '&Suspend', 'Pause the current pipeline and return to the command prompt. Type "exit" to resume the pipeline.'
+$choices = $choice_yes, $choice_yesall, $choice_no, $choice_noall, $choice_suspend
+$decision = $Host.UI.PromptForChoice($title, $question, $choices, 0)
+$decision
+# $host.EnterNestedPrompt()
+# $host.ExitNestedPrompt()
+# if ($decision -eq 0) {
+#     Write-Host 'confirmed'
+# } else {
+#     Write-Host 'cancelled'
+# }
+#>
+<#
+# give the choice to output URL, or start a new server anyways
+# 0) output URLs
+# 1) start new server anyways
+# 2) suspend (start nested prompt)
+$table = @{
+    0 = @('Output &URL', 'Display the login URL of all the servers running.');
+    1 = @('Start &New server', 'Start a new Jupyter Lab server.');
+    2 = @('&Suspend', 'Pause this command and enter a nested prompt. Type "exit" to resume.')
+}
+# $table
+# $table | Get-Member
+# $table.Count
+# # foreach ($key in $table.Keys) {$key}
+# $table.Keys | % {$_} | sort
+# $Table.Values | % {$_}
+confirmation_prompt -q 'A Jupyter Lab server is already running. Please advise:' -c $table -d 0
+#>
+
+<#
+# progress bar:
+function Write-Status {
+    param(
+        [int] $Current,
+        [int] $Total,
+        [string] $Statustext,
+        [string] $CurStatusText,
+        [int] $ProgressbarLength = 35
+    )
+
+    # Save current Cursorposition for later
+    # $org_pos = $host.UI.RawUI.CursorPosition
+
+    # Create Progressbar
+    $progressbar = ''
+    $progress = $([math]::Round($(([math]::Round(($($Current) / $Total) * 100, 2) * $ProgressbarLength) / 100), 0))
+    for ($i = 0 ; $i -lt $progress; $i++) {
+        $progressbar = $progressbar + $([char]9608) # white square
+    }
+    for ($i = 0 ; $i -lt ($ProgressbarLength - $progress); $i++) {
+        $progressbar = $progressbar + $([char]9617) # space
+    }
+    # Overwrite Current Line with the current Status
+    # Write-Host -NoNewline "`r$Statustext $progressbar [$($Current.ToString("#,###").PadLeft($Total.ToString("#,###").Length)) / $($Total.ToString("#,###"))] ($($( ($Current / $Total) * 100).ToString("##0.00").PadLeft(6)) %) $CurStatusText"
+
+    Write-Host "$Statustext $progressbar [$($Current.ToString("#,###").PadLeft($Total.ToString("#,###").Length)) / $($Total.ToString("#,###"))] ($($( ($Current / $Total) * 100).ToString("##0.00").PadLeft(6)) %) $CurStatusText"
+    # $host.UI.RawUI.CursorPosition = $org_pos
+
+    # There might be old Text behing the current Cursor, so let's write some blanks to the Position of $XOrg
+    # [int]$XNow = $host.UI.RawUI.CursorPosition.X
+    # for ([int]$i = $XNow; $i -lt $XOrg; $i++) {
+    #     Write-Host -NoNewline " "
+    # }
+    # Just for optical reasons: Go back to the last Position of current Line
+    # for ([int]$i = $XNow; $i -lt $XOrg; $i++) {
+    #     Write-Host -NoNewline "`b"
+    # }
+}
+# clear
+$list_test = @(1,2,3,4,5)
+$org_pos = $host.UI.RawUI.CursorPosition
+for ($i=0; $i -lt $list_test.Count; $i++) {
+    # Write-Status -Current $i -Total 10 -Statustext "Running a long Task" -CurStatusText "Working on Position $i"
+    [Console]::SetCursorPosition($org_pos.X,$org_pos.Y)
+    # ...
+    $list_test[0..$i]
+    Start-Sleep 1
+}
+#>
+
+<#
+# read file
+$index_last_line_printed = -1
+for ($i = 0; $i -le 5; ++$i) {
+    # $index_last_line_printed
+    $index_line = 0
+    foreach ($line in $(read .\test.txt)) {
+        if ($index_line -gt $index_last_line_printed) {
+            Write-Host "line #${index_line}:" $line
+            $index_last_line_printed = $index_line
+        }
+        ++$index_line
+    }
+}
+#>
+
+# <#
+# ErrorRecords:
+function MyCmdlet {
+    [CmdletBinding()]
+    param()
+    $PSCmdlet.WriteVerbose("before")
+    $Exception = [Exception]::new("error message")
+    $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+        $Exception,
+        "errorID",
+        [System.Management.Automation.ErrorCategory]::NotSpecified,
+        # $TargetObject # usually the object that triggered the error, if possible
+        $null
+    )
+    $PSCmdlet.WriteError($ErrorRecord)
+    $PSCmdlet.WriteVerbose("after")
+}
+MyCmdlet -v
+#>

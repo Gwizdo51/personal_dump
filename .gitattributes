@@ -19,6 +19,8 @@
 
 # text
 *.py        text
+*.ps1       text
+*.psm1      text
 *.tex       text
 *.bib       text
 # keep bash files with lf line endings on Windows
@@ -27,5 +29,6 @@
 
 # binaries
 *.png       -text
-# keep .ipynb files with lf line endings on windows, delete "jupyter notebook" from the list of languages used
+*.xml       -text
+# keep .ipynb files with lf line endings on windows
 *.ipynb     -text linguist-vendored

@@ -64,6 +64,10 @@ $server_dir = "$(Split-Path $custom_profile_dir -Parent)\jupyter_server"
 $command_str = "& `"$server_dir\jupyter_server.ps1`""
 Start-Process powershell.exe -ArgumentList ("-c " + $command_str)
 
+whether process has exited:
+$my_process = Start-Process -FilePath .\test.bat -PassThru
+$my_process.HasExited
+
 
 - show hastables as nice tables (ft = Format-Table) / lists of "key: value" (fl = Format-List):
 # only keys chosen by PS
@@ -95,8 +99,61 @@ Write-Host @(1,2,3) != Write-Output @(1,2,3)
 Write-Information -MessageData "Processes starting with 'P'" -InformationAction "Continue"
 
 
-- function vs. cmdlet:
-cmdlet inherits from "functions", but isn't a function
+- cmdlet: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.3
+https://devblogs.microsoft.com/scripting/introduction-to-advanced-powershell-functions/
+https://powershellexplained.com/2020-03-15-Powershell-shouldprocess-whatif-confirm-shouldcontinue-everything/
+https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.pscmdlet?view=powershellsdk-7.2.0
+https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_commonparameters?view=powershell-7.3
+cmdlet inherits from "functions", but isn't a function => has more functionalities
+- to turn a function into a cmdlet:
+function Do-Smth {[CmdletBinding()] param(...) ...}
+- CmdletBinding: transforms a standard function into a full-fledged cmdlet (adds $PSCmdlet inside the function, $Args variable is not available)
+[CmdletBinding(
+    ConfirmImpact=<String>,             # 'None', 'Low', 'Medium', 'High' (default 'Medium')
+    DefaultParameterSetName=<String>,   # smth about parameter set, not rly useful
+    HelpURI=<URI>,                      # internet address of the online version of the help topic that describes the function
+    SupportsPaging=<Boolean>,           # adds the First, Skip, and IncludeTotalCount parameters to the function. Useful when a ton of data is being processed.
+    SupportsShouldProcess=<Boolean>,    # adds -Confirm and -WhatIf switches to the function. The cmdlet will request confirmation before doing anything if
+                                        # $ConfirmPreference is equal to or less than the value of ConfirmImpact. (default $False)
+    PositionalBinding=<Boolean>         # determines whether parameters in the function are positional by default (default $True)
+                                        # => set to $False to disable positional parameter binding.
+)]
+-> adds the switches:
+    -Verbose                prints all the Write-Verbose items (targets the user)                           $VerbosePreference
+    -WarningAction          what to do in case a warning comes up                                           $WarningPreference
+    -WarningVariable        pass a var to record all warnings into it
+    -OutBuffer              passes objects in batches down the pipeline
+    -Debug                  prints all the Write-Debug items (targets the developer)                        $DebugPreference
+    -InformationAction      what to do in case an information comes up                                      $InformationPreference
+    -InformationVariable    pass a var to record all informations into it
+    -PipelineVariable       can access the last value piped while processing the next item
+    -ErrorAction            what to do in case an error comes up                                            $ErrorActionPreference
+    -ErrorVariable          pass a var to record all errors into it
+    -OutVariable            stores output objects in the specified variable + send it down the pipeline
+- ShouldProcess vs ShouldContinue:
+    - ShouldProcess listens to $ConfirmPreference and the -Confirm switch; ShouldContinue always prompts
+    - ShouldContinue doesn't need SupportsShouldProcess to prompt for confirmation
+- parameter attributes: gives more control on cmdlet arguments: [Parameter(Argument=value)]
+-> Mandatory argument (optional parameter when unspecified): [Parameter(Mandatory)]
+    -> HelpMessage argument (displayed when command is used with missing mandatory arguments, type "!?" to see during prompt): [Parameter(Mandatory, HelpMessage="help message content")]
+-> Positional argument (overrides PositionalBinding from CmdletBinding for this parameter) (can still be named): [Parameter(Position=0)]
+-> ValueFromPipeline argument (accepts entire objects from pipeline): [Parameter(ValueFromPipeline)]
+-> ValueFromPipelineByPropertyName argument (accepts input from a property of a pipeline object, the object property must have the same name or alias): [Parameter(ValueFromPipelineByPropertyName)]
+-> ValueFromRemainingArguments argument (accepts all the parameter's values in the command that aren't assigned to other parameters of the function): [Parameter(ValueFromRemainingArguments)]
+- Alias attribute: [Alias("...")]
+- SupportsWildcards attribute: [SupportsWildcards()]
+- ValidatePattern validation attribute (compares string to the regex): [ValidatePattern("[0-9]{4}")]
+- ValidateDrive validation attribute (raises error when the value is outside the drives given): [ValidateDrive("C", "D", "Variable", "Function")]
+
+
+- Error reporting: https://learn.microsoft.com/en-us/powershell/scripting/developer/cmdlet/windows-powershell-error-reporting?view=powershell-7.3
+- ErrorRecord: https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.cmdlet.writeerror?view=powershellsdk-7.2.0
+While inside a Cmdlet, "Write-Error" doesn't actually raises an exception => gotta use $PSCmdlet.WriteError(ErrorRecord)
+create an ErrorRecord from scratch: ErrorRecord(Exception, String, ErrorCategory, Object)
+- exception (Exception)             -> Exception which describes the error https://learn.microsoft.com/en-us/dotnet/api/system.exception?view=net-7.0#choosing-standard-exceptions
+- errorId (String)                  -> Global identifier of the error condition (fully qualified error id: "PathNotFound,Microsoft.PowerShell.Commands.RemoveItemCommand")
+- errorCategory (ErrorCategory)     -> This is the ErrorCategory which best describes the error https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.errorcategory?view=powershellsdk-7.3.0
+- targetObject (Object)             -> Object against which the cmdlet or provider was operating when the error occurred (optional)
 
 
 - pipelines:
@@ -125,7 +182,35 @@ Remove-Job *
 Get-Job | where {$_.State -ne "Running"} | Remove-Job
 
 
-keyboard shortcuts:
+    Registry provider:
+-> most registry changes should be done by an admin shell
+- create a new registry drive:
+New-PSDrive -Name 'HKCR' -PSProvider 'Registry' -Root 'HKEY_CLASSES_ROOT'
+-> the registry is divided into keys, subkeys, and entries
+-> each key is a container
+- get all properties of a key:
+(Get-Item <key_path>).Property
+- get all subkeys of a key:
+(Get-Item <key_path>).GetSubKeyNames()
+- get all subkeys and subkey properties of a key:
+dir <key_path>
+- key values are stored as properties of each registry key => get a list (PSCustomObject) of properties names/values:
+Get-ItemProperty <key_path>
+- get a specific property value:
+Get-ItemPropertyValue -Path <key_path> -Name <property_name>
+- create a new property/value pair:
+New-ItemProperty -Path <key_path> -Name <property_name> -Value <property_value>
+- changing key value:
+Set-ItemProperty -Path <key_path> -Name <property_name> -Value <property_value>
+- create new key:
+mkdir <key_path>
+- remove a key:
+rm <key_path>
+- remove a key property:
+Remove-ItemProperty -Path <key_path> -Name <property_name>
+
+
+- keyboard shortcuts:
 - ctrl + alt + shift + ,
 get the list of all keyboard shortcuts
 - ctrl + L
@@ -142,14 +227,14 @@ new line, new execution
 last used argument
 
 
-windows terminal:
+- windows terminal:
 open a new tab in current window:
 wt -w 0 nt
 with custom profile:
 wt -w 0 nt -p
 
 
-resources:
+- resources:
 cheat sheet console experience: https://devblogs.microsoft.com/powershell-community/cheat-sheet-console-experience/
 cheat sheet punctuation: https://www.red-gate.com/simple-talk/wp-content/uploads/2015/09/PSPunctuationWallChart_1_0_4.pdf
 automatic variables: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.3
@@ -157,9 +242,5 @@ advanced functions: https://devblogs.microsoft.com/scripting/introduction-to-adv
 
 
 to test:
-- test try - catch - finally
-- test diff between Write-Output - Write-Host - Write-Verbose
-- test ForEach-Object (%)
-- test Where-Object (?)
 - test $MyInvocation
 - check preference variables https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.3

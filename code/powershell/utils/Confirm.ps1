@@ -1,12 +1,13 @@
+# Helper functions to request user confirmation
+
 function Confirmation-Prompt {
     param(
         [string] $Question = 'Are you sure you want to perform this action?',
         [hashtable] $ChoicesTable,
         [int] $DefaultChoice = 0
     )
-    $title = 'Confirm'
     $choices = $ChoicesTable.Keys | sort | % {New-Object -TypeName Management.Automation.Host.ChoiceDescription $ChoicesTable[$_][0], $ChoicesTable[$_][1]}
-    $Host.UI.PromptForChoice($title, $question, $choices, $DefaultChoice)
+    $Host.UI.PromptForChoice('Confirm', $question, $choices, $DefaultChoice)
 }
 
 function Default-Confirmation-Prompt {
@@ -21,4 +22,42 @@ function Default-Confirmation-Prompt {
         4 = '&Suspend', 'Pause the current pipeline and return to the command prompt. Type "exit" to resume the pipeline.'
     }
     confirmation_prompt -Question $Question -ChoicesTable $choices_table
+}
+
+function ShouldProcess-Yes-No {
+    param(
+        $PSCmdlet,
+        [switch] $Force,
+        [switch] $Confirm,
+        [string] $ConfirmImpact,
+        [string] $ConfirmQuestion,
+        [switch] $WhatIf,
+        [string] $WhatIfMessage
+    )
+    # low = 0 (confirm every step)
+    # medium = 1
+    # high = 2
+    # None = 3 (bypass every confirmation, ~ Force)
+    switch ($ConfirmPreference) {
+        'Low' {$ConfirmPreference_int = 0}
+        'Medium' {$ConfirmPreference_int = 1}
+        'High' {$ConfirmPreference_int = 2}
+        'None' {$ConfirmPreference_int = 3}
+    }
+    switch ($ConfirmImpact) {
+        'Low' {$ConfirmImpact_int = 0}
+        'Medium' {$ConfirmImpact_int = 1}
+        'High' {$ConfirmImpact_int = 2}
+    }
+    $should_confirm = $($ConfirmImpact_int -ge $ConfirmPreference_int)
+    # Write-Host $should_confirm
+    if ($WhatIf) {
+        $user_answer = $False
+        Write-Host "What if: ${WhatIfMessage}"
+    }
+    elseif (-not $Force -and ($Confirm -or $should_confirm)) {
+        $user_answer = $PSCmdlet.ShouldContinue("${ConfirmQuestion}", '')
+    }
+    else {$user_answer = $True}
+    return $user_answer
 }

@@ -15,12 +15,21 @@
 - [x] add a function that prints example strings with the available colors
 - [x] don't color git prompt parentheses
 - [x] test if .gitattributes is working as intended
+- [x] add a mechanism to run the jupyter lab server on a seperate hidden powershell process
+- [x] make a UNIX-style "sudo" alias
+- [x] repair sudo when current directory is a drive root
+- [x] make sudo scan ps_buffer for new lines to print while waiting for the process to finish
+- [x] make sudo rewrite the last line written every second to account for updates
 
 ### *WIP*
-- [ ] add a mechanism to run the jupyter lab server on a seperate hidden powershell process
-- [ ] add "Recycle" function
+- [ ] debug Kill-Jupyter when killing specific ports
+- [ ] add work time script
+- [ ] convert jupyter_lab and sudo to cmdlets
+- [ ] add windows registry notes
+- [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
 - [ ] convert custom PS functions into aliases
+- [ ] make a Get-Size cmdlet
 - [ ] add powershell notes
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
@@ -47,7 +56,6 @@
 - make pretty_string_factory print the class name when it is not a builtin type ?
 
 ### *powershell profile*
-- add notepad alias "np" ?
 - add a script to interact with the trashbin ?
     - restore a file from the recycle bin if it is unique, or maybe the last one
     - [empty it completely](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/clear-recyclebin?view=powershell-7.3)
@@ -59,3 +67,4 @@
 
 ### *other*
 - install WSL ?
+- make a script to download all listed urls with youtube-dl

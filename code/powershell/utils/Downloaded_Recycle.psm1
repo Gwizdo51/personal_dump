@@ -104,6 +104,9 @@ function recycleItem {
 
     process {
         try {
+            Write-Host 'Recycling single item ...'
+            Write-Host '$Path:' $Path
+            Write-Host '$LiteralPath:' $LiteralPath
             if ($PSCmdlet.ParameterSetName -eq 'LiteralPath') {
                 $items = @(Get-Item -LiteralPath:$PSBoundParameters['LiteralPath'])
             }
@@ -115,9 +118,11 @@ function recycleItem {
                 if ($PSCmdlet.ShouldProcess($item)) {
                     $directoryPath = Split-Path $item -Parent
 
+                    # the interesting bit
                     $shell = New-Object -ComObject "Shell.Application"
                     $shellFolder = $shell.Namespace($directoryPath)
-                    $shellItem = $shellFolder.ParseName($item.Name)
+                    # $shellItem = $shellFolder.ParseName($item.Name)
+                    $shellItem = $shellFolder.ParseName($shellItem.Name)
                     $shellItem.InvokeVerb("delete")
                 }
             }
@@ -166,7 +171,7 @@ function Restore-RecycledItem {
     )
 
     process {
-        # Write-Host 'restoring recycled item ...'
+        Write-Host 'restoring recycled item ...'
         if ($ComObject) {
             $FoundItem = $ComObject
             $OriginalPath = $ComObject.GetFolder.Title
@@ -181,21 +186,22 @@ function Restore-RecycledItem {
             }
         }
         else {
-            # Write-Host 'this is a path ...'
+            Write-Host 'this is a path ...'
             if ($PSCmdlet.ParameterSetName -eq "ManualSelection" -or $PSCmdlet.ParameterSetName -eq "Selector") {
+                Write-Host $PSCmdlet
                 Write-Host $PSBoundParameters
                 $BoundParametersLessOverwrite = $PSBoundParameters
                 if ($BoundParametersLessOverwrite.ContainsKey("Overwrite")) {
                     $BoundParametersLessOverwrite.Remove("Overwrite") | Out-Null
                 }
-                # Write-Host 'calling Get-RecycledItem ...'
-                # Write-Host '$PSBoundParameters:' $PSBoundParameters
+                Write-Host 'calling Get-RecycledItem ...'
+                Write-Host '$PSBoundParameters:' $PSBoundParameters
                 $FoundItem = Get-RecycledItem @PSBoundParameters -Top 1
-                # Write-Host "`$FoundItem: $FoundItem"
+                Write-Host "`$FoundItem: $FoundItem"
             }
 
             if ($FoundItem) {
-                # Write-Host 'item found ...'
+                Write-Host 'item found ...'
                 # This does not seem to work, so I am doing it manually
                 # Maybe someone can get this to work (although I don't see an advantage over the current method)
                 #(New-Object -ComObject "Shell.Application").Namespace($BinItems[0].Path).Self().InvokeVerb("Restore")
@@ -280,9 +286,14 @@ function Get-RecycledItem {
     )
 
     process {
-        # Write-Host 'getting recycled items ...'
-        # Write-Host '$OriginalPath:' $OriginalPath
-        $SelectedItems = @() + (New-Object -com shell.application).Namespace(10).Items()
+        Write-Host 'getting recycled items ...'
+        Write-Host '$OriginalPath:' $OriginalPath
+        $SelectedItems = @(New-Object -ComObject shell.application).Namespace(10).Items()
+        return $SelectedItems
+        # $SelectedItems = $(@(New-Object -com shell.application).Namespace(10).Items()).Name
+        # return $SelectedItems
+        # $SelectedItems = @(New-Object -com shell.application).Namespace(10).Items()
+        # return $($SelectedItems).Name
 
         if ($OriginalPath) {
             $SelectedItems = $SelectedItems | Where-Object { $_.GetFolder.Title -eq $OriginalPath }
@@ -339,6 +350,7 @@ function Get-RecycledItem {
 #>
 }
 
+# anything else is not added when importing
 Export-ModuleMember -Function Get-RecycledItem
 Export-ModuleMember -Function Remove-ItemSafely
 Export-ModuleMember -Function Restore-RecycledItem
