@@ -23,7 +23,7 @@
 
 ### *WIP*
 - [ ] debug Kill-Jupyter when killing specific ports
-- [ ] add work time script
+- [ ] add work time script + docstrings
 - [ ] convert jupyter_lab and sudo to cmdlets
 - [ ] add windows registry notes
 - [ ] add Recycle cmdlet
