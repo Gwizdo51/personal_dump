@@ -101,6 +101,7 @@ Write-Information -MessageData "Processes starting with 'P'" -InformationAction 
 
 - cmdlet: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced?view=powershell-7.3
 https://devblogs.microsoft.com/scripting/introduction-to-advanced-powershell-functions/
+https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_cmdletbindingattribute?view=powershell-7.3
 https://powershellexplained.com/2020-03-15-Powershell-shouldprocess-whatif-confirm-shouldcontinue-everything/
 https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.pscmdlet?view=powershellsdk-7.2.0
 https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_commonparameters?view=powershell-7.3
@@ -147,6 +148,10 @@ function Do-Smth {[CmdletBinding()] param(...) ...}
 
 
 - Error reporting: https://learn.microsoft.com/en-us/powershell/scripting/developer/cmdlet/windows-powershell-error-reporting?view=powershell-7.3
+- $ErrorView:
+    - 'ConciseView': minimal view, only shows line and error message
+    - 'NormalView': basic view, all informations
+    - 'CategoryView': '{Category}: ({TargetName}:{TargetType}):[{Activity}], {Reason}'
 - ErrorRecord: https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.cmdlet.writeerror?view=powershellsdk-7.2.0
 While inside a Cmdlet, "Write-Error" doesn't actually raises an exception => gotta use $PSCmdlet.WriteError(ErrorRecord)
 create an ErrorRecord from scratch: ErrorRecord(Exception, String, ErrorCategory, Object)

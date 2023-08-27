@@ -25,7 +25,6 @@
 ### *WIP*
 - [ ] debug Kill-Jupyter when killing specific ports
 - [ ] convert jupyter_lab and sudo to cmdlets
-- [ ] add windows registry notes
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
 - [ ] convert custom PS functions into aliases

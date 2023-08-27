@@ -41,7 +41,6 @@ function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" li
 
 
 function Wrapper-JupyterLab {
-    # TODO: use splatting to reduce the length of the line that calls ShouldProcess-Yes-No
     [CmdletBinding()]
     param(
         [string] $EnvConda = 'workenv',
@@ -64,7 +63,11 @@ function Wrapper-JupyterLab {
     # $VEnv, $RootDir, $process_or_job
     if ($Kill) {
         $PSCmdlet.WriteVerbose("'-Kill' flag set, killing all jupyter servers")
-        Kill-Jupyter -Force:$Force -Confirm:$Confirm -WhatIf:$WhatIf -Silent:$Silent
+        # need to send $ConfirmPreference value to Kill-Jupyter => doesn't work
+        # => set $Confirm to $True if not $Force
+        # Kill-Jupyter -Force:$Force -Confirm:$Confirm -WhatIf:$WhatIf -Silent:$Silent
+        if ($Force) {Kill-Jupyter -Force -WhatIf:$WhatIf -Silent:$Silent}
+        else {Kill-Jupyter -Confirm -WhatIf:$WhatIf -Silent:$Silent}
         return
     }
     $running_servers_urls = Get-JupyterLabURL -ErrorAction 'SilentlyContinue'
@@ -184,12 +187,14 @@ New-Item -Path Alias:jl -Value Write-JobServerLogs -Force > $null
 
 function Kill-Jupyter { # kill all jupyter lab servers
     # TODO: implement -Silent, begin-process-end
-    [CmdletBinding(SupportsShouldProcess=$True, ConfirmImpact='High')]
+    # support wildcards ?
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     param(
         [Parameter(ValueFromPipeline)] [int[]] $Port = @(-1),
         [switch] $Force,
         [switch] $Silent
     )
+    # Write-Host $ConfirmPreference
     if ($Force -and ($ConfirmPreference -ne 'None')) {
         Write-Verbose "'-Force' flag set, bypassing confirmation"
         $ConfirmPreference = 'None'
@@ -198,6 +203,7 @@ function Kill-Jupyter { # kill all jupyter lab servers
     if ($Env:CONDA_DEFAULT_ENV -eq 'workenv') {$conda_deactivate = $False}
     else {Write-Verbose 'Activating workenv for the command'; $conda_deactivate = $True; cda}
     if ($Port -ge 0) {
+        # Write-Verbose "Killing the Jupyter server running at the ${Port} port"
         Get-JupyterLabURL | ? {$_} | % {[regex]::matches($_, $port_regex_pattern).Groups} | ? {$_.Name -eq 1} | % {[int] $_.Value} `
             | ? {$_ -eq $Port} | ? {$PSCmdlet.ShouldProcess("Killing the server running at the '${_}' port", "Kill the server running at the '${_}' port ?", '')} `
             | % {jupyter server stop $_}
