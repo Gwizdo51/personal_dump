@@ -37,3 +37,7 @@ delete a venv :
 
 clean conda cache :
 conda clean --all
+
+init shell for conda:
+conda init <shell_name>
+conda init powershell
