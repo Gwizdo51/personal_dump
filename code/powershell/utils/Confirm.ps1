@@ -53,10 +53,10 @@ function ShouldProcess-Yes-No {
     # Write-Host $should_confirm
     if ($WhatIf) {
         $user_answer = $False
-        Write-Host "What if: $WhatIfMessage"
+        Write-Host "What if: ${WhatIfMessage}"
     }
     elseif (-not $Force -and ($Confirm -or $should_confirm)) {
-        $user_answer = $PSCmdlet.ShouldContinue("$ConfirmQuestion", '')
+        $user_answer = $PSCmdlet.ShouldContinue("${ConfirmQuestion}", '')
     }
     else {$user_answer = $True}
     return $user_answer

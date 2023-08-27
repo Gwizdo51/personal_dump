@@ -3,6 +3,7 @@ param(
     [string] $RootDir
 )
 
+# load custom profile
 try {. $profile -Silent} # process
 catch {. $using:profile -Silent} # job
 

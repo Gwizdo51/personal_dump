@@ -14,7 +14,7 @@ if ($Verbose) {
     $VerbosePreference = 'Continue'
 }
 
-Write-Information "Loading personal profile (custom_profile.ps1)..."
+Write-Information "Loading personal profile (windows_custom_profile.ps1)..."
 
 
 #############

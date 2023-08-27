@@ -22,6 +22,7 @@
 - [x] make sudo rewrite the last line written every second to account for updates
 
 ### *WIP*
+- [ ] debug Kill-Jupyter when killing specific ports
 - [ ] add work time script
 - [ ] convert jupyter_lab and sudo to cmdlets
 - [ ] add windows registry notes
