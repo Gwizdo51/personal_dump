@@ -20,10 +20,10 @@
 - [x] repair sudo when current directory is a drive root
 - [x] make sudo scan ps_buffer for new lines to print while waiting for the process to finish
 - [x] make sudo rewrite the last line written every second to account for updates
+- [x] add work time script + docstrings
 
 ### *WIP*
 - [ ] debug Kill-Jupyter when killing specific ports
-- [ ] add work time script
 - [ ] convert jupyter_lab and sudo to cmdlets
 - [ ] add windows registry notes
 - [ ] add Recycle cmdlet
