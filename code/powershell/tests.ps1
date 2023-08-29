@@ -907,7 +907,7 @@ for ($i = 0; $i -le 5; ++$i) {
 }
 #>
 
-# <#
+<#
 # ErrorRecords:
 function MyCmdlet {
     [CmdletBinding()]
@@ -925,4 +925,41 @@ function MyCmdlet {
     $PSCmdlet.WriteVerbose("after")
 }
 MyCmdlet -v
+#>
+
+# <#
+# cmdlet begin-process-end:
+function MyCmdletProcess {
+    [CmdletBinding()]
+    param([Parameter(ValueFromPipeline)] [int[]] $int_pipeline_input)
+    begin {
+        Write-Host 'begin block'
+        Write-Host "begin: the vars are of type $(type $input)"
+        Write-Host "begin: the vars are ${input}"
+        Write-Host "begin: there are $($input.Count) vars"
+        Write-Host "begin: `$int_pipeline_input: ${int_pipeline_input}"
+    }
+    process {
+        Write-host 'process block'
+        Write-Host "process: the vars are of type $(type $input)"
+        Write-Host "process: the vars are $input"
+        Write-Host "process: the var is of type $(type $PSItem)"
+        Write-Host "process: the var is $PSItem"
+        Write-Host "process: `$int_pipeline_input: ${int_pipeline_input}"
+        Write-Host "process: type `$int_pipeline_input: $(type $int_pipeline_input)"
+    }
+    end {
+        Write-Host 'end block'
+        Write-Host "end: the vars are of type $(type $input)"
+        Write-Host "end: the vars are $input"
+    }
+}
+# MyCmdletProcess
+1, 3, 5 | MyCmdletProcess
+# 6 | MyCmdletProcess
+# MyCmdletProcess -int_pipeline_input @(3,4,5)
+
+# both work the same way:
+# => rm -Path @('.\test1.txt', '.\test2.txt') -Confirm
+# => @('.\test1.txt', '.\test2.txt') | rm -Confirm
 #>

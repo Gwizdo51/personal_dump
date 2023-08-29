@@ -21,11 +21,10 @@
 - [x] make sudo scan ps_buffer for new lines to print while waiting for the process to finish
 - [x] make sudo rewrite the last line written every second to account for updates
 - [x] add work time script + docstrings
+- [x] debug Kill-Jupyter when killing specific ports
 
 ### *WIP*
-- [ ] debug Kill-Jupyter when killing specific ports
 - [ ] convert jupyter_lab and sudo to cmdlets
-- [ ] add windows registry notes
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
 - [ ] convert custom PS functions into aliases
