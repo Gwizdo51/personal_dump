@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper device="KEYBOARD" author="Atomix Productions" version="830" date="2019-04-28">
+	<map value="TAB" action="deck 1 select ? deck 1 pfl ? deck 2 pfl ? deck 2 select : deck 2 select &amp; deck 1 pfl &amp; deck 2 pfl : deck 2 pfl ? deck 2 select : deck 2 select &amp; deck 2 pfl : deck 1 pfl ? deck 2 pfl ? deck 1 select : deck 1 select : deck 2 pfl ? deck 1 select &amp; deck 1 pfl &amp; deck 2 pfl : deck 1 select &amp; deck 1 pfl" />
+	<map value="CTRL+TAB" action="sideview +1" />
+	<map value="CTRL+SHIFT+TAB" action="sideview -1" />
+	<map value="SHIFT+SPACE" action="sync" />
+	<map value="ALT+SPACE" action="mix_now" />
+	<map value="CTRL+SPACE" action="automix" />
+	<map value="NUM-" action="pitch -0.1 bpm" />
+	<map value="NUM+" action="pitch +0.1 bpm" />
+	<map value="SHIFT+NUM-" action="pitch -0.01" />
+	<map value="SHIFT+NUM+" action="pitch +0.01" />
+	<map value="CTRL+NUM-" action="pitch -0.2" />
+	<map value="CTRL+NUM+" action="pitch +0.2" />
+	<map value="NUM*" action="pitch 100%" />
+	<map value="CTRL+NUM*" action="pitch_reset" />
+	<map value="LEFT" action="nudge +10ms" />
+	<map value="RIGHT" action="nudge -10ms" />
+	<map value="SHIFT+LEFT" action="pitch_bend +5%" />
+	<map value="SHIFT+RIGHT" action="pitch_bend -5%" />
+	<map value="PAGE.DOWN" action="crossfader -10%" />
+	<map value="PAGE.UP" action="crossfader +10%" />
+	<map value="CTRL+PAGE.DOWN" action="crossfader 0%" />
+	<map value="CTRL+PAGE.UP" action="crossfader 100%" />
+	<map value="ESCAPE" action="loop" />
+	<map value="SHIFT+ESCAPE" action="settings" />
+	<map value="ALT+1" action="goto_cue 1" />
+	<map value="ALT+2" action="goto_cue 2" />
+	<map value="ALT+3" action="goto_cue 3" />
+	<map value="ALT+4" action="goto_cue 4" />
+	<map value="ALT+5" action="goto_cue 5" />
+	<map value="ALT+6" action="goto_cue 6" />
+	<map value="ALT+7" action="goto_cue 7" />
+	<map value="ALT+8" action="goto_cue 8" />
+	<map value="ALT+9" action="goto_cue 9" />
+	<map value="ALT+0" action="goto_cue 10" />
+	<map value="CTRL+1" action="set_cue 1" />
+	<map value="CTRL+2" action="set_cue 2" />
+	<map value="CTRL+3" action="set_cue 3" />
+	<map value="CTRL+4" action="set_cue 4" />
+	<map value="CTRL+5" action="set_cue 5" />
+	<map value="CTRL+6" action="set_cue 6" />
+	<map value="CTRL+7" action="set_cue 7" />
+	<map value="CTRL+8" action="set_cue 8" />
+	<map value="CTRL+9" action="set_cue 9" />
+	<map value="CTRL+0" action="set_cue 10" />
+	<map value="SHIFT+F1" action="sampler 1 play while_pressed" />
+	<map value="SHIFT+F2" action="sampler 2 play while_pressed" />
+	<map value="SHIFT+F3" action="sampler 3 play while_pressed" />
+	<map value="SHIFT+F4" action="sampler 4 play while_pressed" />
+	<map value="SHIFT+F5" action="sampler 5 play while_pressed" />
+	<map value="SHIFT+F6" action="sampler 6 play while_pressed" />
+	<map value="SHIFT+F7" action="sampler 7 play while_pressed" />
+	<map value="SHIFT+F8" action="sampler 8 play while_pressed" />
+	<map value="SHIFT+F9" action="sampler 9 play while_pressed" />
+	<map value="SHIFT+F10" action="sampler 10 play while_pressed" />
+	<map value="SHIFT+F11" action="sampler 11 play while_pressed" />
+	<map value="SHIFT+F12" action="sampler 12 play while_pressed" />
+	<map value="P" action="play ? pause : play &amp; sync" />
+	<map value="SHIFT+P" action="play while_pressed" />
+	<map value="C" action="cue_stop" />
+	<map value="CTRL+F" action="search" />
+	<map value="CTRL+BACK" action="goto_last_folder" />
+	<map value="CTRL+V" action="video" />
+	<map value="1" action="set &apos;$cfpos&apos; &apos;`crossfader&apos; &amp; set &apos;$bpm&apos; &apos;`get_bpm&apos; &amp; var_greater $bpm 135 ? var_greater $cfpos 0.5 ? auto_crossfade 14170ms 0% : auto_crossfade 14170ms 100% : var_greater $bpm 134 ? var_greater $cfpos 0.5 ? auto_crossfade 14275ms 0% : auto_crossfade 14275ms 100% : var_greater $bpm 133 ? var_greater $cfpos 0.5 ? auto_crossfade 14382ms 0% : auto_crossfade 14382ms 100% : var_greater $bpm 132 ? var_greater $cfpos 0.5 ? auto_crossfade 14491ms 0% : auto_crossfade 14491ms 100% : var_greater $bpm 131 ? var_greater $cfpos 0.5 ? auto_crossfade 14601ms 0% : auto_crossfade 14601ms 100% : var_greater $bpm 130 ? var_greater $cfpos 0.5 ? auto_crossfade 14713ms 0% : auto_crossfade 14713ms 100% : var_greater $bpm 129 ? var_greater $cfpos 0.5 ? auto_crossfade 14826ms 0% : auto_crossfade 14826ms 100% : var_greater $bpm 128 ? var_greater $cfpos 0.5 ? auto_crossfade 14942ms 0% : auto_crossfade 14942ms 100% : var_greater $bpm 127 ? var_greater $cfpos 0.5 ? auto_crossfade 15059ms 0% : auto_crossfade 15059ms 100% : var_greater $bpm 126 ? var_greater $cfpos 0.5 ? auto_crossfade 15178ms 0% : auto_crossfade 15178ms 100% : var_greater $bpm 125 ? var_greater $cfpos 0.5 ? auto_crossfade 15299ms 0% : auto_crossfade 15299ms 100% : var_greater $bpm 124 ? var_greater $cfpos 0.5 ? auto_crossfade 15422ms 0% : auto_crossfade 15422ms 100% : var_greater $bpm 123 ? var_greater $cfpos 0.5 ? auto_crossfade 15547ms 0% : auto_crossfade 15547ms 100% : var_greater $bpm 122 ? var_greater $cfpos 0.5 ? auto_crossfade 15673ms 0% : auto_crossfade 15673ms 100% : var_greater $bpm 121 ? var_greater $cfpos 0.5 ? auto_crossfade 15802ms 0% : auto_crossfade 15802ms 100% : var_greater $bpm 120 ? var_greater $cfpos 0.5 ? auto_crossfade 15934ms 0% : auto_crossfade 15934ms 100% : var_greater $bpm 119 ? var_greater $cfpos 0.5 ? auto_crossfade 16067ms 0% : auto_crossfade 16067ms 100% : var_greater $bpm 118 ? var_greater $cfpos 0.5 ? auto_crossfade 16203ms 0% : auto_crossfade 16203ms 100% : var_greater $bpm 117 ? var_greater $cfpos 0.5 ? auto_crossfade 16340ms 0% : auto_crossfade 16340ms 100% : var_greater $bpm 116 ? var_greater $cfpos 0.5 ? auto_crossfade 16481ms 0% : auto_crossfade 16481ms 100% : var_greater $bpm 115 ? var_greater $cfpos 0.5 ? auto_crossfade 16623ms 0% : auto_crossfade 16623ms 100% : var_greater $bpm 114 ? var_greater $cfpos 0.5 ? auto_crossfade 16769ms 0% : auto_crossfade 16769ms 100% : var_greater $bpm 113 ? var_greater $cfpos 0.5 ? auto_crossfade 16916ms 0% : auto_crossfade 16916ms 100% : var_greater $bpm 112 ? var_greater $cfpos 0.5 ? auto_crossfade 17067ms 0% : auto_crossfade 17067ms 100% : var_greater $bpm 111 ? var_greater $cfpos 0.5 ? auto_crossfade 17220ms 0% : auto_crossfade 17220ms 100% : var_greater $bpm 110 ? var_greater $cfpos 0.5 ? auto_crossfade 17376ms 0% : auto_crossfade 17376ms 100% : var_greater $cfpos 0.5 ? auto_crossfade 17534ms 0% : auto_crossfade 17534ms 100%" />
+	<map value="O" action="crossfader_disable ? nothing : crossfader_curve &quot;full&quot; ? crossfader_disable : crossfader_curve &quot;smooth&quot; ? crossfader_disable : crossfader_curve &quot;cut&quot; ? crossfader_disable : crossfader_curve &quot;full&quot; &amp; crossfader_disable" />
+	<map value="NUM6" action="deck 2 level +0.02" />
+	<map value="²" action="headphone_mix 0% ? headphone_mix 100% : headphone_mix 0%" />
+	<map value="SPACE" action="play ? stop &amp; set &apos;$play&apos; 0 &amp; set &apos;$cfpos&apos; &apos;`crossfader&apos; &amp; var_greater $cfpos 0.5 ? crossfader 100% : crossfader 0% :  set &apos;$bpm&apos; &apos;`get_bpm&apos; &amp; set &apos;$play&apos; 1 &amp; var_greater $bpm 135 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3542ms 1 &amp; var_equal $play 1 ? auto_crossfade 14170ms : nothing : var_greater $bpm 134 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3569ms 1 &amp; var_equal $play 1 ? auto_crossfade 14275ms : nothing : var_greater $bpm 133 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3596ms 1 &amp; var_equal $play 1 ? auto_crossfade 14382ms : nothing : var_greater $bpm 132 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3623ms 1 &amp; var_equal $play 1 ? auto_crossfade 14491ms : nothing : var_greater $bpm 131 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3650ms 1 &amp; var_equal $play 1 ? auto_crossfade 14601ms : nothing : var_greater $bpm 130 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3678ms 1 &amp; var_equal $play 1 ? auto_crossfade 14713ms : nothing : var_greater $bpm 129 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3707ms 1 &amp; var_equal $play 1 ? auto_crossfade 14826ms : nothing : var_greater $bpm 128 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3735ms 1 &amp; var_equal $play 1 ? auto_crossfade 14942ms : nothing : var_greater $bpm 127 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3765ms 1 &amp; var_equal $play 1 ? auto_crossfade 15059ms : nothing : var_greater $bpm 126 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3795ms 1 &amp; var_equal $play 1 ? auto_crossfade 15178ms : nothing : var_greater $bpm 125 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3825ms 1 &amp; var_equal $play 1 ? auto_crossfade 15299ms : nothing : var_greater $bpm 124 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3855ms 1 &amp; var_equal $play 1 ? auto_crossfade 15422ms : nothing : var_greater $bpm 123 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3887ms 1 &amp; var_equal $play 1 ? auto_crossfade 15547ms : nothing : var_greater $bpm 122 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3918ms 1 &amp; var_equal $play 1 ? auto_crossfade 15673ms : nothing : var_greater $bpm 121 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3951ms 1 &amp; var_equal $play 1 ? auto_crossfade 15802ms : nothing : var_greater $bpm 120 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 3983ms 1 &amp; var_equal $play 1 ? auto_crossfade 15934ms : nothing : var_greater $bpm 119 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 4017ms 1 &amp; var_equal $play 1 ? auto_crossfade 16067ms : nothing : var_greater $bpm 118 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 4051ms 1 &amp; var_equal $play 1 ? auto_crossfade 16203ms : nothing : var_greater $bpm 117 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 4085ms 1 &amp; var_equal $play 1 ? auto_crossfade 16340ms : nothing : var_greater $bpm 116 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 4120ms 1 &amp; var_equal $play 1 ? auto_crossfade 16481ms : nothing : var_greater $bpm 115 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 4156ms 1 &amp; var_equal $play 1 ? auto_crossfade 16624ms : nothing : var_greater $bpm 114 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 4192ms 1 &amp; var_equal $play 1 ? auto_crossfade 16769ms : nothing : var_greater $bpm 113 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 4229ms 1 &amp; var_equal $play 1 ? auto_crossfade 16916ms : nothing : var_greater $bpm 112 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 4267ms 1 &amp; var_equal $play 1 ? auto_crossfade 17067ms : nothing : var_greater $bpm 111 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 4305ms 1 &amp; var_equal $play 1 ? auto_crossfade 17220ms : nothing : var_greater $bpm 110 ? play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 4344ms 1 &amp; var_equal $play 1 ? auto_crossfade 17376ms : nothing : play &amp; sync &amp; repeat_start &apos;wait8beats&apos; 4384ms 1 &amp; var_equal $play 1 ? auto_crossfade 17534ms : nothing" />
+	<map value="F7" action="set &apos;$var_eq_low&apos; 0 &amp; set &apos;$var&apos; &apos;`crossfader&apos; &amp; var_equal &apos;$var&apos; 1.0 ? deck 1 eq_low 0% &amp; deck 2 eq_low 50% &amp; repeat_start &apos;lmao&apos; 25ms 1 &amp; set &apos;$var_eq_low&apos; 1 : var_greater &apos;$var&apos; 0.97 ? deck 1 eq_low 1.5% &amp; deck 2 eq_low 48.5% : var_greater &apos;$var&apos; 0.94 ? deck 1 eq_low 3% &amp; deck 2 eq_low 47% &amp; : var_greater $var 0.91 ? deck 1 eq_low 4.5% &amp; deck 2 eq_low 45.5% : var_greater $var 0.88 ? deck 1 eq_low 6% &amp; deck 2 eq_low 44% : var_greater $var 0.85 ? deck 1 eq_low 7.5% &amp; deck 2 eq_low 42.5% : var_greater $var 0.82 ? deck 1 eq_low 9% &amp; deck 2 eq_low 41% : var_greater $var 0.79 ? deck 1 eq_low 10.5% &amp; deck 2 eq_low 39.5% : var_greater $var 0.76 ? deck 1 eq_low 12% &amp; deck 2 eq_low 38% : var_greater $var 0.73 ? deck 1 eq_low 13.5% &amp; deck 2 eq_low 36.5% : var_greater $var 0.70 ? deck 1 eq_low 15% &amp; deck 2 eq_low 35% : var_greater $var 0.67 ? deck 1 eq_low 16.5% &amp; deck 2 eq_low 33.5% : var_greater $var 0.64 ? deck 1 eq_low 18% &amp; deck 2 eq_low 32% : var_greater $var 0.61 ? deck 1 eq_low 19.5% &amp; deck 2 eq_low 30.5% : var_greater $var 0.58 ? deck 1 eq_low 21% &amp; deck 2 eq_low 29% : var_greater $var 0.55 ? deck 1 eq_low 22.5% &amp; deck 2 eq_low 27.5% : var_greater $var 0.52 ? deck 1 eq_low 24% &amp; deck 2 eq_low 26% : var_greater $var 0.49 ? deck 1 eq_low 25.5% &amp; deck 2 eq_low 24.5% : var_greater $var 0.46 ? deck 1 eq_low 27% &amp; deck 2 eq_low 23% : var_greater $var 0.43 ? deck 1 eq_low 28.5% &amp; deck 2 eq_low 21.5% : var_greater $var 0.40 ? deck 1 eq_low 30% &amp; deck 2 eq_low 20% : var_greater $var 0.37 ? deck 1 eq_low 31.5% &amp; deck 2 eq_low 18.5% : var_greater $var 0.34 ? deck 1 eq_low 33% &amp; deck 2 eq_low 17% : var_greater $var 0.31 ? deck 1 eq_low 34.5% &amp; deck 2 eq_low 15.5% : var_greater $var 0.28 ? deck 1 eq_low 36% &amp; deck 2 eq_low 14% : var_greater $var 0.25 ? deck 1 eq_low 37.5% &amp; deck 2 eq_low 12.5% : var_greater $var 0.22 ? deck 1 eq_low 39% &amp; deck 2 eq_low 11% : var_greater $var 0.19 ? deck 1 eq_low 40.5% &amp; deck 2 eq_low 9.5% : var_greater $var 0.16 ? deck 1 eq_low 42% &amp; deck 2 eq_low 8% : var_greater $var 0.13 ? deck 1 eq_low 43.5% &amp; deck 2 eq_low 6.5% : var_greater $var 0.10 ? deck 1 eq_low 45% &amp; deck 2 eq_low 5% : var_greater $var 0.07 ? deck 1 eq_low 46.5% &amp; deck 2 eq_low 3.5% : var_greater $var 0.04 ? deck 1 eq_low 48% &amp; deck 2 eq_low 2% : var_greater $var 0.01 ? deck 1 eq_low 49.5% &amp; deck 2 eq_low 0.5% : deck 1 eq_low 50% &amp; deck 2 eq_low 0% &amp; repeat_start &apos;lmao&apos; 25ms 1 &amp; set &apos;$var_eq_low&apos; 1" />
+	<map value="S" action="sync" />
+	<map value="H" action="deck 1 level +0.02" />
+	<map value="N" action="deck 1 level -0.02" />
+	<map value="A" action="edit_bpm" />
+	<map value="U" action="deck 2 pfl" />
+	<map value="I" action="deck 2 level 100%" />
+	<map value="T" action="deck 1 level 100%" />
+	<map value="Y" action="deck 1 pfl" />
+	<map value="4" action="deck 1 eq_low 50% &amp; deck 2 eq_low 50%" />
+	<map value="2" action="crossfader 0%" />
+	<map value="3" action="crossfader 100%" />
+	<map value="NUM1" action="pitch -0.01 bpm" />
+	<map value="K" action="deck 2 level +0.02" />
+	<map value="," action="deck 2 level -0.02" />
+	<map value="W" action="stop &amp; set &apos;$play&apos; 0 &amp; set &apos;$cfpos&apos; &apos;`crossfader&apos; &amp; var_greater $cfpos 0.5 ? crossfader 100% : crossfader 0%" />
+	<map value="0" action="crossfader_disable ? crossfader_disable &amp; crossfader_curve &quot;full&quot; : crossfader_curve &quot;full&quot; ? crossfader_curve &quot;smooth&quot; : crossfader_curve &quot;smooth&quot; ? crossfader_curve &quot;cut&quot; : crossfader_curve &quot;cut&quot; ? crossfader_curve &quot;full&quot; : crossfader_curve &quot;full&quot;" />
+	<map value=")" action="crossfader 0% ? crossfader_disable ? crossfader_disable &amp; crossfader_curve &quot;0=[1,1]/1=[0,1]&quot; : crossfader_curve &quot;0=[1,1]/1=[0,1]&quot; : crossfader 100% ? crossfader_disable ? crossfader_disable &amp; crossfader_curve &quot;0=[1,0]/1=[1,1]&quot; : crossfader_curve &quot;0=[1,0]/1=[1,1]&quot; : nothing" />
+	<map value="M" action="deck 2 level 0%" />
+	<map value="L" action="deck 1 level 0%" />
+	<map value="F8" action="var_equal &apos;$var_eq_low&apos; 1 ? deck 1 eq_low 50% &amp; deck 2 eq_low 50% : nothing" />
+	<map value="Z" action="pitch_bend -2%" />
+	<map value="E" action="pitch_bend +2%" />
+	<map value="5" action="deck 1 play ? deck 2 match_gain : deck 1 match_gain" />
+	<map value="NUM2" action="pitch +0.01 bpm" />
+	<map value="NUM4" action="pitch -1.0 bpm" />
+	<map value="NUM5" action="pitch +1.0 bpm" />
+</mapper>

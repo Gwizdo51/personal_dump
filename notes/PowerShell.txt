@@ -43,6 +43,9 @@ test powershell load time:
 Measure-Command{ powershell.exe -Command "exit" }
 Measure-Command{ pwsh.exe -Command "exit" }
 
+Show files full path:
+dir | % {$_.FullName}
+
 
 - processes and jobs:
 start a powershell terminal through a script with a hidden window:
