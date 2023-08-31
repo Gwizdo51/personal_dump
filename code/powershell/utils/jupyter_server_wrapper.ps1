@@ -35,7 +35,7 @@ function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" li
     else {cda; $jupyter_lab_list_output = jupyter server list; cdd}
     $url_regex_pattern = 'http://localhost:[\d]+/\?token=[\w]+'
     $urls = ([regex]::matches($jupyter_lab_list_output, $url_regex_pattern)).Value
-    $PSCmdlet.WriteVerbose("Found $($urls.Count) jupyter lab servers currently running")
+    $PSCmdlet.WriteVerbose("Found $($urls.Count) jupyter lab server(s) currently running")
     return $urls
 }
 
