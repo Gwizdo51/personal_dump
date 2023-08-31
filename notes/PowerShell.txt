@@ -43,8 +43,11 @@ test powershell load time:
 Measure-Command{ powershell.exe -Command "exit" }
 Measure-Command{ pwsh.exe -Command "exit" }
 
-Show files full path:
+Show files/folders full path:
 dir | % {$_.FullName}
+
+Test if a Path is Valid:
+Test-Path -Path "D:\does\not\exist.txt" -IsValid
 
 
 - processes and jobs:

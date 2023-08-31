@@ -907,7 +907,7 @@ for ($i = 0; $i -le 5; ++$i) {
 }
 #>
 
-<#
+# <#
 # ErrorRecords:
 function MyCmdlet {
     [CmdletBinding()]
@@ -922,12 +922,13 @@ function MyCmdlet {
         $null
     )
     $PSCmdlet.WriteError($ErrorRecord)
+    # $PSCmdlet.ThrowTerminatingError($ErrorRecord)
     $PSCmdlet.WriteVerbose("after")
 }
 MyCmdlet -v
 #>
 
-# <#
+<#
 # cmdlet begin-process-end:
 function MyCmdletProcess {
     [CmdletBinding()]
