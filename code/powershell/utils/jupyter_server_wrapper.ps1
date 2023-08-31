@@ -35,7 +35,7 @@ function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" li
     else {cda; $jupyter_lab_list_output = jupyter server list; cdd}
     $url_regex_pattern = 'http://localhost:[\d]+/\?token=[\w]+'
     $urls = ([regex]::matches($jupyter_lab_list_output, $url_regex_pattern)).Value
-    $PSCmdlet.WriteVerbose("Found $($urls.Count) jupyter lab servers currently running")
+    $PSCmdlet.WriteVerbose("Found $($urls.Count) jupyter lab server(s) currently running")
     return $urls
 }
 
@@ -60,28 +60,37 @@ function Wrapper-JupyterLab {
         $InformationPreference_backup = $InformationPreference
         $InformationPreference = 'SilentlyContinue'
     }
-    # $VEnv, $RootDir, $process_or_job
     if ($Kill) {
         $PSCmdlet.WriteVerbose("'-Kill' flag set, killing all jupyter servers")
-        # need to send $ConfirmPreference value to Kill-Jupyter => doesn't work
-        # => set $Confirm to $True if not $Force
         # Kill-Jupyter -Force:$Force -Confirm:$Confirm -WhatIf:$WhatIf -Silent:$Silent
         if ($Force) {Kill-Jupyter -Force -WhatIf:$WhatIf -Silent:$Silent}
         else {Kill-Jupyter -Confirm -WhatIf:$WhatIf -Silent:$Silent}
         return
     }
-    $running_servers_urls = Get-JupyterLabURL -ErrorAction 'SilentlyContinue'
+    $running_servers_urls = Get-JupyterLabURL
     if ($Logs) {
         $PSCmdlet.WriteVerbose("'-Logs' flag set, writing the logs of the jupyter_server currently running as a job")
-        if ($running_servers_urls.Count -eq 0) {Write-Error 'No jupyter server is currently running'}
+        if ($running_servers_urls.Count -eq 0) {
+            # Write-Error 'No jupyter server is currently running'
+            $Exception = [Exception]::new("No jupyter server is currently running")
+            $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+                $Exception,
+                "NoRunningServer",
+                [System.Management.Automation.ErrorCategory]::InvalidOperation,
+                # $TargetObject # usually the object that triggered the error, if possible
+                $null
+            )
+            $PSCmdlet.WriteError($ErrorRecord)
+        }
         else {Write-JobServerLogs}
         return
     }
     # check if a server is already running
     if ($running_servers_urls.Count -gt 0) {
         if ($URL) {
-            Write-Verbose "'-URL' flag set, returning the list of all running servers"
-            Write-Information 'List of jupyter servers currently running:'
+            $PSCmdlet.WriteVerbose("'-URL' flag set, returning the list of all running servers")
+            # Write-Information 'List of jupyter servers currently running:'
+            $PSCmdlet.WriteInformation('List of jupyter servers currently running:', '')
             return $running_servers_urls
         }
         # give the choice to output URL, or start a new server anyways
@@ -95,7 +104,7 @@ function Wrapper-JupyterLab {
             }
             $choice = Confirmation-Prompt -Question 'A Jupyter Lab server is already running. Please advise:' -ChoicesTable $choices_table
             if ($choice -eq 2) {
-                Write-Verbose 'Entering nested prompt'
+                $PSCmdlet.WriteVerbose('Entering nested prompt')
                 # reset $VerbosePreference and $InformationPreference for the nested prompt
                 if ($Verbose) {$VerbosePreference = $VerbosePreference_backup}
                 if (!$Silent) {$InformationPreference = $InformationPreference_backup}
@@ -107,8 +116,9 @@ function Wrapper-JupyterLab {
     }
     else {
         if ($URL) {
-            Write-Verbose "'-URL' flag set, returning the list of all running servers"
-            Write-Information 'No jupyter server is currently running'
+            $PSCmdlet.WriteVerbose("'-URL' flag set, returning the list of all running servers")
+            # Write-Information 'No jupyter server is currently running'
+            $PSCmdlet.WriteInformation('No jupyter server is currently running', '')
             return
         }
         # start a new server
@@ -116,14 +126,14 @@ function Wrapper-JupyterLab {
     }
     switch ($choice) {
         0 {
-            Write-Verbose 'Returning the list of all running servers'
-            Write-Information 'List of jupyter servers currently running:'
+            $PSCmdlet.WriteVerbose('Returning the list of all running servers')
+            $PSCmdlet.WriteInformation('List of jupyter servers currently running:', '')
             return $running_servers_urls
         }
         1 {
-            Write-Verbose 'Starting a new jupyter lab server'
-            Write-Verbose "Conda virtual environment used: '${EnvConda}'"
-            Write-Verbose "Root directory: '${RootDir}'"
+            $PSCmdlet.WriteVerbose('Starting a new jupyter lab server')
+            $PSCmdlet.WriteVerbose("Conda virtual environment used: '${EnvConda}'")
+            $PSCmdlet.WriteVerbose("Root directory: '${RootDir}'")
             if ($host.Version.Major -eq 5) {$pwsh_exe = 'powershell.exe'}
             else {$pwsh_exe = 'pwsh.exe'}
             $jupyer_lab_server_path = "${_powershell_dir}\utils\jupyter_lab_server.ps1"
@@ -135,7 +145,7 @@ function Wrapper-JupyterLab {
                 if (ShouldProcess-Yes-No -PSCmdlet:$PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
                     -ConfirmQuestion 'Start a new powershell process to host the server?' -WhatIf:$WhatIf `
                     -WhatIfMessage 'Starting a new powershell process to host the server') {
-                    Write-Verbose 'Starting a new powershell process to host the server'
+                    $PSCmdlet.WriteVerbose('Starting a new powershell process to host the server')
                     Start-Process -FilePath $pwsh_exe -ArgumentList $args_list -WindowStyle 'Minimized'
                 }
             }
@@ -144,7 +154,7 @@ function Wrapper-JupyterLab {
                 if (ShouldProcess-Yes-No -PSCmdlet:$PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
                     -ConfirmQuestion 'Start a new hidden powershell process to host the server?' -WhatIf:$WhatIf `
                     -WhatIfMessage 'Starting a new hidden powershell process to host the server') {
-                    Write-Verbose 'Starting a new hidden powershell process to host the server'
+                    $PSCmdlet.WriteVerbose('Starting a new hidden powershell process to host the server')
                     Start-Process -FilePath $pwsh_exe -ArgumentList $args_list -WindowStyle 'Hidden'
                 }
             }
@@ -152,7 +162,7 @@ function Wrapper-JupyterLab {
                 # if ($PSCmdlet.ShouldProcess("Starting a new powershell job to host the server", "Start a new powershell job to host the server?", ''))
                 if (ShouldProcess-Yes-No -PSCmdlet:$PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
                     -ConfirmQuestion 'Start a new powershell job to host the server?' -WhatIf:$WhatIf -WhatIfMessage 'Starting a new powershell job to host the server') {
-                    Write-Verbose 'Starting a new powershell job to host the server'
+                    $PSCmdlet.WriteVerbose('Starting a new powershell job to host the server')
                     # Start-Job -Name 'jupyter_server' -ScriptBlock {. $using:profile -S; cda -VEnv $using:EnvConda; cd $using:RootDir; jupyter lab}
                     Start-Job -Name 'jupyter_server' -FilePath $jupyer_lab_server_path -ArgumentList $EnvConda, $RootDir
                 }
@@ -169,13 +179,24 @@ function Write-JobServerLogs { # print the logs of the jupyter server when runni
     [CmdletBinding()]
     param()
     $running_job_servers = Get-Job | ? {($_.Name -eq 'jupyter_server') -and ($_.State -eq 'Running')}
-    if ($running_job_servers.Count -eq 0) {Write-Error 'No jupyter server is currently running'}
+    if ($running_job_servers.Count -eq 0) {
+        # Write-Error 'No jupyter server is currently running'
+        $Exception = [Exception]::new("No jupyter server is currently running as a job")
+        $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+            $Exception,
+            "NoRunningServerJob",
+            [System.Management.Automation.ErrorCategory]::InvalidOperation,
+            # $TargetObject # usually the object that triggered the error, if possible
+            $null
+        )
+        $PSCmdlet.WriteError($ErrorRecord)
+    }
     elseif ($running_job_servers.Count -eq 1) {
-        Write-Verbose 'Found a single running server as a job'
+        $PSCmdlet.WriteVerbose('Found a single running server as a job')
         Receive-Job $running_job_servers -keep
     }
     else {
-        Write-Verbose 'Found multiple running servers as jobs'
+        $PSCmdlet.WriteVerbose('Found multiple running servers as jobs')
         $ofs = ', '
         $chosen_id = Read-Host "Multiple jupyter servers are running as jobs, please select one job ID ($($running_job_servers.Id)) (default is most recent)"
         if ($chosen_id -eq '') {$chosen_id = ($running_job_servers.Id | Measure-Object -Maximum).Maximum}
@@ -209,19 +230,19 @@ function Kill-Jupyter {
     )
     begin {
         if ($Force -and ($ConfirmPreference -ne 'None')) {
-            Write-Verbose "'-Force' flag set, bypassing confirmation"
+            $PSCmdlet.WriteVerbose("'-Force' flag set, bypassing confirmation")
             $ConfirmPreference = 'None'
         }
         $port_regex_pattern = 'http://localhost:([\d]+)/\?token=[\w]+'
         if ($Env:CONDA_DEFAULT_ENV -eq 'workenv') {$conda_deactivate = $False}
-        else {Write-Verbose 'Activating workenv for the command'; $conda_deactivate = $True; cda}
+        else {$PSCmdlet.WriteVerbose('Activating workenv for the command'); $conda_deactivate = $True; cda}
         $active_ports = Get-JupyterLabURL | ? {$_} | % {[regex]::matches($_, $port_regex_pattern).Groups} `
             | ? {$_.Name -eq 1} | % {$_.Value}
         # Write-Host $active_ports
     }
     process {
         if ($Port.Count -eq 0) {
-            Write-Verbose 'no port specified, killing all servers'
+            $PSCmdlet.WriteVerbose('no port specified, killing all servers')
             $active_ports | ? {$PSCmdlet.ShouldProcess(
                 "Killing the server running at the '${_}' port",
                 "Kill the server running at the '${_}' port ?",
@@ -230,7 +251,7 @@ function Kill-Jupyter {
         }
         else {
             foreach ($port_number in $Port) {
-                Write-Verbose "killing the server running at the port ${port_number}"
+                $PSCmdlet.WriteVerbose("killing the server running at the port ${port_number}")
                 $active_ports | ? {[int] $_ -eq $port_number} | ? {$PSCmdlet.ShouldProcess(
                     "Killing the server running at the '${_}' port",
                     "Kill the server running at the '${_}' port ?",

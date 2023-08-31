@@ -106,3 +106,6 @@ shows the diff between two different files in the working directory
 
 remove the "WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!" error:
 ssh-keygen -R github.com
+
+update git on windows:
+git update-git-for-windows
