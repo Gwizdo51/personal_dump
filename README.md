@@ -47,6 +47,7 @@
 - [ ] test python decorators
 - [ ] add windows notes about setting up coding environment (vs code, windows terminal, powershell, anaconda, git)
 - [ ] add windows notes about adding virtual memory
+- [ ] add git flow notes
 - [ ] reinstall OS at some point (never update conda on base with conda-forge, btw)
 
 # Ideas
