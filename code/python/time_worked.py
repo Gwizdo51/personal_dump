@@ -3,14 +3,14 @@ Script that computes the total amount of time worked for a month, based on an in
 
 For example, the following file:
 
-Aout 2023
+Août 2023
 11: 8h-12h 13h30-18h
 12: 8h15-12h 14h15-17h15 17h30-19h30
 13: 8h-13h45
 
 will produce the output:
 
-Aout 2023
+Août 2023
 ------------------------------
 jour: 11
 heures travaillées: 8.5
@@ -26,9 +26,11 @@ TOTAL: 23.0 heures
 
 import argparse
 from pathlib import Path
+import sys
+import re
 
 
-def time_worked_pretty_print(raw_time_worked: str, separator_length: int = 30) -> str:
+def time_worked_pretty_print(raw_time_worked_data: str, separator_length: int = 30) -> str:
     """
     This function computes the time worked per day and for a whole month,
     based on an input file, and produces a pretty string to print.
@@ -44,9 +46,15 @@ def time_worked_pretty_print(raw_time_worked: str, separator_length: int = 30) -
         The pretty string to print.
     """
 
+    # check input data format
+    input_file_regex_format = re.compile('^.+\n(?:\d{2}: (?:\d{1,2}h\d{0,2}-\d{1,2}h\d{0,2} ?)+\n?)+$')
+    if not input_file_regex_format.match(raw_time_worked_data):
+        raise RuntimeError("The input file data does not fit the format expected")
+
     result_str_lines = []
 
-    work_hours_lines = raw_time_worked.split("\n")
+    # make a list of lines
+    work_hours_lines = raw_time_worked_data.split("\n")
     work_hours_lines
 
     month_total_work_duration = 0
@@ -75,25 +83,26 @@ def time_worked_pretty_print(raw_time_worked: str, separator_length: int = 30) -
             day = line_items[0][:-1]
             result_str_lines.append(f"jour: {day}")
 
-            # the other items of the line are the timestamps: "5h-23h15"
+            # the other items of the line are the timestamps
             total_work_duration = 0
 
-            # for each timestamp ...
+            # for each timestamp, i.e.: "5h-23h15"
             for work_duration in line_items[1:]:
 
                 # split the timestamp into a list: ["5h", "23h15"]
                 hours = work_duration.split("-")
 
-                # split each item at the "h" character: [["5", ""], ["23", "15"]]
+                # split each item at the "h" character: ["5", ""], ["23", "15"]
                 start_time_list = hours[0].split("h")
                 end_time_list = hours[1].split("h")
 
-                # replace all "" with "0": [["5", "0"], ["23", "15"]]
-                for time in [start_time_list, end_time_list]:
-                    if time[1] == "":
-                        time[1] = "0"
+                # replace all "" with "0": ["5", "0"], ["23", "15"]
+                if start_time_list[1] == "":
+                    start_time_list[1] = "0"
+                if end_time_list[1] == "":
+                    end_time_list[1] = "0"
 
-                # create the same list with integers: [[5, 0], [23, 15]]
+                # create the same list with integers: [5, 0], [23, 15]
                 start_time_int_list = [int(item) for item in start_time_list]
                 end_time_int_list = [int(item) for item in end_time_list]
 
@@ -135,10 +144,24 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "input_file_path",
-        metavar="INPUT_FILE_PATH",
-        type=Path
+        metavar="<input_file_path>",
+        type=str
     )
     args = parser.parse_args()
 
+    # do not print the full exceptions tracebacks for clarity
+    sys.tracebacklimit = 0
+
+    input_file_path = Path(args.input_file_path)
+
+    # check that input_file_path leads to a .txt file
+    if not input_file_path.exists():
+        raise FileNotFoundError(f"No file found: '{str(input_file_path)}'")
+    if not input_file_path.is_file():
+        raise IsADirectoryError(f"input_file_path leads to a directory: '{str(input_file_path)}'")
+    if input_file_path.suffix != ".txt":
+        raise RuntimeError(f"'{str(input_file_path)}' is not a .txt file")
+
+    # print the output of time_worked_pretty_string
     with open(args.input_file_path, "r", encoding="utf_8") as input_file:
         print(time_worked_pretty_print(input_file.read().strip()))
