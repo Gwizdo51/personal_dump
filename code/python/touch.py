@@ -38,28 +38,22 @@ def touch(path_file_to_touch: Union[str, Path], verbose: bool = True) -> bool:
 
 if __name__ == "__main__":
 
-    # print(touch(r"D:\code\personal_dump\code\python\tests_dir\a.txt"))
-    # sys.exit()
-
-    # do not print the full exceptions tracebacks
-    sys.tracebacklimit = 0
-
     parser = argparse.ArgumentParser(
         prog="touch",
-        description="Creates empty files, UNIX-style"
+        description="Touches files, UNIX-style"
     )
 
     # args.files_paths is a list that defaults empty
     parser.add_argument(
         "files_paths",
-        metavar="PATH",
+        metavar="<files_paths>",
         help="The paths to the empty files to create",
         nargs="*"
     )
     parser.add_argument(
         "-v",
         "--verbose",
-        metavar="VERBOSE_LEVEL",
+        metavar="<verbose_level>",
         help="0: all prints | 1: only errors | 2: no prints (default: 0)",
         type=int,
         choices=[0, 1, 2],
@@ -67,6 +61,9 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    # do not print the full exceptions tracebacks for clarity
+    sys.tracebacklimit = 0
 
     # return the help and exit if files_paths is empty
     if not args.files_paths:
