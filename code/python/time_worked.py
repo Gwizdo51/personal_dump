@@ -140,5 +140,5 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    with open(args.input_file_path, "r") as input_file:
+    with open(args.input_file_path, "r", encoding="utf_8") as input_file:
         print(time_worked_pretty_print(input_file.read().strip()))
