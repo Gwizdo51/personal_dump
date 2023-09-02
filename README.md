@@ -23,13 +23,14 @@
 - [x] add work time script + docstrings
 - [x] debug Kill-Jupyter when killing specific ports
 - [x] convert jupyter_server_wrapper functions into cmdlets
+- [x] add powershell notes
+- [x] add jupyter JSON config files
 
 ### *WIP*
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
-- [ ] convert custom PS functions into aliases
+- [ ] convert custom PS functions into cmdlets
 - [ ] make a Get-Size cmdlet
-- [ ] add powershell notes
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
 
@@ -41,7 +42,11 @@
 - [ ] add markdown notes
 - [ ] add django notes
 - [ ] add ssh notes
-- [ ] add vscode and jupyter JSON config files
+- [ ] add vscode JSON config files
+- [ ] add a RegEx UUID detector to tests.py
+- [ ] test python decorators
+- [ ] add windows notes about setting up coding environment (vs code, windows terminal, powershell, anaconda, git)
+- [ ] add windows notes about adding virtual memory
 - [ ] reinstall OS at some point (never update conda on base with conda-forge, btw)
 
 # Ideas
