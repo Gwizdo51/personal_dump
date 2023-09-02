@@ -50,6 +50,7 @@
 - [ ] add windows notes about adding virtual memory
 - [ ] add git flow notes
 - [ ] add keyboard shortcut to start screensaver on demand on windows
+- [ ] create "réussite" game
 - [ ] reinstall OS at some point (never update conda on base with conda-forge, btw)
 
 # Ideas

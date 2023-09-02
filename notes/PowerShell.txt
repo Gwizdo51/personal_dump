@@ -74,6 +74,14 @@ whether process has exited:
 $my_process = Start-Process -FilePath .\test.bat -PassThru
 $my_process.HasExited
 
+Erroraction options:
+- Break: enters the debugger (special nested prompt)
+- Continue: displays the error message and continue the execution
+- SilentlyContinue: does not display the error, and continue with the execution
+- Ignore: does not display the error, continue with the execution, and don't add to $error variable
+- Inquire: display the error, and prompts the user to continue the execution
+- Stop: display the error and stop the execution of the command
+
 
 - show hastables as nice tables (ft = Format-Table) / lists of "key: value" (fl = Format-List):
 # only keys chosen by PS

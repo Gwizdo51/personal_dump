@@ -77,9 +77,9 @@ function _gen_git_prompt {
 }
 
 function Alias-CD {
-    param([string]$DirPath)
-    # (todo: fail if $DirPath is not a directory)
-    Set-Location $DirPath
+    [CmdletBinding()]
+    param([string] $DirPath)
+    Set-Location $DirPath -ErrorAction Stop
     if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
         # we are in a FileSystem drive, safe to look for git branches
         $Env:_PROMPT_GIT_MODIFIER = $(_gen_git_prompt)
@@ -186,10 +186,10 @@ function Conda-Update {conda update conda -n base -c defaults -y}
 New-Item -Path Alias:cdu -Value Conda-Update -Force > $null
 function Alias-Python {
     # $fake_python_path = 'C:\Users\Arthur\AppData\Local\Microsoft\WindowsApps\python*.exe'
-    $fake_python_path = 'C:\Users\Arthur\AppData\Local\Microsoft\WindowsApps\python.exe'
+    $fake_python_path = "${HOME}\AppData\Local\Microsoft\WindowsApps\python.exe"
     if (Test-Path $fake_python_path) {
         Write-Error 'Found fake python executable'
-        Remove-Item -Confirm -Path $fake_python_path
+        Remove-Item -Path $fake_python_path -Confirm
     }
     try {python.exe $args}
     catch {Write-Error "python.exe not found, activating workenv"; cda; python.exe $args}
@@ -210,11 +210,28 @@ New-Item -Path Alias:gfs -Value Git-Fetch-Status -Force > $null
 # edit this script in VSCode
 function Edit-Profile {code $profile}
 New-Item -Path Alias:ep -Value Edit-Profile -Force > $null
-# New-Item -Path Alias:del -Value rm_alias -Force > $null
 New-Item -Path Alias:read -Value Get-Content -Force > $null
-function la {dir -Force} # group-object, format-table
+
+function la {Get-ChildItem -Force} # group-object, format-table
 # la | Format-Table Length, Name
 # add a "lr" alias with get-childitem
+# => 'll': when in a FileSystem drive:
+# - display directories, then files, by alphanumerical order
+# types: System.IO.DirectoryInfo, System.IO.FileInfo
+# - for each item, display mode, last write time, length (human readable), and name
+# => 'la': same but only name displayed
+# => 'lr': do the same as ll but recursive
+# dim color for hidden files/folders
+# show symlinks names just like 'dir' does
+function List-Items {
+    [CmdletBinding()]
+    param(
+        [switch] $Long,
+        [switch] $Recursive
+    )
+}
+# New-Item -Path Alias:la -Value List-AllItems -Force > $null
+
 function Find-Item {Get-ChildItem -Recurse -Filter $args[0]}
 New-Item -Path Alias:find -Value Find-Item -Force > $null
 # function Touch {python "D:\code\personal_dump\code\python\touch.py" $args}
