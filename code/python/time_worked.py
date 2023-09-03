@@ -1,5 +1,6 @@
 """
-Script that computes the total amount of time worked for a month, based on an input file.
+Script that computes the total amount of time worked for a month,
+based on an input file with a specific format.
 
 For example, the following file:
 
@@ -30,6 +31,14 @@ import sys
 import re
 
 
+class FileTypeError(Exception):
+    "Raised when the input file is not a .txt file."
+
+
+class FormatError(Exception):
+    "Raised when the contents of the input file do not comply with the expected format."
+
+
 def time_worked_pretty_print(raw_time_worked_data: str, separator_length: int = 30) -> str:
     """
     This function computes the time worked per day and for a whole month,
@@ -38,18 +47,25 @@ def time_worked_pretty_print(raw_time_worked_data: str, separator_length: int = 
     PARAMETERS
     ----------
     raw_time_worked: str
-        The content of the input file.
+        The contents of the input file.
+    separator_length: int = 30
+        The amount of dashes ("-") that the separator line contains.
 
     RETURNS
     -------
     str
         The pretty string to print.
+
+    RAISES
+    ------
+    RuntimeError
+        Raised if the contents of the input file do not comply with the expected format.
     """
 
     # check input data format
-    input_file_regex_format = re.compile('^.+\n(?:\d{2}: (?:\d{1,2}h\d{0,2}-\d{1,2}h\d{0,2} ?)+\n?)+$')
+    input_file_regex_format = re.compile('^.+\n(\d\d: +(\d{1,2}h(\d\d)?-\d{1,2}h(\d\d)? *)+\n?)+$')
     if not input_file_regex_format.match(raw_time_worked_data):
-        raise RuntimeError("The input file data does not fit the format expected")
+        raise FormatError("The contents of the input file do not comply with the expected format")
 
     result_str_lines = []
 
@@ -139,7 +155,7 @@ if __name__ == "__main__":
     # usage:
     # python time_worked.py <input_file_path>
     parser = argparse.ArgumentParser(
-        prog="time_worked",
+        prog="python time_worked.py",
         description="Prints the sum of hours worked based on an input file"
     )
     parser.add_argument(
@@ -159,9 +175,9 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"No file found: '{str(input_file_path)}'")
     if not input_file_path.is_file():
         raise IsADirectoryError(f"input_file_path leads to a directory: '{str(input_file_path)}'")
-    if input_file_path.suffix != ".txt":
-        raise RuntimeError(f"'{str(input_file_path)}' is not a .txt file")
+    if input_file_path.suffix.lower() != ".txt":
+        raise FileTypeError(f"'{str(input_file_path)}' is not a .txt file")
 
     # print the output of time_worked_pretty_string
-    with open(args.input_file_path, "r", encoding="utf_8") as input_file:
+    with open(file=args.input_file_path, mode="r", encoding="utf_8") as input_file:
         print(time_worked_pretty_print(input_file.read().strip()))
