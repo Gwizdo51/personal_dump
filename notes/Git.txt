@@ -99,6 +99,10 @@ shows the diff between the stage and the latest commit (HEAD)
 shows the diff between my branch and the online branch (all files, all commits)
 - git diff --cached origin/HEAD
 shows the diff between the commits of HEAD (stage included) and the online branch (all files, all commits)
+- git diff <commit_hash_start> <commit_hash_end>
+shows the diff between two commits
+- git diff <branch_start>..<branch_end>
+shows the diff between two branches
 - git diff <file_path>
 shows the modifications made to a specific file since the last commit
 - git diff --no-index <original_file_path> <modified_file_path>

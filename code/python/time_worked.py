@@ -1,5 +1,6 @@
 """
-Script that computes the total amount of time worked for a month, based on an input file.
+Script that computes the total amount of time worked for a month,
+based on an input file with a specific format.
 
 For example, the following file:
 
@@ -30,6 +31,14 @@ import sys
 import re
 
 
+class FileTypeError(Exception):
+    "Raised when the input file is not a .txt file."
+
+
+class FormatError(Exception):
+    "Raised when the contents of the input file do not comply with the expected format."
+
+
 def time_worked_pretty_print(raw_time_worked_data: str, separator_length: int = 30) -> str:
     """
     This function computes the time worked per day and for a whole month,
@@ -38,18 +47,25 @@ def time_worked_pretty_print(raw_time_worked_data: str, separator_length: int = 
     PARAMETERS
     ----------
     raw_time_worked: str
-        The content of the input file.
+        The contents of the input file.
+    separator_length: int = 30
+        The amount of dashes ("-") that the separator line contains.
 
     RETURNS
     -------
     str
         The pretty string to print.
+
+    RAISES
+    ------
+    RuntimeError
+        Raised if the contents of the input file do not comply with the expected format.
     """
 
     # check input data format
-    input_file_regex_format = re.compile('^.+\n(?:\d{2}: (?:\d{1,2}h\d{0,2}-\d{1,2}h\d{0,2} ?)+\n?)+$')
+    input_file_regex_format = re.compile('^.+\n(\d\d: +(\d{1,2}h(\d\d)?-\d{1,2}h(\d\d)? *)+\n?)+$')
     if not input_file_regex_format.match(raw_time_worked_data):
-        raise RuntimeError("The input file data does not fit the format expected")
+        raise FormatError("The contents of the input file do not comply with the expected format")
 
     result_str_lines = []
 
@@ -58,35 +74,36 @@ def time_worked_pretty_print(raw_time_worked_data: str, separator_length: int = 
     work_hours_lines
 
     month_total_work_duration = 0
-    add_newline = False
 
     # for each line in the input file ...
-    for line in work_hours_lines:
+    for line_number, line in enumerate(work_hours_lines):
 
         # remove trailing whitespaces
         line = line.strip()
 
-        # skip the line if it is empty
-        if len(line) == 0:
-            continue
+        if line_number == 0:
+            # the first line is the month line, add it to the result string: "Août 2023"
+            result_str_lines.append(line)
+            result_str_lines.append("-"*separator_length)
 
-        # only add a newline between each day
-        result_str_lines.append("") if add_newline else ...
+        else:
+            # every line after the first one is a day line: "08: 5h-23h15"
 
-        if line[0].isdigit():
-            # if the line starts with a digit, it is a day line
+            # only add a newline between each day
+            if line_number >= 2:
+                result_str_lines.append("")
 
             # split the line into a list of items
             line_items = line.split()
 
-            # the first item of the line is the day, add it
+            # the first item of the line is the day, add it to the result string: "08"
             day = line_items[0][:-1]
             result_str_lines.append(f"jour: {day}")
 
             # the other items of the line are the timestamps
             total_work_duration = 0
 
-            # for each timestamp, i.e.: "5h-23h15"
+            # for each timestamp: "5h-23h15"
             for work_duration in line_items[1:]:
 
                 # split the timestamp into a list: ["5h", "23h15"]
@@ -120,13 +137,6 @@ def time_worked_pretty_print(raw_time_worked_data: str, separator_length: int = 
             # add it to the monthly total
             month_total_work_duration += total_work_duration
 
-            add_newline = True
-
-        else:
-            # if the line doesn't start with a digit, add it as-is
-            result_str_lines.append(line)
-            result_str_lines.append("-"*separator_length)
-
     # add the total amount of time worked this month to the result string
     result_str_lines.append("-"*separator_length)
     result_str_lines.append(f"TOTAL: {month_total_work_duration} heures")
@@ -139,7 +149,7 @@ if __name__ == "__main__":
     # usage:
     # python time_worked.py <input_file_path>
     parser = argparse.ArgumentParser(
-        prog="time_worked",
+        prog="python time_worked.py",
         description="Prints the sum of hours worked based on an input file"
     )
     parser.add_argument(
@@ -159,9 +169,9 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"No file found: '{str(input_file_path)}'")
     if not input_file_path.is_file():
         raise IsADirectoryError(f"input_file_path leads to a directory: '{str(input_file_path)}'")
-    if input_file_path.suffix != ".txt":
-        raise RuntimeError(f"'{str(input_file_path)}' is not a .txt file")
+    if input_file_path.suffix.lower() != ".txt":
+        raise FileTypeError(f"'{str(input_file_path)}' is not a .txt file")
 
     # print the output of time_worked_pretty_string
-    with open(args.input_file_path, "r", encoding="utf_8") as input_file:
+    with open(file=args.input_file_path, mode="r", encoding="utf_8") as input_file:
         print(time_worked_pretty_print(input_file.read().strip()))

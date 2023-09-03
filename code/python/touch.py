@@ -38,11 +38,11 @@ def touch(path_file_to_touch: Union[str, Path], verbose: bool = True) -> bool:
 
 if __name__ == "__main__":
 
+    # usage: python touch.py [-h] [-v <verbose_level>] [<files_paths> ...]
     parser = argparse.ArgumentParser(
-        prog="touch",
+        prog="python touch.py",
         description="Touches files, UNIX-style"
     )
-
     # args.files_paths is a list that defaults empty
     parser.add_argument(
         "files_paths",
@@ -59,7 +59,6 @@ if __name__ == "__main__":
         choices=[0, 1, 2],
         default=0
     )
-
     args = parser.parse_args()
 
     # do not print the full exceptions tracebacks for clarity
