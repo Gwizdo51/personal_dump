@@ -212,15 +212,15 @@ function Edit-Profile {code $profile}
 New-Item -Path Alias:ep -Value Edit-Profile -Force > $null
 New-Item -Path Alias:read -Value Get-Content -Force > $null
 
-function la {Get-ChildItem -Force} # group-object, format-table
+function la {Get-ChildItem -Force}
+# group-object, format-table
 # la | Format-Table Length, Name
-# add a "lr" alias with get-childitem
 # => 'll': when in a FileSystem drive:
 # - display directories, then files, by alphanumerical order
 # types: System.IO.DirectoryInfo, System.IO.FileInfo
 # - for each item, display mode, last write time, length (human readable), and name
 # => 'la': same but only name displayed
-# => 'lr': do the same as ll but recursive
+# => 'lr': do the same as ll but recursive on child folders
 # dim color for hidden files/folders
 # show symlinks names just like 'dir' does
 function List-Items {
