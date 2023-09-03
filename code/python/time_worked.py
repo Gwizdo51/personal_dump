@@ -77,32 +77,33 @@ def time_worked_pretty_print(raw_time_worked_data: str, separator_length: int = 
     add_newline = False
 
     # for each line in the input file ...
-    for line in work_hours_lines:
+    for line_number, line in enumerate(work_hours_lines):
 
         # remove trailing whitespaces
         line = line.strip()
 
-        # skip the line if it is empty
-        if len(line) == 0:
-            continue
-
         # only add a newline between each day
         result_str_lines.append("") if add_newline else ...
 
-        if line[0].isdigit():
-            # if the line starts with a digit, it is a day line
+        if line_number == 0:
+            # the first line is the month line, add it to the result string: "Août 2023"
+            result_str_lines.append(line)
+            result_str_lines.append("-"*separator_length)
+
+        else:
+            # every line after the first one is a day line: "08: 5h-23h15"
 
             # split the line into a list of items
             line_items = line.split()
 
-            # the first item of the line is the day, add it
+            # the first item of the line is the day, add it to the result string: "08"
             day = line_items[0][:-1]
             result_str_lines.append(f"jour: {day}")
 
             # the other items of the line are the timestamps
             total_work_duration = 0
 
-            # for each timestamp, i.e.: "5h-23h15"
+            # for each timestamp: "5h-23h15"
             for work_duration in line_items[1:]:
 
                 # split the timestamp into a list: ["5h", "23h15"]
@@ -137,11 +138,6 @@ def time_worked_pretty_print(raw_time_worked_data: str, separator_length: int = 
             month_total_work_duration += total_work_duration
 
             add_newline = True
-
-        else:
-            # if the line doesn't start with a digit, add it as-is
-            result_str_lines.append(line)
-            result_str_lines.append("-"*separator_length)
 
     # add the total amount of time worked this month to the result string
     result_str_lines.append("-"*separator_length)
