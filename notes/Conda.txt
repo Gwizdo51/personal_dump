@@ -41,3 +41,10 @@ conda clean --all
 init shell for conda:
 conda init <shell_name>
 conda init powershell
+
+update conda:
+conda update conda -n base -c defaults
+
+update modules in venv:
+conda update -c <channel> -n <venv> <packages>...
+conda update -c conda-forge -n workenv python jupyterlab numpy matplotlib

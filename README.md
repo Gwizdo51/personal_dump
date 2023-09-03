@@ -27,6 +27,7 @@
 - [x] add jupyter JSON config files
 
 ### *WIP*
+- [ ] add input file format checking to time_worked.py
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
 - [ ] convert custom PS functions into cmdlets
