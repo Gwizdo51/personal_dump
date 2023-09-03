@@ -74,16 +74,12 @@ def time_worked_pretty_print(raw_time_worked_data: str, separator_length: int = 
     work_hours_lines
 
     month_total_work_duration = 0
-    add_newline = False
 
     # for each line in the input file ...
     for line_number, line in enumerate(work_hours_lines):
 
         # remove trailing whitespaces
         line = line.strip()
-
-        # only add a newline between each day
-        result_str_lines.append("") if add_newline else ...
 
         if line_number == 0:
             # the first line is the month line, add it to the result string: "Août 2023"
@@ -92,6 +88,10 @@ def time_worked_pretty_print(raw_time_worked_data: str, separator_length: int = 
 
         else:
             # every line after the first one is a day line: "08: 5h-23h15"
+
+            # only add a newline between each day
+            if line_number >= 2:
+                result_str_lines.append("")
 
             # split the line into a list of items
             line_items = line.split()
@@ -136,8 +136,6 @@ def time_worked_pretty_print(raw_time_worked_data: str, separator_length: int = 
 
             # add it to the monthly total
             month_total_work_duration += total_work_duration
-
-            add_newline = True
 
     # add the total amount of time worked this month to the result string
     result_str_lines.append("-"*separator_length)
