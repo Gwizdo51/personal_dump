@@ -229,8 +229,9 @@ function List-Items {
         [switch] $Long,
         [switch] $Recursive
     )
+    # ...
 }
-# New-Item -Path Alias:la -Value List-AllItems -Force > $null
+# New-Item -Path Alias:la -Value List-Items > $null
 
 function Find-Item {Get-ChildItem -Recurse -Filter $args[0]}
 New-Item -Path Alias:find -Value Find-Item -Force > $null
