@@ -37,7 +37,7 @@ Import-Module "${Env:_CONDA_ROOT}\shell\condabin\Conda.psm1" -ArgumentList @{Cha
 
 Write-Verbose 'Setting up prompt colors ...'
 function _gen_colors_hashtable {
-    function gen_color_char {param ([int]$color_char_number); "$([char]27)[$($color_char_number)m"}
+    function gen_color_char {param ([int]$color_char_number); "$([char]27)[${color_char_number}m"}
     # empty hashtable:
     $colors_table = @{}
     $colors_table['col_def'] = gen_color_char 0
