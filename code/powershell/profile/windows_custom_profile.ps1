@@ -37,7 +37,10 @@ Import-Module "${Env:_CONDA_ROOT}\shell\condabin\Conda.psm1" -ArgumentList @{Cha
 
 Write-Verbose 'Setting up prompt colors ...'
 function _gen_colors_hashtable {
-    function gen_color_char {param ([int]$color_char_number); "$([char]27)[${color_char_number}m"}
+    function gen_color_char {
+        param ([int] $color_char_number)
+        Write-Output "$([char] 27)[${color_char_number}m"
+    }
     # empty hashtable:
     $colors_table = @{}
     $colors_table['col_def'] = gen_color_char 0
@@ -104,7 +107,9 @@ New-Item -Path Alias:git -Value Alias-GIT -Force > $null
 function _gen_privilege_prompt { # add "[ADMIN]" to the prompt if the shell is opened as admin
     $principal = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
     $admin_role = [Security.Principal.WindowsBuiltInRole]::Administrator
-    if ($principal.IsInRole($admin_role)) {$ENV:_PROMPT_PRIVILEGE = "$($colors_table.col_def)[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)] "}
+    if ($principal.IsInRole($admin_role)) {
+        $ENV:_PROMPT_PRIVILEGE = "$($colors_table.col_def)[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)] "
+    }
 }
 _gen_privilege_prompt
 
@@ -143,7 +148,7 @@ function Prompt {
     # "$($conda_prompt)$($colors_table.col_Green)$($cwd) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)PS $($colors_table.col_def)$($dynamic_color_char) "
     # "$($conda_prompt)$($colors_table.col_Green)$($cwd)$($colors_table.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)$char_0$($colors_table.col_def)$char_1 "
     $nested_prompt = "${char_1}" * ($nestedPromptLevel + 1)
-    "$($conda_prompt)$($colors_table.col_Green)$($cwd)$($colors_table.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)${char_0}$($colors_table.col_def)${nested_prompt} "
+    "${conda_prompt}$($colors_table.col_Green)${cwd}$($colors_table.col_def) ${git_prompt}`n${ENV:_PROMPT_PRIVILEGE}$($colors_table.col_Yellow)${char_0}$($colors_table.col_def)${nested_prompt} "
 }
 
 
@@ -157,7 +162,6 @@ $dump = "${code}\personal_dump"
 
 $_powershell_dir = $custom_profile | Split-Path -Parent | Split-Path -Parent
 $_ps_buffer = "${_powershell_dir}\profile\ps_buffer.txt"
-
 
 
 ##############
@@ -176,7 +180,7 @@ New-PSDrive -Name 'HKCC' -PSProvider 'Registry' -Root 'HKEY_CURRENT_CONFIG' *> $
 
 ### conda / python shortcuts
 function conda_activate {
-    param($VEnv='workenv') # default to "workenv" instead of "base"
+    param($VEnv = 'workenv') # default to "workenv" instead of "base"
     conda activate $VEnv
 }
 New-Item -Path Alias:cda -Value conda_activate -Force > $null
@@ -214,24 +218,36 @@ New-Item -Path Alias:read -Value Get-Content -Force > $null
 
 function la {Get-ChildItem -Force}
 # group-object, format-table
-# la | Format-Table Length, Name
 # => 'll': when in a FileSystem drive:
-# - display directories, then files, by alphanumerical order
+# - display directories, then hidden directories, then files, then hidden files, by alphanumerical order ('-Hidden' switch)
 # types: System.IO.DirectoryInfo, System.IO.FileInfo
-# - for each item, display mode, last write time, length (human readable), and name
-# => 'la': same but only name displayed
-# => 'lr': do the same as ll but recursive on child folders
+# => 'la': same but only name displayed => can't do it, deletes output coloring
+# => 'lr': do the same as la but recursive on child folders ('-Recurse' switch)
+# to respect folders and files ordering, gotta redo Recurse ourselves
+# -> go through each subfolder manually -> gonna give up on file ordering
+# => 'lar': same as lr but long
 # dim color for hidden files/folders
 # show symlinks names just like 'dir' does
+# mode:
+# l (link)
+# d (directory)
+# a (archive)
+# r (read-only)
+# h (hidden)
+# s (system)
 function List-Items {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Low')]
     param(
-        [switch] $Long,
-        [switch] $Recursive
+        [Parameter(ValueFromPipeline)] [SupportsWildcards()] [string[]] $Path,
+        [switch] $Recurse,
+        [switch] $NoHidden
     )
-    # ...
+    process {
+        # Get-ChildItem -Force:$(!$NoHidden) -Recurse:$Recurse $Path | ? {(type $_) -eq 'System.IO.DirectoryInfo'}
+        # $all_items =
+    }
 }
-# New-Item -Path Alias:la -Value List-Items > $null
+New-Item -Path Alias:l -Value List-Items -Force > $null
 
 function Find-Item {Get-ChildItem -Recurse -Filter $args[0]}
 New-Item -Path Alias:find -Value Find-Item -Force > $null
@@ -247,13 +263,18 @@ New-Item -Path Alias:gj -Value Get-Job -Force > $null
 function Clear-Job {Get-Job | ? {$_.State -ne 'Running'} | Remove-Job}
 New-Item -Path Alias:cj -Value Clear-Job -Force > $null
 function Stop-ProcessTree {
-    Param([int]$parent_id)
+    Param([int] $parent_id)
     # ? = Where-Object | % = ForEach-Object
     Get-Process | ? { $_.Parent.Id -eq $parent_id } | % { Stop-ProcessTree $_.Id }
     Stop-Process -Id $parent_id -ErrorAction 'SilentlyContinue' -Verbose
     if (!$?) {Write-Output $Error[0].ToString()}
     # Stop-Process -Id $parent_id -WhatIf
 }
+function Get-FullHelp {
+    param([string] $function)
+    Get-Help -Full $function
+}
+New-Item -Path Alias:man2 -Value Get-FullHelp -Force > $null
 
 ### Windows specific stuff
 New-Item -Path Alias:np -Value notepad -Force > $null
@@ -290,7 +311,7 @@ New-Item -Path Alias:psupdate -Value Update_PS7 -Force > $null
 function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
 New-Item -Path Alias:type -Value Get-Type -Force > $Null
 function Text-Colors-Test { # tests the string colors of the terminal
-    param([string[]]$color_names=("Black","Red","Green","Yellow","Blue","Magenta","Cyan","White"))
+    param([string[]] $color_names = ("Black","Red","Green","Yellow","Blue","Magenta","Cyan","White"))
     foreach ($color_name in $color_names) {
         $reg_col = $colors_table["col_$color_name"]
         $bri_col = $colors_table["bcol_$color_name"]
@@ -319,7 +340,7 @@ New-Item -Path Alias:color_test -Value Text-Colors-Test -Force > $Null
 $tock = Get-Date
 $load_time = ($tock - $tick).TotalMilliseconds
 # [math]::Round(($tock - $tick).TotalSeconds), 3)
-Write-Information "Profile load time: $([int][math]::Round($load_time))ms"
+Write-Information "Profile load time: $([int] [math]::Round($load_time))ms"
 if ($Silent) {$InformationPreference = $InformationPreference_backup}
 if ($Verbose) {$VerbosePreference = $VerbosePreference_backup}
 

@@ -49,6 +49,13 @@ dir | % {$_.FullName}
 Test if a Path is Valid:
 Test-Path -Path "D:\does\not\exist.txt" -IsValid
 
+restart computer:
+shutdown.exe /r /t 0
+
+test if a string contains a substring:
+"abc" -like "*a*"
+doesn't contain:
+!("abc" -like "*d*")
 
 - processes and jobs:
 start a powershell terminal through a script with a hidden window:
