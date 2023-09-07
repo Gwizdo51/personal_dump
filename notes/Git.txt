@@ -1,93 +1,85 @@
-cloner un repository :
+clone a repository:
 git clone <path_to_file>
-remplacer path to file avec "clone by ssh" de gitlab
+(replace <path_to_file> with the link from "clone by [...]")
 
-avoir des infos sur le master actuel :
+get info on main branch:
 git rev-parse --show-toplevel
 
-ajouter un fichier à la branche actuelle (doit être accompagné de commit pour enregistrer les changements) :
-to add a file/folder to the index / stage a file/folder (must be commited)
-git add <path/to/file>
-pour tout ajouter :
+add a file/folder to the index / stage a file/folder (must be commited):
+git add <path_to_file>
+wildcards are accepted:
 git add *
 
 to remove a file/folder from the index / unstage a file/folder (file is not deleted locally, must still be commited):
-git rm --cached <nom_fichier>
+git rm --cached <path_to_file>
 
 to move a staged file/folder in the index (file is moved locally, must still be commited):
 git mv <file_name> <file_destination>
 => fixes renaming on Windows
 
-enregistrer les changements dans la branche actuelle :
-git commit -m "message du commit"
+save the changes added (add a commit):
+git commit -m "commit message"
 
-mettre à jour le repo local (récupérer les changements du repo distant) :
+pull the changes made to the cloud repository in the local copy:
 git fetch (--all)
 git pull (--all)
 git pull origin master
 git pull <REMOTE> <name_of_branch>
 
-mettre à jour le repo distant sur gitlab :
-git push origin master
-git push <REMOTE> <name_of_branch>
+push your local changes on the cloud repository:
+git push
 
-mettre à jour la branche actuelle sur le repo distant :
-git push origin HEAD
-
-avoir des infos sur la branche actuelle :
+informations on the current branch:
 git status
 
-pour savoir si on est à jour avec le repo distant :
-git fetch --all
-git fetch origin
+delete local branches that have been deleted on the cloud repository:
+git fetch --prune
 
-connaître le nom d'utilisateur et l'email configurés :
+get the list of all the configs of the current repository:
 git config --list
 
-faire du dossier actuel un repo git :
+make the current directory a git repository:
 git init
 
 checkout specific item from specific commit:
 git checkout <commit#> <item_path>
 
-obtenir la liste de toutes les branches (locales et distantes) :
+get the list of all (local and cloud) branches:
 git branch -a
 
-ajouter une nouvelle branche en local :
-git branch <nom_nouvelle_branche>
-git checkout -b <nom_nouvelle_branche>
+add a new branch to the local repository:
+git branch <new_branch>
+git checkout -b <new_branch>
 
-ajouter une branche locale sur le repo distant :
-git push origin <nom_branche>
-avec tracking (connexion active entre les branches locales et distantes) :
-git push -u origin <nom_branche>
+add the new branch on the cloud repository, with tracking (link between local and cloud branches):
+git push -u origin <new_branch>
 
-supprimer une branche en local :
-git branch -d <nom_branche>
-git branch -D <nom_branche> (== git branch -df <nom_branche>)
+delete a branch from the local repository:
+git branch -d <branch>
+git branch -D <branch> (== git branch -df <branch>)
 
-supprimer une branche sur le repo distant :
-git push origin --delete <nom_branche>
+delete a branch on the cloud repository:
+git push origin --delete <branch>
 
-changer de branche :
-git switch <nom_branche>
-git checkout <nom_branche>
+switch branch:
+git switch <branch>
+git checkout <branch>
 
-pour appliquer les changements de la branche parent sur une branche enfant :
-git checkout <branche_enfant>
-git rebase <branche_parent>
+apply changes of a parent branch on a child branch:
+git checkout <child_branch>
+git rebase <parent_branch>
 
-pour appliquer les changements d'une branche enfant sur sa branche parent :
-git checkout <branche_parent>
-git merge <branche_enfant>
+apply changes of a child branch on a parent branch:
+git checkout <parent_branch>
+git merge <child_branch>
 
 hide current working directory differences from the index (hidden commit):
 git stash
 retrieve working directory differences (reapply hidden commit):
 git stash pop
 
-appliquer un commit spécifique sur une branche :
-git checkout <nom_branch>
+apply a specific commit on a branch:
+git switch <branch>
 git cherry-pick <commit_hash_from_log>
 
 git diff: (the stage is considered a commit for git diff)
