@@ -23,6 +23,17 @@ C:\Windows\System32\schtasks.exe /RUN /TN "<task_path>"
 C:\Windows\System32\schtasks.exe /RUN /TN "my_tasks\stopupdates10_asadmin"
 3- look for the icon in the original exe (right click -> properties -> shortcut -> change icon -> browse -> look for original .exe)
 
+disable windows antivirus:
+https://www.windowscentral.com/how-permanently-disable-windows-defender-windows-10
+1- Turn off the Tamper Protection toggle switch (windows defender parameters)
+2- Turn off windows defender virus protection
+3- gpedit.msc -> Computer Configuration -> Administrative Templates -> Windows Components -> Microsoft Defender Antivirus
+4- Enable "Turn off Microsoft Defender Antivirus"
+
+install group policy:
+https://www.malekal.com/comment-activer-gpedit-msc-windows10/
+run configs/windows/group_policy/Activer-gpedit.bat as administrator
+
 
 installed programs:
     discord
