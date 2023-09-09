@@ -115,7 +115,7 @@ _gen_privilege_prompt
 
 function Prompt {
     # "PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
-    ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT /!\ ###
+    ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT (except Write-Output) /!\ ###
     # if we want to keep the "turn red on error" feature (from PSReadLine)
     # => needs to receive state from Env, like conda
 
@@ -145,10 +145,10 @@ function Prompt {
     # ꯁ ꯊ ꯌ ꯕ ꯖ ꯗ ꯘ ꯙ ꯱ ꯲ ꯳ ꯴ ꯵ ꯷ ㉤ ㉥ ㉦ ㉧ ㉨ ㉩ ㆍ ㆎ ㆆ 〇 Ⲑ Ⲫ Ⲋ Ⲱ ⯎ ⯏ ⫷ ⫸ ⪧ ⩥ ⨵ ⨳ ⨠ ⧁ ⦾ ⦿ ⦔ ⧂
     # ⧃ ⥤ ⟢ ⟡ ➽ ➔ ❱ ⌾ ⊙ ⊚ ⊛ ∬ ൏ ಌ ಅ ఴ ᐅ 〉 ⋮ ≻ ▶ ◣ ◤
 
-    # "$($conda_prompt)$($colors_table.col_Green)$($cwd) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)PS $($colors_table.col_def)$($dynamic_color_char) "
-    # "$($conda_prompt)$($colors_table.col_Green)$($cwd)$($colors_table.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)$char_0$($colors_table.col_def)$char_1 "
     $nested_prompt = "${char_1}" * ($nestedPromptLevel + 1)
-    "${conda_prompt}$($colors_table.col_Green)${cwd}$($colors_table.col_def) ${git_prompt}`n${ENV:_PROMPT_PRIVILEGE}$($colors_table.col_Yellow)${char_0}$($colors_table.col_def)${nested_prompt} "
+    $prompt_str = "${conda_prompt}$($colors_table.col_Green)${cwd}$($colors_table.col_def) ${git_prompt}`n" + `
+        "${ENV:_PROMPT_PRIVILEGE}$($colors_table.col_Yellow)${char_0}$($colors_table.col_def)${nested_prompt} "
+    Write-Output $prompt_str
 }
 
 
