@@ -334,6 +334,8 @@ function Windows-Terminal { # allows opening a windows terminal as admin with no
 New-Item -Path Alias:wt -Value Windows-Terminal -Force > $null
 function Update_PS7 {winget upgrade --name powershell}
 New-Item -Path Alias:psupdate -Value Update_PS7 -Force > $null
+function Update_Git {git update-git-for-windows}
+New-Item -Path Alias:git_update -Value Update_Git -Force > $null
 
 ### powershell stuff
 function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
