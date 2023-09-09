@@ -53,7 +53,7 @@
 # (New-TimeSpan -Start (Get-Date "01/01/1970") -End (Get-Date)).TotalSeconds
 
 function Run-AsAdmin {
-    # convert into cmdlet ?
+    # convert into cmdlet ? => it needs to stay a function for $args to work
     param ([switch]$SystemPS)
     # pass "-s" to use powershell.exe instead of pwsh.exe (slightly faster, it seems)
 
