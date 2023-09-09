@@ -114,7 +114,7 @@ function _gen_privilege_prompt { # add "[ADMIN]" to the prompt if the shell is o
 _gen_privilege_prompt
 
 function Prompt {
-    # "PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
+    # "PS $($ExecutionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
     ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT (except Write-Output) /!\ ###
     # if we want to keep the "turn red on error" feature (from PSReadLine)
     # => needs to receive state from Env, like conda
@@ -125,7 +125,7 @@ function Prompt {
     else
         {$conda_prompt = ''}
     $git_prompt = [string] $Env:_PROMPT_GIT_MODIFIER
-    $cwd = $executionContext.SessionState.Path.CurrentLocation
+    $cwd = $ExecutionContext.SessionState.Path.CurrentLocation
 
     # default ("[int][char]'>'" to find the integer): [char]62
     # here: [int][char]'¤' => 164
@@ -215,19 +215,7 @@ New-Item -Path Alias:gfs -Value Git-Fetch-Status -Force > $null
 function Edit-Profile {code $profile}
 New-Item -Path Alias:ep -Value Edit-Profile -Force > $null
 New-Item -Path Alias:read -Value Get-Content -Force > $null
-
-function la {Get-ChildItem -Force}
-# group-object, format-table
-# => 'll': when in a FileSystem drive:
-# - display directories, then hidden directories, then files, then hidden files, by alphanumerical order ('-Hidden' switch)
-# types: System.IO.DirectoryInfo, System.IO.FileInfo
-# => 'la': same but only name displayed => can't do it, deletes output coloring
-# => 'lr': do the same as la but recursive on child folders ('-Recurse' switch)
-# to respect folders and files ordering, gotta redo Recurse ourselves
-# -> go through each subfolder manually -> gonna give up on file ordering
-# => 'lar': same as lr but long
-# dim color for hidden files/folders
-# show symlinks names just like 'dir' does
+# items listing:
 # mode:
 # l (link)
 # d (directory)
@@ -243,21 +231,61 @@ function List-Items {
         [switch] $NoHidden
     )
     process {
-        # Get-ChildItem -Force:$(!$NoHidden) -Recurse:$Recurse $Path | ? {(type $_) -eq 'System.IO.DirectoryInfo'}
-        # $all_items =
+        # $PSCmdlet.ShouldProcess('custom WhatIf message', 'custom Confirm message', '')
+        # => whatif message becomes a verbose message
+        if ($Path.Count -eq 0) {
+            $Path += $ExecutionContext.SessionState.Path.CurrentLocation
+            # $Path
+            # $Path.Count
+        }
+        foreach ($path_item in $Path) {
+            # $PSCmdlet.WriteVerbose("Listing all files in ${path_item}")
+            if ($Recurse) {$Recurse_msg = ', recursively'}
+            else {$Recurse_msg = ''}
+            if ($NoHidden) {$NoHidden_msg = 'visible '}
+            else {$NoHidden_msg = ''}
+            $whatif_msg = "Listing all ${NoHidden_msg}items in ${path_item}${Recurse_msg}"
+            $confirm_msg = "List all ${NoHidden_msg}items in ${path_item}${Recurse_msg}?"
+            if ($PSCmdlet.ShouldProcess($whatif_msg, $confirm_msg, '')) {
+                Get-ChildItem -Force:$(!$NoHidden) -Recurse:$Recurse -Path $path_item
+            }
+        }
     }
 }
 New-Item -Path Alias:l -Value List-Items -Force > $null
+New-Item -Path Alias:la -Value List-Items -Force > $null
+function List-ItemsRecursive {
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Low')]
+    param(
+        [Parameter(ValueFromPipeline)] [SupportsWildcards()] [string[]] $Path,
+        [switch] $NoHidden
+    )
+    process {
+        if ($Path.Count -eq 0) {
+            $Path += $ExecutionContext.SessionState.Path.CurrentLocation
+        }
+        foreach ($path_item in $Path) {
+            if ($NoHidden) {$NoHidden_msg = 'visible '}
+            else {$NoHidden_msg = ''}
+            $whatif_msg = "Listing all ${NoHidden_msg}items in ${path_item}, recursively"
+            $confirm_msg = "List all ${NoHidden_msg}items in ${path_item}, recursively?"
+            if ($PSCmdlet.ShouldProcess($whatif_msg, $confirm_msg, '')) {
+                Get-ChildItem -Force:$(!$NoHidden) -Recurse -Path $path_item
+            }
+        }
+    }
+}
+New-Item -Path Alias:lr -Value List-ItemsRecursive -Force > $null
 
 function Find-Item {Get-ChildItem -Recurse -Filter $args[0]}
 New-Item -Path Alias:find -Value Find-Item -Force > $null
 # function Touch {python "D:\code\personal_dump\code\python\touch.py" $args}
 function Touch-File {
-    param([string]$FilePath)
+    param([string] $FilePath)
     Out-File -FilePath $FilePath -Append
 }
 New-Item -Path Alias:touch -Value Touch-File -Force > $null
-function Get-Path {"${Env:path}".Split(';')}
+function Get-Path {Write-Output "${Env:path}".Split(';')}
 New-Item -Path Alias:path -Value Get-Path -Force > $null
 New-Item -Path Alias:gj -Value Get-Job -Force > $null
 function Clear-Job {Get-Job | ? {$_.State -ne 'Running'} | Remove-Job}
