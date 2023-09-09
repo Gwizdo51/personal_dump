@@ -49,6 +49,13 @@ dir | % {$_.FullName}
 Test if a Path is Valid:
 Test-Path -Path "D:\does\not\exist.txt" -IsValid
 
+restart computer:
+shutdown.exe /r /t 0
+
+test if a string contains a substring:
+"abc" -like "*a*"
+doesn't contain:
+!("abc" -like "*d*")
 
 - processes and jobs:
 start a powershell terminal through a script with a hidden window:
@@ -73,6 +80,14 @@ Start-Process powershell.exe -ArgumentList ("-c " + $command_str)
 whether process has exited:
 $my_process = Start-Process -FilePath .\test.bat -PassThru
 $my_process.HasExited
+
+Erroraction options:
+- Break: enters the debugger (special nested prompt)
+- Continue: displays the error message and continue the execution
+- SilentlyContinue: does not display the error, and continue with the execution
+- Ignore: does not display the error, continue with the execution, and don't add to $error variable
+- Inquire: display the error, and prompts the user to continue the execution
+- Stop: display the error and stop the execution of the command
 
 
 - show hastables as nice tables (ft = Format-Table) / lists of "key: value" (fl = Format-List):

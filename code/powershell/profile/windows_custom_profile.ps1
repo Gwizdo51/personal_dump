@@ -37,7 +37,10 @@ Import-Module "${Env:_CONDA_ROOT}\shell\condabin\Conda.psm1" -ArgumentList @{Cha
 
 Write-Verbose 'Setting up prompt colors ...'
 function _gen_colors_hashtable {
-    function gen_color_char {param ([int]$color_char_number); "$([char]27)[$($color_char_number)m"}
+    function gen_color_char {
+        param ([int] $color_char_number)
+        Write-Output "$([char] 27)[${color_char_number}m"
+    }
     # empty hashtable:
     $colors_table = @{}
     $colors_table['col_def'] = gen_color_char 0
@@ -77,9 +80,9 @@ function _gen_git_prompt {
 }
 
 function Alias-CD {
-    param([string]$DirPath)
-    # (todo: fail if $DirPath is not a directory)
-    Set-Location $DirPath
+    [CmdletBinding()]
+    param([string] $DirPath)
+    Set-Location $DirPath -ErrorAction Stop
     if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
         # we are in a FileSystem drive, safe to look for git branches
         $Env:_PROMPT_GIT_MODIFIER = $(_gen_git_prompt)
@@ -104,13 +107,15 @@ New-Item -Path Alias:git -Value Alias-GIT -Force > $null
 function _gen_privilege_prompt { # add "[ADMIN]" to the prompt if the shell is opened as admin
     $principal = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
     $admin_role = [Security.Principal.WindowsBuiltInRole]::Administrator
-    if ($principal.IsInRole($admin_role)) {$ENV:_PROMPT_PRIVILEGE = "$($colors_table.col_def)[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)] "}
+    if ($principal.IsInRole($admin_role)) {
+        $ENV:_PROMPT_PRIVILEGE = "$($colors_table.col_def)[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)] "
+    }
 }
 _gen_privilege_prompt
 
 function Prompt {
-    # "PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
-    ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT /!\ ###
+    # "PS $($ExecutionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
+    ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT (except Write-Output) /!\ ###
     # if we want to keep the "turn red on error" feature (from PSReadLine)
     # => needs to receive state from Env, like conda
 
@@ -120,7 +125,7 @@ function Prompt {
     else
         {$conda_prompt = ''}
     $git_prompt = [string] $Env:_PROMPT_GIT_MODIFIER
-    $cwd = $executionContext.SessionState.Path.CurrentLocation
+    $cwd = $ExecutionContext.SessionState.Path.CurrentLocation
 
     # default ("[int][char]'>'" to find the integer): [char]62
     # here: [int][char]'¤' => 164
@@ -140,10 +145,10 @@ function Prompt {
     # ꯁ ꯊ ꯌ ꯕ ꯖ ꯗ ꯘ ꯙ ꯱ ꯲ ꯳ ꯴ ꯵ ꯷ ㉤ ㉥ ㉦ ㉧ ㉨ ㉩ ㆍ ㆎ ㆆ 〇 Ⲑ Ⲫ Ⲋ Ⲱ ⯎ ⯏ ⫷ ⫸ ⪧ ⩥ ⨵ ⨳ ⨠ ⧁ ⦾ ⦿ ⦔ ⧂
     # ⧃ ⥤ ⟢ ⟡ ➽ ➔ ❱ ⌾ ⊙ ⊚ ⊛ ∬ ൏ ಌ ಅ ఴ ᐅ 〉 ⋮ ≻ ▶ ◣ ◤
 
-    # "$($conda_prompt)$($colors_table.col_Green)$($cwd) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)PS $($colors_table.col_def)$($dynamic_color_char) "
-    # "$($conda_prompt)$($colors_table.col_Green)$($cwd)$($colors_table.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)$char_0$($colors_table.col_def)$char_1 "
     $nested_prompt = "${char_1}" * ($nestedPromptLevel + 1)
-    "$($conda_prompt)$($colors_table.col_Green)$($cwd)$($colors_table.col_def) $($git_prompt)`n$($ENV:_PROMPT_PRIVILEGE)$($colors_table.col_Yellow)${char_0}$($colors_table.col_def)${nested_prompt} "
+    $prompt_str = "${conda_prompt}$($colors_table.col_Green)${cwd}$($colors_table.col_def) ${git_prompt}`n" + `
+        "${ENV:_PROMPT_PRIVILEGE}$($colors_table.col_Yellow)${char_0}$($colors_table.col_def)${nested_prompt} "
+    Write-Output $prompt_str
 }
 
 
@@ -157,7 +162,6 @@ $dump = "${code}\personal_dump"
 
 $_powershell_dir = $custom_profile | Split-Path -Parent | Split-Path -Parent
 $_ps_buffer = "${_powershell_dir}\profile\ps_buffer.txt"
-
 
 
 ##############
@@ -176,7 +180,7 @@ New-PSDrive -Name 'HKCC' -PSProvider 'Registry' -Root 'HKEY_CURRENT_CONFIG' *> $
 
 ### conda / python shortcuts
 function conda_activate {
-    param($VEnv='workenv') # default to "workenv" instead of "base"
+    param($VEnv = 'workenv') # default to "workenv" instead of "base"
     conda activate $VEnv
 }
 New-Item -Path Alias:cda -Value conda_activate -Force > $null
@@ -186,10 +190,10 @@ function Conda-Update {conda update conda -n base -c defaults -y}
 New-Item -Path Alias:cdu -Value Conda-Update -Force > $null
 function Alias-Python {
     # $fake_python_path = 'C:\Users\Arthur\AppData\Local\Microsoft\WindowsApps\python*.exe'
-    $fake_python_path = 'C:\Users\Arthur\AppData\Local\Microsoft\WindowsApps\python.exe'
+    $fake_python_path = "${HOME}\AppData\Local\Microsoft\WindowsApps\python.exe"
     if (Test-Path $fake_python_path) {
         Write-Error 'Found fake python executable'
-        Remove-Item -Confirm -Path $fake_python_path
+        Remove-Item -Path $fake_python_path -Confirm
     }
     try {python.exe $args}
     catch {Write-Error "python.exe not found, activating workenv"; cda; python.exe $args}
@@ -210,32 +214,95 @@ New-Item -Path Alias:gfs -Value Git-Fetch-Status -Force > $null
 # edit this script in VSCode
 function Edit-Profile {code $profile}
 New-Item -Path Alias:ep -Value Edit-Profile -Force > $null
-# New-Item -Path Alias:del -Value rm_alias -Force > $null
 New-Item -Path Alias:read -Value Get-Content -Force > $null
-function la {dir -Force} # group-object, format-table
-# la | Format-Table Length, Name
-# add a "lr" alias with get-childitem
+# items listing:
+# mode:
+# l (link)
+# d (directory)
+# a (archive)
+# r (read-only)
+# h (hidden)
+# s (system)
+function List-Items {
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Low')]
+    param(
+        [Parameter(ValueFromPipeline)] [SupportsWildcards()] [string[]] $Path,
+        [switch] $Recurse,
+        [switch] $NoHidden
+    )
+    process {
+        # $PSCmdlet.ShouldProcess('custom WhatIf message', 'custom Confirm message', '')
+        # => whatif message becomes a verbose message
+        if ($Path.Count -eq 0) {
+            $Path += $ExecutionContext.SessionState.Path.CurrentLocation
+            # $Path
+            # $Path.Count
+        }
+        foreach ($path_item in $Path) {
+            # $PSCmdlet.WriteVerbose("Listing all files in ${path_item}")
+            if ($Recurse) {$Recurse_msg = ', recursively'}
+            else {$Recurse_msg = ''}
+            if ($NoHidden) {$NoHidden_msg = 'visible '}
+            else {$NoHidden_msg = ''}
+            $whatif_msg = "Listing all ${NoHidden_msg}items in ${path_item}${Recurse_msg}"
+            $confirm_msg = "List all ${NoHidden_msg}items in ${path_item}${Recurse_msg}?"
+            if ($PSCmdlet.ShouldProcess($whatif_msg, $confirm_msg, '')) {
+                Get-ChildItem -Force:$(!$NoHidden) -Recurse:$Recurse -Path $path_item
+            }
+        }
+    }
+}
+New-Item -Path Alias:l -Value List-Items -Force > $null
+New-Item -Path Alias:la -Value List-Items -Force > $null
+function List-ItemsRecursive {
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Low')]
+    param(
+        [Parameter(ValueFromPipeline)] [SupportsWildcards()] [string[]] $Path,
+        [switch] $NoHidden
+    )
+    process {
+        if ($Path.Count -eq 0) {
+            $Path += $ExecutionContext.SessionState.Path.CurrentLocation
+        }
+        foreach ($path_item in $Path) {
+            if ($NoHidden) {$NoHidden_msg = 'visible '}
+            else {$NoHidden_msg = ''}
+            $whatif_msg = "Listing all ${NoHidden_msg}items in ${path_item}, recursively"
+            $confirm_msg = "List all ${NoHidden_msg}items in ${path_item}, recursively?"
+            if ($PSCmdlet.ShouldProcess($whatif_msg, $confirm_msg, '')) {
+                Get-ChildItem -Force:$(!$NoHidden) -Recurse -Path $path_item
+            }
+        }
+    }
+}
+New-Item -Path Alias:lr -Value List-ItemsRecursive -Force > $null
+
 function Find-Item {Get-ChildItem -Recurse -Filter $args[0]}
 New-Item -Path Alias:find -Value Find-Item -Force > $null
 # function Touch {python "D:\code\personal_dump\code\python\touch.py" $args}
 function Touch-File {
-    param([string]$FilePath)
+    param([string] $FilePath)
     Out-File -FilePath $FilePath -Append
 }
 New-Item -Path Alias:touch -Value Touch-File -Force > $null
-function Get-Path {"${Env:path}".Split(';')}
+function Get-Path {Write-Output "${Env:path}".Split(';')}
 New-Item -Path Alias:path -Value Get-Path -Force > $null
 New-Item -Path Alias:gj -Value Get-Job -Force > $null
 function Clear-Job {Get-Job | ? {$_.State -ne 'Running'} | Remove-Job}
 New-Item -Path Alias:cj -Value Clear-Job -Force > $null
 function Stop-ProcessTree {
-    Param([int]$parent_id)
+    Param([int] $parent_id)
     # ? = Where-Object | % = ForEach-Object
     Get-Process | ? { $_.Parent.Id -eq $parent_id } | % { Stop-ProcessTree $_.Id }
     Stop-Process -Id $parent_id -ErrorAction 'SilentlyContinue' -Verbose
     if (!$?) {Write-Output $Error[0].ToString()}
     # Stop-Process -Id $parent_id -WhatIf
 }
+function Get-FullHelp {
+    param([string] $function)
+    Get-Help -Full $function
+}
+New-Item -Path Alias:man2 -Value Get-FullHelp -Force > $null
 
 ### Windows specific stuff
 New-Item -Path Alias:np -Value notepad -Force > $null
@@ -272,7 +339,7 @@ New-Item -Path Alias:psupdate -Value Update_PS7 -Force > $null
 function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
 New-Item -Path Alias:type -Value Get-Type -Force > $Null
 function Text-Colors-Test { # tests the string colors of the terminal
-    param([string[]]$color_names=("Black","Red","Green","Yellow","Blue","Magenta","Cyan","White"))
+    param([string[]] $color_names = ("Black","Red","Green","Yellow","Blue","Magenta","Cyan","White"))
     foreach ($color_name in $color_names) {
         $reg_col = $colors_table["col_$color_name"]
         $bri_col = $colors_table["bcol_$color_name"]
@@ -301,7 +368,7 @@ New-Item -Path Alias:color_test -Value Text-Colors-Test -Force > $Null
 $tock = Get-Date
 $load_time = ($tock - $tick).TotalMilliseconds
 # [math]::Round(($tock - $tick).TotalSeconds), 3)
-Write-Information "Profile load time: $([int][math]::Round($load_time))ms"
+Write-Information "Profile load time: $([int] [math]::Round($load_time))ms"
 if ($Silent) {$InformationPreference = $InformationPreference_backup}
 if ($Verbose) {$VerbosePreference = $VerbosePreference_backup}
 

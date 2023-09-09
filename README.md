@@ -26,11 +26,13 @@
 - [x] add powershell notes
 - [x] add jupyter JSON config files
 - [x] add input file format checking to time_worked.py
+- [x] convert custom PS functions into cmdlets
 
 ### *WIP*
+- [ ] adapt ShouldProcess-Yes-No to write the whatif message as verbose
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
-- [ ] convert custom PS functions into cmdlets
+- [ ] make a Restart-System cmdlet
 - [ ] make a Get-Size cmdlet
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
@@ -50,6 +52,7 @@
 - [ ] add windows notes about adding virtual memory
 - [ ] add git flow notes
 - [ ] add keyboard shortcut to start screensaver on demand on windows
+- [ ] create "Réussite" game
 - [ ] reinstall OS at some point (never update conda on base with conda-forge, btw)
 
 # Ideas

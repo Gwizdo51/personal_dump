@@ -36,7 +36,7 @@ function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" li
     $url_regex_pattern = 'http://localhost:[\d]+/\?token=[\w]+'
     $urls = ([regex]::matches($jupyter_lab_list_output, $url_regex_pattern)).Value
     $PSCmdlet.WriteVerbose("Found $($urls.Count) jupyter lab server(s) currently running")
-    return $urls
+    $PSCmdlet.WriteObject($urls)
 }
 
 
@@ -91,7 +91,8 @@ function Wrapper-JupyterLab {
             $PSCmdlet.WriteVerbose("'-URL' flag set, returning the list of all running servers")
             # Write-Information 'List of jupyter servers currently running:'
             $PSCmdlet.WriteInformation('List of jupyter servers currently running:', '')
-            return $running_servers_urls
+            $PSCmdlet.WriteObject($running_servers_urls)
+            return
         }
         # give the choice to output URL, or start a new server anyways
         if ($Force) {$choice = 1}
@@ -117,7 +118,6 @@ function Wrapper-JupyterLab {
     else {
         if ($URL) {
             $PSCmdlet.WriteVerbose("'-URL' flag set, returning the list of all running servers")
-            # Write-Information 'No jupyter server is currently running'
             $PSCmdlet.WriteInformation('No jupyter server is currently running', '')
             return
         }

@@ -133,7 +133,8 @@ pos_named -verbose
 pos_named a b c -verbose
 # Write-Host ''
 pos_named a b c -file_name kekw -verbose
-
+#>
+<#
 # "or" comparison
 Write-Host ''
 Write-Host '"or" comparison:'
@@ -147,7 +148,8 @@ Write-Host("$(or_ps)")
 Write-Host(or_ps -f -force)
 Write-Host (or_ps -force)
 Write-Host(or_ps)
-
+#>
+<#
 # static string: '' - expandable string: "" - https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_quoting_rules?view=powershell-7.3)
 # equivalent to strings and formatted strings in python
 $mynumber = 23
@@ -156,19 +158,22 @@ $staticstring = '$($mynumber)'
 $expandablestring = "$($mynumber)"
 Write-Host($staticstring)
 Write-Host($expandablestring)
-
+#>
+# <#
 # multiple lines strings
 $multiple_lines_string = @'
 first line
 second line
 '@
 Write-Host($multiple_lines_string)
+$mynumber = 56
 $multiple_lines_formatted_string = @"
 great number:
 $($mynumber)
 "@
 Write-Host($multiple_lines_formatted_string)
-
+#>
+<#
 # references: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_ref?view=powershell-7.3
 # -> allows to change variables in place
 function change_in_place {
@@ -907,7 +912,7 @@ for ($i = 0; $i -le 5; ++$i) {
 }
 #>
 
-# <#
+<#
 # ErrorRecords:
 function MyCmdlet {
     [CmdletBinding()]
