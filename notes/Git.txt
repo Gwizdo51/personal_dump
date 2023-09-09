@@ -60,7 +60,7 @@ git branch -d <branch>
 git branch -D <branch> (== git branch -df <branch>)
 
 delete a branch on the cloud repository:
-git push origin --delete <branch>
+git push origin -d <branch>
 
 switch branch:
 git switch <branch>
@@ -106,3 +106,8 @@ ssh-keygen -R github.com
 
 update git on windows:
 git update-git-for-windows
+
+undo last commit, but keep the changes:
+git reset HEAD^
+undo N commits, but keep the changes:
+git reset HEAD~N
