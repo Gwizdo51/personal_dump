@@ -37,7 +37,8 @@ function ShouldProcess-Yes-No {
     # low = 0 (confirm every step)
     # medium = 1
     # high = 2
-    # None = 3 (bypass every confirmation, ~ Force)
+    # None = 3 (bypass every confirmation)
+    # Write-Host 'ShouldProcess-Yes-No $ConfirmPreference:' $ConfirmPreference
     switch ($ConfirmPreference) {
         'Low' {$ConfirmPreference_int = 0}
         'Medium' {$ConfirmPreference_int = 1}
@@ -53,11 +54,15 @@ function ShouldProcess-Yes-No {
     # Write-Host $should_confirm
     if ($WhatIf) {
         $user_answer = $False
-        Write-Host "What if: ${WhatIfMessage}"
+        $PSCmdlet.WriteInformation("What if: ${WhatIfMessage}", '')
     }
     elseif (-not $Force -and ($Confirm -or $should_confirm)) {
         $user_answer = $PSCmdlet.ShouldContinue("${ConfirmQuestion}", '')
     }
-    else {$user_answer = $True}
+    else {
+        $user_answer = $True
+        # Write the WhatIf message as a verbose message
+        $PSCmdlet.WriteVerbose($WhatIfMessage)
+    }
     return $user_answer
 }
