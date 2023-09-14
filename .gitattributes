@@ -23,6 +23,8 @@
 *.psm1      text
 *.tex       text
 *.bib       text
+*.yml       text
+*.yaml      text
 # keep bash files with lf line endings on Windows
 .bash*      eol=lf
 *.sh        eol=lf

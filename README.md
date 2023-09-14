@@ -1,6 +1,6 @@
 # TODO
 
-### *Done*
+### *DONE*
 - [x] add .gitattribute file
 - [x] debug deleting nested items for DotDict
 - [x] add docstrings to DotDict => make custom docstring template
@@ -29,6 +29,7 @@
 - [x] convert custom PS functions into cmdlets
 
 ### *WIP*
+- [ ] add a data folder to put jupyter lab logo and windows error sound
 - [ ] adapt ShouldProcess-Yes-No to write the whatif message as verbose
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
@@ -43,7 +44,7 @@
 - [ ] add a docstring to logger_factory.py and touch.py
 - [ ] add unit tests for dotdict.py
 - [ ] add markdown notes
-- [ ] add django notes
+- [ ] add django notes + test code
 - [ ] add ssh notes
 - [ ] add vscode JSON config files
 - [ ] add a RegEx UUID detector to tests.py
