@@ -28,17 +28,20 @@
 - [x] add input file format checking to time_worked.py
 - [x] convert custom PS functions into cmdlets
 - [x] add a data folder to put jupyter lab logo and windows error sound
+- [x] adapt ShouldProcess-Yes-No to write the whatif message as verbose
 
 ### *WIP*
-- [ ] adapt ShouldProcess-Yes-No to write the whatif message as verbose
+- [ ] adapt "-Force" switch behavior in jupyter_server_wrapper.ps1 to bypass all confirmation
+- [ ] move all hardcoded paths to Microsoft.PowerShell_profile.ps1
+- [ ] make it possible to use the profile without conda or git
+
+### *TODO*
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
 - [ ] make a Restart-System cmdlet
 - [ ] make a Get-Size cmdlet
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
-
-### *TODO*
 - [ ] mess with [PSReadLine](https://learn.microsoft.com/en-us/powershell/module/psreadline/?view=powershell-7.3)
 - [ ] make pretty_string_factory a module on its own
 - [ ] add a docstring to logger_factory.py and touch.py

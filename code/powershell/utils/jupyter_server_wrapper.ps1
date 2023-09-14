@@ -48,7 +48,7 @@ function Wrapper-JupyterLab {
         [switch] $HiddenProcess,
         [switch] $Job,
         [switch] $URL,
-        [switch] $Force, # takes priority over $Confirm
+        [switch] $Force, # takes priority over $Confirm => sets $ConfirmPreference to None
         [switch] $Kill,
         [switch] $Logs,
         [switch] $Confirm,
@@ -145,7 +145,6 @@ function Wrapper-JupyterLab {
                 if (ShouldProcess-Yes-No -PSCmdlet:$PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
                     -ConfirmQuestion 'Start a new powershell process to host the server?' -WhatIf:$WhatIf `
                     -WhatIfMessage 'Starting a new powershell process to host the server') {
-                    $PSCmdlet.WriteVerbose('Starting a new powershell process to host the server')
                     Start-Process -FilePath $pwsh_exe -ArgumentList $args_list -WindowStyle 'Minimized'
                 }
             }
@@ -154,7 +153,6 @@ function Wrapper-JupyterLab {
                 if (ShouldProcess-Yes-No -PSCmdlet:$PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
                     -ConfirmQuestion 'Start a new hidden powershell process to host the server?' -WhatIf:$WhatIf `
                     -WhatIfMessage 'Starting a new hidden powershell process to host the server') {
-                    $PSCmdlet.WriteVerbose('Starting a new hidden powershell process to host the server')
                     Start-Process -FilePath $pwsh_exe -ArgumentList $args_list -WindowStyle 'Hidden'
                 }
             }
@@ -162,7 +160,6 @@ function Wrapper-JupyterLab {
                 # if ($PSCmdlet.ShouldProcess("Starting a new powershell job to host the server", "Start a new powershell job to host the server?", ''))
                 if (ShouldProcess-Yes-No -PSCmdlet:$PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
                     -ConfirmQuestion 'Start a new powershell job to host the server?' -WhatIf:$WhatIf -WhatIfMessage 'Starting a new powershell job to host the server') {
-                    $PSCmdlet.WriteVerbose('Starting a new powershell job to host the server')
                     # Start-Job -Name 'jupyter_server' -ScriptBlock {. $using:profile -S; cda -VEnv $using:EnvConda; cd $using:RootDir; jupyter lab}
                     Start-Job -Name 'jupyter_server' -FilePath $jupyer_lab_server_path -ArgumentList $EnvConda, $RootDir
                 }
@@ -225,7 +222,7 @@ function Kill-Jupyter {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     param(
         [Parameter(ValueFromPipeline)] [int[]] $Port,
-        [switch] $Force,
+        [switch] $Force, # takes priority over $Confirm => sets $ConfirmPreference to None
         [switch] $Silent
     )
     begin {

@@ -1,35 +1,41 @@
-clone a repository:
-git clone <path_to_file>
-(replace <path_to_file> with the link from "clone by [...]")
+clone a repository (HTTPS or SSH):
+git clone <github_link>
 
-get info on main branch:
-git rev-parse --show-toplevel
-
-add a file/folder to the index / stage a file/folder (must be commited):
-git add <path_to_file>
+add a file/folder to the current commit (stage an item):
+git add <path/to/item>
 wildcards are accepted:
 git add *
 
-to remove a file/folder from the index / unstage a file/folder (file is not deleted locally, must still be commited):
-git rm --cached <path_to_file>
+remove an item from the stage (undo "git add"):
+git reset <path/to/item>
+remove all files from the stage:
+git reset
 
-to move a staged file/folder in the index (file is moved locally, must still be commited):
-git mv <file_name> <file_destination>
-=> fixes renaming on Windows
+to delete an item and stage the deletion:
+git rm <path/to/item>
+to delete an item from the index and stage the deletion (file is not deleted locally, but is not tracked anymore):
+git rm --cached <path/to/item>
 
-save the changes added (add a commit):
+to move/rename an item and stage the action:
+git mv <path/to/item> <path/to/destination>
+(=> fixes renaming on Windows)
+
+commit the changes (only on the stage):
 git commit -m "commit message"
 
-pull the changes made to the cloud repository in the local copy:
+update the index (references to the could repository):
 git fetch (--all)
-git pull (--all)
-git pull origin master
-git pull <REMOTE> <name_of_branch>
 
-push your local changes on the cloud repository:
+pull the commits made to the cloud repository in the local copy:
+git pull (--all)
+pull the commits made to a specific branch:
+git switch <branch>
+git pull
+
+push your local commits on the cloud repository:
 git push
 
-informations on the current branch:
+display the status of the local copy compared to the index:
 git status
 
 delete local branches that have been deleted on the cloud repository:
@@ -42,15 +48,17 @@ git config --list
 make the current directory a git repository:
 git init
 
-checkout specific item from specific commit:
-git checkout <commit#> <item_path>
+checkout specific item from specific commit (get a copy of an file/folder from a different commit):
+git checkout <commit#> <path/to/item>
 
-get the list of all (local and cloud) branches:
+get the list of all (local and index) branches:
 git branch -a
 
 add a new branch to the local repository:
 git branch <new_branch>
-git checkout -b <new_branch>
+
+change branches:
+git switch <branch>
 
 add the new branch on the cloud repository, with tracking (link between local and cloud branches):
 git push -u origin <new_branch>
@@ -61,10 +69,6 @@ git branch -D <branch> (== git branch -df <branch>)
 
 delete a branch on the cloud repository:
 git push origin -d <branch>
-
-switch branch:
-git switch <branch>
-git checkout <branch>
 
 apply changes of a parent branch on a child branch:
 git checkout <child_branch>
@@ -79,27 +83,26 @@ git stash
 retrieve working directory differences (reapply hidden commit):
 git stash pop
 
-apply a specific commit on a branch:
-git switch <branch>
+apply a specific commit on the current branch:
 git cherry-pick <commit_hash_from_log>
 
-git diff: (the stage is considered a commit for git diff)
-- git diff
-shows the diff between the modified files (not staged) and the latest commit (HEAD)
-- git diff --staged
-shows the diff between the stage and the latest commit (HEAD)
-- git diff origin/HEAD
-shows the diff between my branch and the online branch (all files, all commits)
-- git diff --cached origin/HEAD
-shows the diff between the commits of HEAD (stage included) and the online branch (all files, all commits)
-- git diff <commit_hash_start> <commit_hash_end>
-shows the diff between two commits
-- git diff <branch_start>..<branch_end>
-shows the diff between two branches
-- git diff <file_path>
-shows the modifications made to a specific file since the last commit
-- git diff --no-index <original_file_path> <modified_file_path>
-shows the diff between two different files in the working directory
+git diff:
+- show the diff between the modified files (not staged) and the latest commit (HEAD):
+git diff
+- show the diff between the stage and the latest commit (HEAD):
+git diff --staged
+- show the diff between my branch and the online branch (all files, all commits):
+git diff origin/HEAD
+- show the diff between the commits of HEAD (stage included) and the online branch (all files, all commits):
+git diff --cached origin/HEAD
+- show the diff between two commits:
+git diff <commit_hash_start> <commit_hash_end>
+- show the diff between two branches:
+git diff <branch_start>..<branch_end>
+- show the modifications made to a specific file since the last commit:
+git diff <path/to/file>
+- show the diff between two different files in the working directory:
+git diff --no-index <path/to/original_file> <path/to/modified_file>
 
 remove the "WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!" error:
 ssh-keygen -R github.com
@@ -111,3 +114,6 @@ undo last commit, but keep the changes:
 git reset HEAD^
 undo N commits, but keep the changes:
 git reset HEAD~N
+
+display the history of the current branch as a tree:
+git log --graph --decorate --pretty=oneline --abbrev-commit
