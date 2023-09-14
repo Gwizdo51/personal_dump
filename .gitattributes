@@ -23,6 +23,8 @@
 *.psm1      text
 *.tex       text
 *.bib       text
+*.yml       text
+*.yaml      text
 # keep bash files with lf line endings on Windows
 .bash*      eol=lf
 *.sh        eol=lf
@@ -30,5 +32,7 @@
 # binaries
 *.png       -text
 *.xml       -text
+*.wav       -text
+*.ico       -text
 # keep .ipynb files with lf line endings on windows
 *.ipynb     -text linguist-vendored
