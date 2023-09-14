@@ -27,9 +27,9 @@
 - [x] add jupyter JSON config files
 - [x] add input file format checking to time_worked.py
 - [x] convert custom PS functions into cmdlets
+- [x] add a data folder to put jupyter lab logo and windows error sound
 
 ### *WIP*
-- [ ] add a data folder to put jupyter lab logo and windows error sound
 - [ ] adapt ShouldProcess-Yes-No to write the whatif message as verbose
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation

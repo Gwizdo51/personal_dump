@@ -34,6 +34,15 @@ install group policy:
 https://www.malekal.com/comment-activer-gpedit-msc-windows10/
 run configs/windows/group_policy/Activer-gpedit.bat as administrator
 
+windows system sounds:
+replace with "custom_error_sound.wav":
+- Asterix
+- Default Beep
+- Exclamation
+- System Notification
+replace with "Windows Balloon.wav":
+- Windows User Account Control
+
 
 installed programs:
     discord
