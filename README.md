@@ -29,15 +29,16 @@
 - [x] convert custom PS functions into cmdlets
 - [x] add a data folder to put jupyter lab logo and windows error sound
 - [x] adapt ShouldProcess-Yes-No to write the whatif message as verbose
+- [x] move all hardcoded paths to Microsoft.PowerShell_profile.ps1
+- [x] make it possible to use the profile without conda
 
 ### *WIP*
 - [ ] adapt "-Force" switch behavior in jupyter_server_wrapper.ps1 to bypass all confirmation
-- [ ] move all hardcoded paths to Microsoft.PowerShell_profile.ps1
-- [ ] make it possible to use the profile without conda or git
 - [ ] add markdown (+ markdown viewer) notes
+- [ ] convert Touch-File into cmdlets
+- [ ] make Alias-Python prompt before activating conda
 
 ### *TODO*
-- [ ] make Touch-File a cmdlet
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
 - [ ] make a Restart-System cmdlet

@@ -22,14 +22,14 @@ Write-Information "Loading personal profile (windows_custom_profile.ps1)..."
 ### CONDA ###
 #############
 
-# <#
-Write-Verbose 'Setting up Conda ...'
-$Env:_CONDA_ROOT = "C:\ProgramData\anaconda3"
-$Env:CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
-$Env:_CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
-Import-Module "${Env:_CONDA_ROOT}\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False} -Verbose:$False
-# conda activate base
-#>
+if (Test-Path -Path 'Env:_CONDA_ROOT') {
+    Write-Verbose 'Setting up Conda ...'
+    # $Env:_CONDA_ROOT = "C:\ProgramData\anaconda3"
+    $Env:CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
+    $Env:_CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
+    Import-Module "${Env:_CONDA_ROOT}\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False} -Verbose:$False
+    # conda activate base
+}
 
 
 ##############
@@ -65,9 +65,6 @@ function _gen_colors_hashtable {
 }
 $colors_table = _gen_colors_hashtable
 
-# path to the git executable
-$Env:GIT_EXE = "C:\Program Files\Git\cmd\git.exe"
-
 function _gen_git_prompt {
     # look for possible branch name, silence git "not in git repo" error
     $branch = $(& $Env:GIT_EXE 'rev-parse' '--abbrev-ref' 'HEAD' 2> $null)
@@ -81,31 +78,6 @@ function _gen_git_prompt {
         return "($($colors_table.col_Blue)$($branch)$($colors_table.col_def))"
     }
 }
-
-function Alias-CD {
-    [CmdletBinding()]
-    param([string] $DirPath)
-    Set-Location $DirPath -ErrorAction Stop
-    if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
-        # we are in a FileSystem drive, safe to look for git branches
-        $Env:_GIT_PROMPT_MODIFIER = _gen_git_prompt
-    }
-    else {
-        # we are not in a FileSystem drive, clear $Env:_GIT_PROMPT_MODIFIER
-        $Env:_GIT_PROMPT_MODIFIER = ''
-    }
-}
-# override "cd" alias with cd_alias
-New-Item -Path Alias:cd -Value Alias-CD -Force > $null
-
-function Alias-GIT {
-    # call git
-    & $Env:GIT_EXE $args
-    # udpate $Env:_GIT_PROMPT_MODIFIER
-    cd .
-}
-# override "git" alias with git_alias
-New-Item -Path Alias:git -Value Alias-GIT -Force > $null
 
 function _gen_privilege_prompt { # add "[ADMIN]" to the prompt if the shell is opened as admin
     $principal = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -157,11 +129,8 @@ function Prompt {
 ### SHORTCUTS ###
 #################
 
-$code = 'D:\code'
-$horoview = "${code}\projects\01_horoview"
-$dump = "${code}\personal_dump"
-
-$_powershell_dir = $custom_profile | Split-Path -Parent | Split-Path -Parent
+# $_powershell_dir = $custom_profile | Split-Path -Parent | Split-Path -Parent
+$_powershell_dir = "${dump}\code\powershell"
 $_ps_buffer = "${_powershell_dir}\profile\ps_buffer.txt"
 
 
@@ -181,7 +150,7 @@ New-PSDrive -Name 'HKCC' -PSProvider 'Registry' -Root 'HKEY_CURRENT_CONFIG' *> $
 
 ### conda / python shortcuts
 function conda_activate {
-    param($VEnv = 'workenv') # default to "workenv" instead of "base"
+    param($VEnv = $default_conda_venv) # default to $default_conda_venv instead of "base"
     conda activate $VEnv
 }
 New-Item -Path Alias:cda -Value conda_activate -Force > $null
@@ -201,7 +170,15 @@ function Alias-Python {
 }
 New-Item -Path Alias:python -Value Alias-Python -Force > $null
 
-### git shortcuts
+### git
+function Alias-GIT {
+    # call git
+    & $Env:GIT_EXE $args
+    # udpate $Env:_GIT_PROMPT_MODIFIER
+    cd .
+}
+# override "git" alias with git_alias
+New-Item -Path Alias:git -Value Alias-GIT -Force > $null
 function Git-Tree {git log --graph --decorate --pretty=oneline --abbrev-commit}
 New-Item -Path Alias:git_tree -Value Git-Tree -Force > $null
 function Git-Pull-Submodules {git submodules update --init --recursive}
@@ -212,9 +189,26 @@ function Git-Fetch-Status {git fetch --all; git status}
 New-Item -Path Alias:gfs -Value Git-Fetch-Status -Force > $null
 
 ### shell stuff
-# edit this script in VSCode
-function Edit-Profile {code $profile}
+# edit the profile file in VSCode
+function Edit-Profile {code $PROFILE}
 New-Item -Path Alias:ep -Value Edit-Profile -Force > $null
+function Alias-CD {
+    [CmdletBinding()]
+    param([string] $DirPath)
+    # set the new current directory
+    Set-Location $DirPath -ErrorAction Stop
+    # update the git prompt when necessary
+    if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
+        # we are in a FileSystem drive, safe to look for git branches
+        $Env:_GIT_PROMPT_MODIFIER = _gen_git_prompt
+    }
+    else {
+        # we are not in a FileSystem drive, clear $Env:_GIT_PROMPT_MODIFIER
+        $Env:_GIT_PROMPT_MODIFIER = ''
+    }
+}
+# override "cd" alias with cd_alias
+New-Item -Path Alias:cd -Value Alias-CD -Force > $null
 New-Item -Path Alias:read -Value Get-Content -Force > $null
 # items listing:
 # mode:
@@ -263,7 +257,7 @@ function Touch-File {
     Out-File -FilePath $FilePath -Append
 }
 New-Item -Path Alias:touch -Value Touch-File -Force > $null
-function Get-Path {Write-Output "${Env:path}".Split(';')}
+function Get-Path {Write-Output "${Env:Path}".Split(';')}
 New-Item -Path Alias:path -Value Get-Path -Force > $null
 New-Item -Path Alias:gj -Value Get-Job -Force > $null
 function Clear-Job {Get-Job | ? {$_.State -ne 'Running'} | Remove-Job}
