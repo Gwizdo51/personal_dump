@@ -149,11 +149,11 @@ New-PSDrive -Name 'HKCC' -PSProvider 'Registry' -Root 'HKEY_CURRENT_CONFIG' *> $
 ###############
 
 ### conda / python shortcuts
-function conda_activate {
+function Conda-Activate {
     param($VEnv = $default_conda_venv) # default to $default_conda_venv instead of "base"
     conda activate $VEnv
 }
-New-Item -Path Alias:cda -Value conda_activate -Force > $null
+New-Item -Path Alias:cda -Value Conda-Activate -Force > $null
 function Conda-Deactivate {conda deactivate}
 New-Item -Path Alias:cdd -Value Conda-Deactivate -Force > $null
 function Conda-Update {conda update conda -n base -c defaults -y}
@@ -165,8 +165,19 @@ function Alias-Python {
         Write-Error 'Found fake python executable'
         Remove-Item -Path $fake_python_path -Confirm
     }
-    try {python.exe $args}
-    catch {Write-Error "python.exe not found, activating workenv"; cda; python.exe $args}
+    try {& 'python.exe' $args}
+    catch {
+        Write-Error "python.exe not found"
+        $choices_table = @{
+            0 = '&Yes', 'Activate the default conda virtual environment to run Python.';
+            1 = '&No', 'Exit.'
+        }
+        $choice = Confirmation-Prompt -Question "Activate ${default_conda_venv}?" -ChoicesTable $choices_table
+        if ($choice -eq 0) {
+            Conda-Activate
+            & 'python.exe' $args
+        }
+    }
 }
 New-Item -Path Alias:python -Value Alias-Python -Force > $null
 
@@ -175,7 +186,7 @@ function Alias-GIT {
     # call git
     & $Env:GIT_EXE $args
     # udpate $Env:_GIT_PROMPT_MODIFIER
-    cd .
+    Alias-CD -DirPath '.'
 }
 # override "git" alias with git_alias
 New-Item -Path Alias:git -Value Alias-GIT -Force > $null

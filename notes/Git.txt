@@ -22,6 +22,8 @@ git mv <path/to/item> <path/to/destination>
 
 commit the changes (only on the stage):
 git commit -m "commit message"
+commit the changes on the last commit:
+git commit --amend
 
 update the index (references to the could repository):
 git fetch (--all)

@@ -31,12 +31,12 @@
 - [x] adapt ShouldProcess-Yes-No to write the whatif message as verbose
 - [x] move all hardcoded paths to Microsoft.PowerShell_profile.ps1
 - [x] make it possible to use the profile without conda
+- [x] make Alias-Python prompt before activating conda
 
 ### *WIP*
 - [ ] adapt "-Force" switch behavior in jupyter_server_wrapper.ps1 to bypass all confirmation
 - [ ] add markdown (+ markdown viewer) notes
-- [ ] convert Touch-File into cmdlets
-- [ ] make Alias-Python prompt before activating conda
+- [ ] convert Touch-File into a cmdlet
 
 ### *TODO*
 - [ ] add Recycle cmdlet
