@@ -34,19 +34,21 @@
 - [ ] adapt "-Force" switch behavior in jupyter_server_wrapper.ps1 to bypass all confirmation
 - [ ] move all hardcoded paths to Microsoft.PowerShell_profile.ps1
 - [ ] make it possible to use the profile without conda or git
+- [ ] add markdown (+ markdown viewer) notes
 
 ### *TODO*
+- [ ] make Touch-File a cmdlet
 - [ ] add Recycle cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
 - [ ] make a Restart-System cmdlet
 - [ ] make a Get-Size cmdlet
+- [ ] add tkinter tests
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
 - [ ] mess with [PSReadLine](https://learn.microsoft.com/en-us/powershell/module/psreadline/?view=powershell-7.3)
 - [ ] make pretty_string_factory a module on its own
 - [ ] add a docstring to logger_factory.py and touch.py
 - [ ] add unit tests for dotdict.py
-- [ ] add markdown notes
 - [ ] add django notes + test code
 - [ ] add ssh notes
 - [ ] add vscode JSON config files

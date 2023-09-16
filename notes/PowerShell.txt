@@ -81,6 +81,12 @@ whether process has exited:
 $my_process = Start-Process -FilePath .\test.bat -PassThru
 $my_process.HasExited
 
+run default action on item:
+ii <item>
+open explorer in current dir:
+ii .
+
+
 Erroraction options:
 - Break: enters the debugger (special nested prompt)
 - Continue: displays the error message and continue the execution

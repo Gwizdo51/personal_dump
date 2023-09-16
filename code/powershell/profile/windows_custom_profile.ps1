@@ -1,10 +1,11 @@
 param([switch]$Silent, [switch]$Verbose)
 $tick = Get-Date
 
-# set up output and input shell encoding to UTF-8
+# set output and input shell encoding to UTF-8
 $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
-# setting $InformationPreference to 'Continue' for the profile load, unless $Silent is on
+# display the messages from the information stream
 $InformationPreference = 'Continue'
+# set $InformationPreference to 'Continue' for the profile load, unless $Silent is on
 if ($Silent) {
     $InformationPreference_backup = $InformationPreference
     $InformationPreference = 'SilentlyContinue'
@@ -69,13 +70,15 @@ $Env:GIT_EXE = "C:\Program Files\Git\cmd\git.exe"
 
 function _gen_git_prompt {
     # look for possible branch name, silence git "not in git repo" error
-    $branch = $(& $Env:GIT_EXE rev-parse --abbrev-ref HEAD 2> $null)
-    if ($branch -eq $null) {return} # not in a git repo, don't return anything
+    $branch = $(& $Env:GIT_EXE 'rev-parse' '--abbrev-ref' 'HEAD' 2> $null)
+    if ($branch -eq $null) { # not in a git repo, don't return anything
+        return ''
+    }
     if ($branch -eq 'HEAD') { # we're in detached HEAD state, so print the SHA
-        "($($colors_table.col_Red)$(& $Env:GIT_EXE rev-parse --short HEAD)$($colors_table.col_def))"
+        return "($($colors_table.col_Red)$(& $Env:GIT_EXE 'rev-parse' '--short' 'HEAD')$($colors_table.col_def))"
     }
     else { # we're on an actual branch, so print it
-        "($($colors_table.col_Blue)$($branch)$($colors_table.col_def))"
+        return "($($colors_table.col_Blue)$($branch)$($colors_table.col_def))"
     }
 }
 
@@ -85,11 +88,11 @@ function Alias-CD {
     Set-Location $DirPath -ErrorAction Stop
     if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
         # we are in a FileSystem drive, safe to look for git branches
-        $Env:_PROMPT_GIT_MODIFIER = $(_gen_git_prompt)
+        $Env:_GIT_PROMPT_MODIFIER = _gen_git_prompt
     }
     else {
-        # we are not in a FileSystem drive, clear $Env:_PROMPT_GIT_MODIFIER
-        $Env:_PROMPT_GIT_MODIFIER = $null
+        # we are not in a FileSystem drive, clear $Env:_GIT_PROMPT_MODIFIER
+        $Env:_GIT_PROMPT_MODIFIER = ''
     }
 }
 # override "cd" alias with cd_alias
@@ -98,7 +101,7 @@ New-Item -Path Alias:cd -Value Alias-CD -Force > $null
 function Alias-GIT {
     # call git
     & $Env:GIT_EXE $args
-    # udpate $Env:_PROMPT_GIT_MODIFIER
+    # udpate $Env:_GIT_PROMPT_MODIFIER
     cd .
 }
 # override "git" alias with git_alias
@@ -115,16 +118,15 @@ _gen_privilege_prompt
 
 function Prompt {
     # "PS $($ExecutionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
-    ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT (except Write-Output) /!\ ###
+    ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT /!\ ###
     # if we want to keep the "turn red on error" feature (from PSReadLine)
-    # => needs to receive state from Env, like conda
+    # => needs to receive state from "Env" drive, like conda
 
     # check if a conda venv is activated, if so color only the venv name
     if ($Env:CONDA_PROMPT_MODIFIER -match '\(([\w\- ]+)\)')
         {$conda_prompt = "($($colors_table.col_Cyan)$($Matches.1)$($colors_table.col_def))`n"}
     else
         {$conda_prompt = ''}
-    $git_prompt = [string] $Env:_PROMPT_GIT_MODIFIER
     $cwd = $ExecutionContext.SessionState.Path.CurrentLocation
 
     # default ("[int][char]'>'" to find the integer): [char]62
@@ -146,9 +148,8 @@ function Prompt {
     # ⧃ ⥤ ⟢ ⟡ ➽ ➔ ❱ ⌾ ⊙ ⊚ ⊛ ∬ ൏ ಌ ಅ ఴ ᐅ 〉 ⋮ ≻ ▶ ◣ ◤
 
     $nested_prompt = "${char_1}" * ($nestedPromptLevel + 1)
-    $prompt_str = "${conda_prompt}$($colors_table.col_Green)${cwd}$($colors_table.col_def) ${git_prompt}`n" + `
+    "${conda_prompt}$($colors_table.col_Green)${cwd}$($colors_table.col_def) ${Env:_GIT_PROMPT_MODIFIER}`n" + `
         "${ENV:_PROMPT_PRIVILEGE}$($colors_table.col_Yellow)${char_0}$($colors_table.col_def)${nested_prompt} "
-    Write-Output $prompt_str
 }
 
 
@@ -207,7 +208,7 @@ function Git-Pull-Submodules {git submodules update --init --recursive}
 New-Item -Path Alias:git_ps -Value Git-Pull-Submodules -Force > $null
 function Git-Update-Submodules {git submodules update --init --recursive --remote}
 New-Item -Path Alias:git_us -Value Git-Update-Submodules -Force > $null
-function Git-Fetch-Status {git fetch; git status}
+function Git-Fetch-Status {git fetch --all; git status}
 New-Item -Path Alias:gfs -Value Git-Fetch-Status -Force > $null
 
 ### shell stuff
@@ -232,14 +233,10 @@ function List-Items {
     )
     process {
         # $PSCmdlet.ShouldProcess('custom WhatIf message', 'custom Confirm message', '')
-        # => whatif message becomes a verbose message
         if ($Path.Count -eq 0) {
             $Path += $ExecutionContext.SessionState.Path.CurrentLocation
-            # $Path
-            # $Path.Count
         }
         foreach ($path_item in $Path) {
-            # $PSCmdlet.WriteVerbose("Listing all files in ${path_item}")
             if ($Recurse) {$Recurse_msg = ', recursively'}
             else {$Recurse_msg = ''}
             if ($NoHidden) {$NoHidden_msg = 'visible '}
@@ -254,27 +251,8 @@ function List-Items {
 }
 New-Item -Path Alias:l -Value List-Items -Force > $null
 New-Item -Path Alias:la -Value List-Items -Force > $null
-function List-ItemsRecursive {
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Low')]
-    param(
-        [Parameter(ValueFromPipeline)] [SupportsWildcards()] [string[]] $Path,
-        [switch] $NoHidden
-    )
-    process {
-        if ($Path.Count -eq 0) {
-            $Path += $ExecutionContext.SessionState.Path.CurrentLocation
-        }
-        foreach ($path_item in $Path) {
-            if ($NoHidden) {$NoHidden_msg = 'visible '}
-            else {$NoHidden_msg = ''}
-            $whatif_msg = "Listing all ${NoHidden_msg}items in ${path_item}, recursively"
-            $confirm_msg = "List all ${NoHidden_msg}items in ${path_item}, recursively?"
-            if ($PSCmdlet.ShouldProcess($whatif_msg, $confirm_msg, '')) {
-                Get-ChildItem -Force:$(!$NoHidden) -Recurse -Path $path_item
-            }
-        }
-    }
-}
+function List-ItemsRecursive {Invoke-Expression "List-Items -Recurse ${args}"}
+# function List-ItemsRecursive {& List-Items -Recurse $args}
 New-Item -Path Alias:lr -Value List-ItemsRecursive -Force > $null
 
 function Find-Item {Get-ChildItem -Recurse -Filter $args[0]}
@@ -315,9 +293,7 @@ function Make-SymLink {
     # check if the target exists
     # if (-not $(Test-Path $TargetPath)) {Write-Error "$TargetPath does not exist"}
     if (-not $(Test-Path $TargetPath)) {$PSCmdlet.ThrowTerminatingError("${TargetPath} does not exist")}
-    # ErrorRecord:
-    # exception -> ArgumentException, FileNotFoundException, DirectoryNotFoundException
-    else {New-Item -ItemType 'SymbolicLink' -Path $LinkPath -Target (Get-Item $TargetPath).ResolvedTarget}
+    New-Item -ItemType 'SymbolicLink' -Path $LinkPath -Target (Get-Item $TargetPath).ResolvedTarget
 }
 New-Item -Path Alias:mklink -Value Make-SymLink -Force > $null
 function Open-Ise {
@@ -332,15 +308,15 @@ function Windows-Terminal { # allows opening a windows terminal as admin with no
     else {wt.exe $args}
 }
 New-Item -Path Alias:wt -Value Windows-Terminal -Force > $null
-function Update_PS7 {winget upgrade --name powershell}
-New-Item -Path Alias:psupdate -Value Update_PS7 -Force > $null
-function Update_Git {git update-git-for-windows}
-New-Item -Path Alias:git_update -Value Update_Git -Force > $null
+function Update-PS7 {winget upgrade --name powershell}
+New-Item -Path Alias:psupdate -Value Update-PS7 -Force > $null
+function Update-Git {git update-git-for-windows}
+New-Item -Path Alias:git_update -Value Update-Git -Force > $null
 
 ### powershell stuff
 function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
 New-Item -Path Alias:type -Value Get-Type -Force > $Null
-function Text-Colors-Test { # tests the string colors of the terminal
+function Test-TextColors { # tests the string colors of the terminal
     param([string[]] $color_names = ("Black","Red","Green","Yellow","Blue","Magenta","Cyan","White"))
     foreach ($color_name in $color_names) {
         $reg_col = $colors_table["col_$color_name"]
@@ -350,7 +326,7 @@ function Text-Colors-Test { # tests the string colors of the terminal
     }
     "$($colors_table.col_def)"
 }
-New-Item -Path Alias:color_test -Value Text-Colors-Test -Force > $Null
+New-Item -Path Alias:color_test -Value Test-TextColors -Force > $Null
 
 
 ###############
