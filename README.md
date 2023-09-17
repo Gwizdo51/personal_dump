@@ -32,11 +32,11 @@
 - [x] move all hardcoded paths to Microsoft.PowerShell_profile.ps1
 - [x] make it possible to use the profile without conda
 - [x] make Alias-Python prompt before activating conda
+- [x] convert Touch-File into a cmdlet
 
 ### *WIP*
 - [ ] adapt "-Force" switch behavior in jupyter_server_wrapper.ps1 to bypass all confirmation
 - [ ] add markdown (+ markdown viewer) notes
-- [ ] convert Touch-File into a cmdlet
 
 ### *TODO*
 - [ ] add Recycle cmdlet

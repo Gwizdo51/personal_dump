@@ -148,7 +148,7 @@ New-PSDrive -Name 'HKCC' -PSProvider 'Registry' -Root 'HKEY_CURRENT_CONFIG' *> $
 ### ALIASES ###
 ###############
 
-### conda / python shortcuts
+### conda
 function Conda-Activate {
     param($VEnv = $default_conda_venv) # default to $default_conda_venv instead of "base"
     conda activate $VEnv
@@ -158,6 +158,8 @@ function Conda-Deactivate {conda deactivate}
 New-Item -Path Alias:cdd -Value Conda-Deactivate -Force > $null
 function Conda-Update {conda update conda -n base -c defaults -y}
 New-Item -Path Alias:cdu -Value Conda-Update -Force > $null
+
+### python
 function Alias-Python {
     # $fake_python_path = 'C:\Users\Arthur\AppData\Local\Microsoft\WindowsApps\python*.exe'
     $fake_python_path = "${HOME}\AppData\Local\Microsoft\WindowsApps\python.exe"
@@ -188,7 +190,6 @@ function Alias-GIT {
     # udpate $Env:_GIT_PROMPT_MODIFIER
     Alias-CD -DirPath '.'
 }
-# override "git" alias with git_alias
 New-Item -Path Alias:git -Value Alias-GIT -Force > $null
 function Git-Tree {git log --graph --decorate --pretty=oneline --abbrev-commit}
 New-Item -Path Alias:git_tree -Value Git-Tree -Force > $null
@@ -264,8 +265,17 @@ function Find-Item {Get-ChildItem -Recurse -Filter $args[0]}
 New-Item -Path Alias:find -Value Find-Item -Force > $null
 # function Touch {python "D:\code\personal_dump\code\python\touch.py" $args}
 function Touch-File {
-    param([string] $FilePath)
-    Out-File -FilePath $FilePath -Append
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Medium')]
+    param(
+        [Parameter(ValueFromPipeline)] [string[]] $FilePath,
+        [switch] $Force
+    )
+    process {
+        $FilePath | ? {$PSCmdlet.ShouldProcess("Touching ${_}", "Touch ${_}?", '')} | % {
+            $ConfirmPreference = 'None'
+            Out-File -FilePath $_ -Append -Force:$Force
+        }
+    }
 }
 New-Item -Path Alias:touch -Value Touch-File -Force > $null
 function Get-Path {Write-Output "${Env:Path}".Split(';')}
