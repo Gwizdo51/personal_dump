@@ -32,7 +32,11 @@ function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" li
     # Remove-Job -Job $server_list_job
 
     if ($Env:CONDA_DEFAULT_ENV -eq $default_conda_venv) {$jupyter_lab_list_output = jupyter server list}
-    else {cda; $jupyter_lab_list_output = jupyter server list; cdd}
+    else {
+        Conda-Activate
+        $jupyter_lab_list_output = jupyter server list
+        Conda-Deactivate
+    }
     $url_regex_pattern = 'http://localhost:[\d]+/\?token=[\w]+'
     $urls = ([regex]::matches($jupyter_lab_list_output, $url_regex_pattern)).Value
     $PSCmdlet.WriteVerbose("Get-JupyterLabURL: Found $($urls.Count) jupyter lab server(s) currently running")
@@ -264,7 +268,7 @@ function Kill-Jupyter {
         else {
             $PSCmdlet.WriteVerbose('Kill-Jupyter: Activating workenv for the command')
             $conda_deactivate = $True
-            cda
+            Conda-Activate
         }
         $active_ports = Get-JupyterLabURL | ? {$_} | % {[regex]::matches($_, $port_regex_pattern).Groups} `
             | ? {$_.Name -eq 1} | % {$_.Value}
@@ -290,6 +294,6 @@ function Kill-Jupyter {
         }
     }
     end {
-        if ($conda_deactivate) {cdd}
+        if ($conda_deactivate) {Conda-Deactivate}
     }
 }

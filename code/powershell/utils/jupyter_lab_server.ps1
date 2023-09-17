@@ -30,7 +30,7 @@ Write-Output "Root directory: ${RootDir}"
 
 Write-Output "`nLaunching server ...`n"
 
-cda -VEnv $VEnv
+Conda-Activate -VEnv $VEnv
 cd $RootDir
 jupyter lab
 
