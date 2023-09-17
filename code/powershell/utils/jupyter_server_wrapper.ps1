@@ -264,9 +264,9 @@ function Kill-Jupyter {
         }
         # Write-Host 'Kill-Jupyter $ConfirmPreference', $ConfirmPreference
         $port_regex_pattern = 'http://localhost:(\d+)/\?token=\w+'
-        if ($Env:CONDA_DEFAULT_ENV -eq 'workenv') {$conda_deactivate = $False}
+        if ($Env:CONDA_DEFAULT_ENV -eq $default_conda_venv) {$conda_deactivate = $False}
         else {
-            $PSCmdlet.WriteVerbose('Kill-Jupyter: Activating workenv for the command')
+            $PSCmdlet.WriteVerbose("Kill-Jupyter: Activating ${default_conda_venv} for the command")
             $conda_deactivate = $True
             Conda-Activate
         }
