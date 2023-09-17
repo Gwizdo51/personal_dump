@@ -27,7 +27,6 @@ function Default-Confirmation-Prompt {
 function ShouldProcess-Yes-No {
     param(
         $PSCmdlet,
-        [switch] $Force,
         [switch] $Confirm,
         [string] $ConfirmImpact,
         [string] $ConfirmQuestion,
@@ -56,7 +55,7 @@ function ShouldProcess-Yes-No {
         $user_answer = $False
         $PSCmdlet.WriteInformation("What if: ${WhatIfMessage}", '')
     }
-    elseif (-not $Force -and ($Confirm -or $should_confirm)) {
+    elseif ($Confirm -or $should_confirm) {
         $user_answer = $PSCmdlet.ShouldContinue("${ConfirmQuestion}", '')
     }
     else {
