@@ -1,6 +1,6 @@
 param([switch]$Silent, [switch]$Verbose)
 
-# environment setup:
+# environment config:
 
 # - directories shortcuts
 # delete and add as necessary

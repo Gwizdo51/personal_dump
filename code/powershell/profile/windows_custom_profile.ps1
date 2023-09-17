@@ -24,7 +24,6 @@ Write-Information "Loading personal profile (windows_custom_profile.ps1)..."
 
 if (Test-Path -Path 'Env:_CONDA_ROOT') {
     Write-Verbose 'Setting up Conda ...'
-    # $Env:_CONDA_ROOT = "C:\ProgramData\anaconda3"
     $Env:CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
     $Env:_CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
     Import-Module "${Env:_CONDA_ROOT}\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False} -Verbose:$False
@@ -193,12 +192,12 @@ function Alias-GIT {
 New-Item -Path Alias:git -Value Alias-GIT -Force > $null
 function Git-Tree {git log --graph --decorate --pretty=oneline --abbrev-commit}
 New-Item -Path Alias:git_tree -Value Git-Tree -Force > $null
-function Git-Pull-Submodules {git submodules update --init --recursive}
-New-Item -Path Alias:git_ps -Value Git-Pull-Submodules -Force > $null
-function Git-Update-Submodules {git submodules update --init --recursive --remote}
-New-Item -Path Alias:git_us -Value Git-Update-Submodules -Force > $null
-function Git-Fetch-Status {git fetch --all; git status}
-New-Item -Path Alias:gfs -Value Git-Fetch-Status -Force > $null
+function Git-PullSubmodules {git submodules update --init --recursive}
+New-Item -Path Alias:git_ps -Value Git-PullSubmodules -Force > $null
+function Git-UpdateSubmodules {git submodules update --init --recursive --remote}
+New-Item -Path Alias:git_us -Value Git-UpdateSubmodules -Force > $null
+function Git-FetchStatus {git fetch --all; git status}
+New-Item -Path Alias:gfs -Value Git-FetchStatus -Force > $null
 
 ### shell stuff
 # edit the profile file in VSCode
@@ -258,7 +257,6 @@ function List-Items {
 New-Item -Path Alias:l -Value List-Items -Force > $null
 New-Item -Path Alias:la -Value List-Items -Force > $null
 function List-ItemsRecursive {Invoke-Expression "List-Items -Recurse ${args}"}
-# function List-ItemsRecursive {& List-Items -Recurse $args}
 New-Item -Path Alias:lr -Value List-ItemsRecursive -Force > $null
 
 function Find-Item {Get-ChildItem -Recurse -Filter $args[0]}
