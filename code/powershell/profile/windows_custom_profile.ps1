@@ -269,7 +269,7 @@ function Touch-File {
         [switch] $Force
     )
     process {
-        $FilePath | ? {$PSCmdlet.ShouldProcess("Touching ${_}", "Touch ${_}?", '')} | % {
+        $FilePath | ? {$PSCmdlet.ShouldProcess("Touch-File: Touching ${_}", "Touch-File: Touch ${_}?", '')} | % {
             $ConfirmPreference = 'None'
             Out-File -FilePath $_ -Append -Force:$Force
         }

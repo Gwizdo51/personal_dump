@@ -110,7 +110,7 @@ function Wrapper-JupyterLab {
                 1 = 'Start &New server', 'Start a new Jupyter Lab server.';
                 2 = '&Suspend', 'Pause this command and enter a nested prompt. Type "exit" to resume.'
             }
-            $choice = Confirmation-Prompt -Question 'A Jupyter Lab server is already running. Please advise:' -ChoicesTable $choices_table
+            $choice = Confirmation-Prompt -Question 'Wrapper-JupyterLab: A Jupyter Lab server is already running. Please advise:' -ChoicesTable $choices_table
             if ($choice -eq 2) {
                 $PSCmdlet.WriteVerbose('Wrapper-JupyterLab: Entering nested prompt')
                 # reset $InformationPreference and $ConfirmPreference for the nested prompt
@@ -164,7 +164,7 @@ function Wrapper-JupyterLab {
             elseif (!($HiddenProcess -or $Job)) { # process
                 # if ($PSCmdlet.ShouldProcess("Starting a new powershell process to host the server", "Start a new powershell process to host the server?", ''))
                 if (ShouldProcess-Yes-No -PSCmdlet $PSCmdlet -Confirm:$Confirm -ConfirmImpact 'Low' `
-                    -ConfirmQuestion 'Start a new powershell process to host the server?' -WhatIf:$WhatIf `
+                    -ConfirmQuestion 'Wrapper-JupyterLab: Start a new powershell process to host the server?' -WhatIf:$WhatIf `
                     -WhatIfMessage 'Wrapper-JupyterLab: Starting a new powershell process to host the server') {
                     $ConfirmPreference = 'None'
                     Start-Process -FilePath $pwsh_exe -ArgumentList $args_list -WindowStyle 'Minimized'
@@ -173,7 +173,7 @@ function Wrapper-JupyterLab {
             elseif ($HiddenProcess) {
                 # if ($PSCmdlet.ShouldProcess("Starting a new hidden powershell process to host the server", "Start a new hidden powershell process to host the server?", ''))
                 if (ShouldProcess-Yes-No -PSCmdlet $PSCmdlet -Confirm:$Confirm -ConfirmImpact 'Low' `
-                    -ConfirmQuestion 'Start a new hidden powershell process to host the server?' -WhatIf:$WhatIf `
+                    -ConfirmQuestion 'Wrapper-JupyterLab: Start a new hidden powershell process to host the server?' -WhatIf:$WhatIf `
                     -WhatIfMessage 'Wrapper-JupyterLab: Starting a new hidden powershell process to host the server') {
                     $ConfirmPreference = 'None'
                     Start-Process -FilePath $pwsh_exe -ArgumentList $args_list -WindowStyle 'Hidden'
@@ -182,7 +182,7 @@ function Wrapper-JupyterLab {
             elseif ($Job) {
                 # if ($PSCmdlet.ShouldProcess("Starting a new powershell job to host the server", "Start a new powershell job to host the server?", ''))
                 if (ShouldProcess-Yes-No -PSCmdlet $PSCmdlet -Confirm:$Confirm -ConfirmImpact 'Low' `
-                    -ConfirmQuestion 'Start a new powershell job to host the server?' -WhatIf:$WhatIf `
+                    -ConfirmQuestion 'Wrapper-JupyterLab: Start a new powershell job to host the server?' -WhatIf:$WhatIf `
                     -WhatIfMessage 'Wrapper-JupyterLab: Starting a new powershell job to host the server') {
                     $ConfirmPreference = 'None'
                     # Start-Job -Name 'jupyter_server' -ScriptBlock {. $using:profile -S; cda -VEnv $using:EnvConda; cd $using:RootDir; jupyter lab}
@@ -251,7 +251,7 @@ function Kill-Jupyter {
     begin {
         # Write-Host 'Kill-Jupyter $ConfirmPreference', $ConfirmPreference
         if ($Confirm) {
-            $PSCmdlet.WriteVerbose('Kill-Jupyter: $Confirm is on')
+            $PSCmdlet.WriteVerbose("Kill-Jupyter: '-Confirm' flag set, prompting for confirmation")
             $ConfirmPreference = 'Low'
         }
         elseif ($Force) {
@@ -275,16 +275,15 @@ function Kill-Jupyter {
             $PSCmdlet.WriteVerbose('Kill-Jupyter: No port specified, killing all servers')
             $active_ports | ? {$PSCmdlet.ShouldProcess(
                 "Kill-Jupyter: Killing the server running at the '${_}' port",
-                "Kill the server running at the '${_}' port ?",
+                "Kill-Jupyter: Kill the server running at the '${_}' port ?",
                 ''
             )} | % {jupyter server stop $_}
         }
         else {
             foreach ($port_number in $Port) {
-                $PSCmdlet.WriteVerbose("Kill-Jupyter: Killing the server running at the '${port_number}' port")
                 $active_ports | ? {[int] $_ -eq $port_number} | ? {$PSCmdlet.ShouldProcess(
                     "Kill-Jupyter: Killing the server running at the '${_}' port",
-                    "Kill the server running at the '${_}' port ?",
+                    "Kill-Jupyter: Kill the server running at the '${_}' port ?",
                     ''
                 )} | % {jupyter server stop $_}
             }
