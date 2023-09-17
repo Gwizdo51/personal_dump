@@ -35,6 +35,7 @@
 - [x] convert Touch-File into a cmdlet
 
 ### *WIP*
+- [ ] add specific exception types to exceptions risen by cmdlets
 - [ ] adapt "-Force" switch behavior in jupyter_server_wrapper.ps1 to bypass all confirmation
 - [ ] add markdown (+ markdown viewer) notes
 

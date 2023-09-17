@@ -20,6 +20,8 @@ $Env:GIT_EXE = 'C:\Program Files\Git\cmd\git.exe'
 $Env:_CONDA_ROOT = 'C:\ProgramData\anaconda3'
 # default conda venv (default is 'base')
 $default_conda_venv = 'workenv'
+# default root directory for jupyter lab (default is $HOME)
+$default_dir = $code
 #>
 
 

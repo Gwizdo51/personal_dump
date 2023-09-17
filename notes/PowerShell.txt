@@ -180,12 +180,36 @@ function Do-Smth {[CmdletBinding()] param(...) ...}
     - 'NormalView': basic view, all informations
     - 'CategoryView': '{Category}: ({TargetName}:{TargetType}):[{Activity}], {Reason}'
 - ErrorRecord: https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.cmdlet.writeerror?view=powershellsdk-7.2.0
-While inside a Cmdlet, "Write-Error" doesn't actually raises an exception => gotta use $PSCmdlet.WriteError(ErrorRecord)
+While inside a Cmdlet, "Write-Error" doesn't actually raise an exception => gotta use $PSCmdlet.WriteError(ErrorRecord)
 create an ErrorRecord from scratch: ErrorRecord(Exception, String, ErrorCategory, Object)
 - exception (Exception)             -> Exception which describes the error https://learn.microsoft.com/en-us/dotnet/api/system.exception?view=net-7.0#choosing-standard-exceptions
 - errorId (String)                  -> Global identifier of the error condition (fully qualified error id: "PathNotFound,Microsoft.PowerShell.Commands.RemoveItemCommand")
 - errorCategory (ErrorCategory)     -> This is the ErrorCategory which best describes the error https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.errorcategory?view=powershellsdk-7.3.0
 - targetObject (Object)             -> Object against which the cmdlet or provider was operating when the error occurred (optional)
+create an exception:
+<exception_type> 'Exception message'
+exception types:
+- [Exception]
+- [System.ArgumentException]
+- [System.ArgumentNullException]
+- [System.ArgumentOutOfRangeException]
+- [System.IO.DirectoryNotFoundException]
+- [System.DivideByZeroException]
+- [System.IO.DriveNotFoundException]
+- [System.IO.FileNotFoundException]
+- [System.FormatException]
+- [System.IndexOutOfRangeException]
+- [System.InvalidOperationException]
+- [System.Collections.Generic.KeyNotFoundException]
+- [System.NotImplementedException]
+- [System.NotSupportedException]
+- [System.ObjectDisposedException]
+- [System.OverflowException]
+- [System.IO.PathTooLongException]
+- [System.PlatformNotSupportedException]
+- [System.RankException]
+- [System.TimeoutException]
+- [System.UriFormatException]
 
 
 - pipelines:

@@ -305,7 +305,17 @@ function Make-SymLink {
     )
     # check if the target exists
     # if (-not $(Test-Path $TargetPath)) {Write-Error "$TargetPath does not exist"}
-    if (-not $(Test-Path $TargetPath)) {$PSCmdlet.ThrowTerminatingError("${TargetPath} does not exist")}
+    if (-not (Test-Path $TargetPath)) {
+        $Exception = [Exception]::new("${TargetPath} does not exist")
+        $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+            $Exception,
+            'TargetNotFound',
+            [System.Management.Automation.ErrorCategory]::ObjectNotFound,
+            # $TargetObject # usually the object that triggered the error, if possible
+            $TargetPath
+        )
+        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+    }
     New-Item -ItemType 'SymbolicLink' -Path $LinkPath -Target (Get-Item $TargetPath).ResolvedTarget
 }
 New-Item -Path Alias:mklink -Value Make-SymLink -Force > $null
