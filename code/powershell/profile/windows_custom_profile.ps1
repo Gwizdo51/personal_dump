@@ -306,9 +306,8 @@ function Make-SymLink {
     # check if the target exists
     # if (-not $(Test-Path $TargetPath)) {Write-Error "$TargetPath does not exist"}
     if (-not (Test-Path $TargetPath)) {
-        $Exception = [Exception]::new("${TargetPath} does not exist")
         $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
-            $Exception,
+            [System.IO.FileNotFoundException] "${TargetPath} does not exist",
             'TargetNotFound',
             [System.Management.Automation.ErrorCategory]::ObjectNotFound,
             # $TargetObject # usually the object that triggered the error, if possible

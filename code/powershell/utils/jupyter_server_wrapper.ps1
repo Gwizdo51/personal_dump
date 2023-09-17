@@ -72,9 +72,8 @@ function Wrapper-JupyterLab {
         $PSCmdlet.WriteVerbose("'-Logs' flag set, writing the logs of the jupyter_server currently running as a job")
         if ($running_servers_urls.Count -eq 0) {
             # Write-Error 'No jupyter server is currently running'
-            $Exception = [Exception]::new('No jupyter server is currently running')
             $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
-                $Exception,
+                [System.InvalidOperationException] 'No jupyter server is currently running',
                 'NoRunningServer',
                 [System.Management.Automation.ErrorCategory]::InvalidOperation,
                 # $TargetObject # usually the object that triggered the error, if possible
@@ -82,7 +81,7 @@ function Wrapper-JupyterLab {
             )
             $PSCmdlet.ThrowTerminatingError($ErrorRecord)
         }
-        Write-JobServerLogs
+        Get-JobServerLogs
         return
     }
     # check if a server is already running
@@ -141,11 +140,10 @@ function Wrapper-JupyterLab {
             $args_list = '-NoProfile', '-Command', $commmand_str
             if ($HiddenProcess -and $Job) {
                 # Write-Error 'Both -HiddenProcess and -Job flags are set'
-                $Exception = [Exception]::new('Both -HiddenProcess and -Job flags are set')
                 $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
-                    $Exception,
+                    [System.ArgumentException] 'Both -HiddenProcess and -Job flags are set',
                     'InvalidFlags',
-                    [System.Management.Automation.ErrorCategory]::InvalidOperation,
+                    [System.Management.Automation.ErrorCategory]::InvalidArgument,
                     # $TargetObject # usually the object that triggered the error, if possible
                     $null
                 )
@@ -183,15 +181,14 @@ function Wrapper-JupyterLab {
 New-Item -Path Alias:jupyter_lab -Value Wrapper-JupyterLab -Force > $null
 
 
-function Write-JobServerLogs { # print the logs of the jupyter server when running in a job
+function Get-JobServerLogs { # print the logs of the jupyter server when running in a job
     [CmdletBinding()]
     param()
     $running_job_servers = Get-Job | ? {($_.Name -eq 'jupyter_server') -and ($_.State -eq 'Running')}
     if ($running_job_servers.Count -eq 0) {
         # Write-Error 'No jupyter server is currently running'
-        $Exception = [Exception]::new('No jupyter server is currently running as a job')
         $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
-            $Exception,
+            [System.InvalidOperationException] 'No jupyter server is currently running as a job',
             'NoRunningServerJob',
             [System.Management.Automation.ErrorCategory]::InvalidOperation,
             # $TargetObject # usually the object that triggered the error, if possible
@@ -211,7 +208,7 @@ function Write-JobServerLogs { # print the logs of the jupyter server when runni
         Receive-Job -Id $chosen_id -keep
     }
 }
-New-Item -Path Alias:jl -Value Write-JobServerLogs -Force > $null
+New-Item -Path Alias:jl -Value Get-JobServerLogs -Force > $null
 
 # need to work:
 # Kill-Jupyter-New -Port 8888, 8889 => kill servers running at port 8888 and 8889
