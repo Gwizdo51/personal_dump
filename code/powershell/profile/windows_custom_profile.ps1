@@ -1,10 +1,11 @@
 param([switch]$Silent, [switch]$Verbose)
 $tick = Get-Date
 
-# set up output and input shell encoding to UTF-8
+# set output and input shell encoding to UTF-8
 $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
-# setting $InformationPreference to 'Continue' for the profile load, unless $Silent is on
+# display the messages from the information stream
 $InformationPreference = 'Continue'
+# set $InformationPreference to 'Continue' for the profile load, unless $Silent is on
 if ($Silent) {
     $InformationPreference_backup = $InformationPreference
     $InformationPreference = 'SilentlyContinue'
@@ -21,14 +22,13 @@ Write-Information "Loading personal profile (windows_custom_profile.ps1)..."
 ### CONDA ###
 #############
 
-# <#
-Write-Verbose 'Setting up Conda ...'
-$Env:_CONDA_ROOT = "C:\ProgramData\anaconda3"
-$Env:CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
-$Env:_CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
-Import-Module "${Env:_CONDA_ROOT}\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False} -Verbose:$False
-# conda activate base
-#>
+if (Test-Path -Path 'Env:_CONDA_ROOT') {
+    Write-Verbose 'Setting up Conda ...'
+    $Env:CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
+    $Env:_CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
+    Import-Module "${Env:_CONDA_ROOT}\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False} -Verbose:$False
+    # conda activate base
+}
 
 
 ##############
@@ -64,45 +64,19 @@ function _gen_colors_hashtable {
 }
 $colors_table = _gen_colors_hashtable
 
-# path to the git executable
-$Env:GIT_EXE = "C:\Program Files\Git\cmd\git.exe"
-
 function _gen_git_prompt {
     # look for possible branch name, silence git "not in git repo" error
-    $branch = $(& $Env:GIT_EXE rev-parse --abbrev-ref HEAD 2> $null)
-    if ($branch -eq $null) {return} # not in a git repo, don't return anything
+    $branch = $(& $Env:GIT_EXE 'rev-parse' '--abbrev-ref' 'HEAD' 2> $null)
+    if ($branch -eq $null) { # not in a git repo, don't return anything
+        return ''
+    }
     if ($branch -eq 'HEAD') { # we're in detached HEAD state, so print the SHA
-        "($($colors_table.col_Red)$(& $Env:GIT_EXE rev-parse --short HEAD)$($colors_table.col_def))"
+        return "($($colors_table.col_Red)$(& $Env:GIT_EXE 'rev-parse' '--short' 'HEAD')$($colors_table.col_def))"
     }
     else { # we're on an actual branch, so print it
-        "($($colors_table.col_Blue)$($branch)$($colors_table.col_def))"
+        return "($($colors_table.col_Blue)$($branch)$($colors_table.col_def))"
     }
 }
-
-function Alias-CD {
-    [CmdletBinding()]
-    param([string] $DirPath)
-    Set-Location $DirPath -ErrorAction Stop
-    if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
-        # we are in a FileSystem drive, safe to look for git branches
-        $Env:_PROMPT_GIT_MODIFIER = $(_gen_git_prompt)
-    }
-    else {
-        # we are not in a FileSystem drive, clear $Env:_PROMPT_GIT_MODIFIER
-        $Env:_PROMPT_GIT_MODIFIER = $null
-    }
-}
-# override "cd" alias with cd_alias
-New-Item -Path Alias:cd -Value Alias-CD -Force > $null
-
-function Alias-GIT {
-    # call git
-    & $Env:GIT_EXE $args
-    # udpate $Env:_PROMPT_GIT_MODIFIER
-    cd .
-}
-# override "git" alias with git_alias
-New-Item -Path Alias:git -Value Alias-GIT -Force > $null
 
 function _gen_privilege_prompt { # add "[ADMIN]" to the prompt if the shell is opened as admin
     $principal = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -115,16 +89,15 @@ _gen_privilege_prompt
 
 function Prompt {
     # "PS $($ExecutionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
-    ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT (except Write-Output) /!\ ###
+    ### /!\ CANNOT CALL A FUNCTION IN ANY WAY INSIDE PROMPT /!\ ###
     # if we want to keep the "turn red on error" feature (from PSReadLine)
-    # => needs to receive state from Env, like conda
+    # => needs to receive state from "Env" drive, like conda
 
     # check if a conda venv is activated, if so color only the venv name
     if ($Env:CONDA_PROMPT_MODIFIER -match '\(([\w\- ]+)\)')
         {$conda_prompt = "($($colors_table.col_Cyan)$($Matches.1)$($colors_table.col_def))`n"}
     else
         {$conda_prompt = ''}
-    $git_prompt = [string] $Env:_PROMPT_GIT_MODIFIER
     $cwd = $ExecutionContext.SessionState.Path.CurrentLocation
 
     # default ("[int][char]'>'" to find the integer): [char]62
@@ -146,9 +119,8 @@ function Prompt {
     # ⧃ ⥤ ⟢ ⟡ ➽ ➔ ❱ ⌾ ⊙ ⊚ ⊛ ∬ ൏ ಌ ಅ ఴ ᐅ 〉 ⋮ ≻ ▶ ◣ ◤
 
     $nested_prompt = "${char_1}" * ($nestedPromptLevel + 1)
-    $prompt_str = "${conda_prompt}$($colors_table.col_Green)${cwd}$($colors_table.col_def) ${git_prompt}`n" + `
+    "${conda_prompt}$($colors_table.col_Green)${cwd}$($colors_table.col_def) ${Env:_GIT_PROMPT_MODIFIER}`n" + `
         "${ENV:_PROMPT_PRIVILEGE}$($colors_table.col_Yellow)${char_0}$($colors_table.col_def)${nested_prompt} "
-    Write-Output $prompt_str
 }
 
 
@@ -156,11 +128,8 @@ function Prompt {
 ### SHORTCUTS ###
 #################
 
-$code = 'D:\code'
-$horoview = "${code}\projects\01_horoview"
-$dump = "${code}\personal_dump"
-
-$_powershell_dir = $custom_profile | Split-Path -Parent | Split-Path -Parent
+# $_powershell_dir = $custom_profile | Split-Path -Parent | Split-Path -Parent
+$_powershell_dir = "${dump}\code\powershell"
 $_ps_buffer = "${_powershell_dir}\profile\ps_buffer.txt"
 
 
@@ -178,16 +147,18 @@ New-PSDrive -Name 'HKCC' -PSProvider 'Registry' -Root 'HKEY_CURRENT_CONFIG' *> $
 ### ALIASES ###
 ###############
 
-### conda / python shortcuts
-function conda_activate {
-    param($VEnv = 'workenv') # default to "workenv" instead of "base"
+### conda
+function Conda-Activate {
+    param($VEnv = $default_conda_venv) # default to $default_conda_venv instead of "base"
     conda activate $VEnv
 }
-New-Item -Path Alias:cda -Value conda_activate -Force > $null
+New-Item -Path Alias:cda -Value Conda-Activate -Force > $null
 function Conda-Deactivate {conda deactivate}
 New-Item -Path Alias:cdd -Value Conda-Deactivate -Force > $null
 function Conda-Update {conda update conda -n base -c defaults -y}
 New-Item -Path Alias:cdu -Value Conda-Update -Force > $null
+
+### python
 function Alias-Python {
     # $fake_python_path = 'C:\Users\Arthur\AppData\Local\Microsoft\WindowsApps\python*.exe'
     $fake_python_path = "${HOME}\AppData\Local\Microsoft\WindowsApps\python.exe"
@@ -195,25 +166,60 @@ function Alias-Python {
         Write-Error 'Found fake python executable'
         Remove-Item -Path $fake_python_path -Confirm
     }
-    try {python.exe $args}
-    catch {Write-Error "python.exe not found, activating workenv"; cda; python.exe $args}
+    try {& 'python.exe' $args}
+    catch {
+        Write-Error "python.exe not found"
+        $choices_table = @{
+            0 = '&Yes', 'Activate the default conda virtual environment to run Python.';
+            1 = '&No', 'Exit.'
+        }
+        $choice = Confirmation-Prompt -Question "Activate ${default_conda_venv}?" -ChoicesTable $choices_table
+        if ($choice -eq 0) {
+            Conda-Activate
+            & 'python.exe' $args
+        }
+    }
 }
 New-Item -Path Alias:python -Value Alias-Python -Force > $null
 
-### git shortcuts
+### git
+function Alias-GIT {
+    # call git
+    & $Env:GIT_EXE $args
+    # udpate $Env:_GIT_PROMPT_MODIFIER
+    Alias-CD -DirPath '.'
+}
+New-Item -Path Alias:git -Value Alias-GIT -Force > $null
 function Git-Tree {git log --graph --decorate --pretty=oneline --abbrev-commit}
 New-Item -Path Alias:git_tree -Value Git-Tree -Force > $null
-function Git-Pull-Submodules {git submodules update --init --recursive}
-New-Item -Path Alias:git_ps -Value Git-Pull-Submodules -Force > $null
-function Git-Update-Submodules {git submodules update --init --recursive --remote}
-New-Item -Path Alias:git_us -Value Git-Update-Submodules -Force > $null
-function Git-Fetch-Status {git fetch; git status}
-New-Item -Path Alias:gfs -Value Git-Fetch-Status -Force > $null
+function Git-PullSubmodules {git submodules update --init --recursive}
+New-Item -Path Alias:git_ps -Value Git-PullSubmodules -Force > $null
+function Git-UpdateSubmodules {git submodules update --init --recursive --remote}
+New-Item -Path Alias:git_us -Value Git-UpdateSubmodules -Force > $null
+function Git-FetchStatus {git fetch --all; git status}
+New-Item -Path Alias:gfs -Value Git-FetchStatus -Force > $null
 
 ### shell stuff
-# edit this script in VSCode
-function Edit-Profile {code $profile}
+# edit the profile file in VSCode
+function Edit-Profile {code $PROFILE}
 New-Item -Path Alias:ep -Value Edit-Profile -Force > $null
+function Alias-CD {
+    [CmdletBinding()]
+    param([string] $DirPath)
+    # set the new current directory
+    Set-Location $DirPath -ErrorAction Stop
+    # update the git prompt when necessary
+    if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
+        # we are in a FileSystem drive, safe to look for git branches
+        $Env:_GIT_PROMPT_MODIFIER = _gen_git_prompt
+    }
+    else {
+        # we are not in a FileSystem drive, clear $Env:_GIT_PROMPT_MODIFIER
+        $Env:_GIT_PROMPT_MODIFIER = ''
+    }
+}
+# override "cd" alias with cd_alias
+New-Item -Path Alias:cd -Value Alias-CD -Force > $null
 New-Item -Path Alias:read -Value Get-Content -Force > $null
 # items listing:
 # mode:
@@ -232,14 +238,10 @@ function List-Items {
     )
     process {
         # $PSCmdlet.ShouldProcess('custom WhatIf message', 'custom Confirm message', '')
-        # => whatif message becomes a verbose message
         if ($Path.Count -eq 0) {
             $Path += $ExecutionContext.SessionState.Path.CurrentLocation
-            # $Path
-            # $Path.Count
         }
         foreach ($path_item in $Path) {
-            # $PSCmdlet.WriteVerbose("Listing all files in ${path_item}")
             if ($Recurse) {$Recurse_msg = ', recursively'}
             else {$Recurse_msg = ''}
             if ($NoHidden) {$NoHidden_msg = 'visible '}
@@ -254,38 +256,27 @@ function List-Items {
 }
 New-Item -Path Alias:l -Value List-Items -Force > $null
 New-Item -Path Alias:la -Value List-Items -Force > $null
-function List-ItemsRecursive {
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Low')]
-    param(
-        [Parameter(ValueFromPipeline)] [SupportsWildcards()] [string[]] $Path,
-        [switch] $NoHidden
-    )
-    process {
-        if ($Path.Count -eq 0) {
-            $Path += $ExecutionContext.SessionState.Path.CurrentLocation
-        }
-        foreach ($path_item in $Path) {
-            if ($NoHidden) {$NoHidden_msg = 'visible '}
-            else {$NoHidden_msg = ''}
-            $whatif_msg = "Listing all ${NoHidden_msg}items in ${path_item}, recursively"
-            $confirm_msg = "List all ${NoHidden_msg}items in ${path_item}, recursively?"
-            if ($PSCmdlet.ShouldProcess($whatif_msg, $confirm_msg, '')) {
-                Get-ChildItem -Force:$(!$NoHidden) -Recurse -Path $path_item
-            }
-        }
-    }
-}
+function List-ItemsRecursive {Invoke-Expression "List-Items -Recurse ${args}"}
 New-Item -Path Alias:lr -Value List-ItemsRecursive -Force > $null
 
 function Find-Item {Get-ChildItem -Recurse -Filter $args[0]}
 New-Item -Path Alias:find -Value Find-Item -Force > $null
 # function Touch {python "D:\code\personal_dump\code\python\touch.py" $args}
 function Touch-File {
-    param([string] $FilePath)
-    Out-File -FilePath $FilePath -Append
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Medium')]
+    param(
+        [Parameter(ValueFromPipeline)] [string[]] $FilePath,
+        [switch] $Force
+    )
+    process {
+        $FilePath | ? {$PSCmdlet.ShouldProcess("Touching ${_}", "Touch ${_}?", '')} | % {
+            $ConfirmPreference = 'None'
+            Out-File -FilePath $_ -Append -Force:$Force
+        }
+    }
 }
 New-Item -Path Alias:touch -Value Touch-File -Force > $null
-function Get-Path {Write-Output "${Env:path}".Split(';')}
+function Get-Path {Write-Output "${Env:Path}".Split(';')}
 New-Item -Path Alias:path -Value Get-Path -Force > $null
 New-Item -Path Alias:gj -Value Get-Job -Force > $null
 function Clear-Job {Get-Job | ? {$_.State -ne 'Running'} | Remove-Job}
@@ -314,10 +305,17 @@ function Make-SymLink {
     )
     # check if the target exists
     # if (-not $(Test-Path $TargetPath)) {Write-Error "$TargetPath does not exist"}
-    if (-not $(Test-Path $TargetPath)) {$PSCmdlet.ThrowTerminatingError("${TargetPath} does not exist")}
-    # ErrorRecord:
-    # exception -> ArgumentException, FileNotFoundException, DirectoryNotFoundException
-    else {New-Item -ItemType 'SymbolicLink' -Path $LinkPath -Target (Get-Item $TargetPath).ResolvedTarget}
+    if (-not (Test-Path $TargetPath)) {
+        $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+            [System.IO.FileNotFoundException] "${TargetPath} does not exist",
+            'TargetNotFound',
+            [System.Management.Automation.ErrorCategory]::ObjectNotFound,
+            # $TargetObject # usually the object that triggered the error, if possible
+            $TargetPath
+        )
+        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+    }
+    New-Item -ItemType 'SymbolicLink' -Path $LinkPath -Target (Get-Item $TargetPath).ResolvedTarget
 }
 New-Item -Path Alias:mklink -Value Make-SymLink -Force > $null
 function Open-Ise {
@@ -332,15 +330,15 @@ function Windows-Terminal { # allows opening a windows terminal as admin with no
     else {wt.exe $args}
 }
 New-Item -Path Alias:wt -Value Windows-Terminal -Force > $null
-function Update_PS7 {winget upgrade --name powershell}
-New-Item -Path Alias:psupdate -Value Update_PS7 -Force > $null
-function Update_Git {git update-git-for-windows}
-New-Item -Path Alias:git_update -Value Update_Git -Force > $null
+function Update-PS7 {winget upgrade --name powershell}
+New-Item -Path Alias:psupdate -Value Update-PS7 -Force > $null
+function Update-Git {git update-git-for-windows}
+New-Item -Path Alias:git_update -Value Update-Git -Force > $null
 
 ### powershell stuff
 function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
 New-Item -Path Alias:type -Value Get-Type -Force > $Null
-function Text-Colors-Test { # tests the string colors of the terminal
+function Test-TextColors { # tests the string colors of the terminal
     param([string[]] $color_names = ("Black","Red","Green","Yellow","Blue","Magenta","Cyan","White"))
     foreach ($color_name in $color_names) {
         $reg_col = $colors_table["col_$color_name"]
@@ -350,7 +348,7 @@ function Text-Colors-Test { # tests the string colors of the terminal
     }
     "$($colors_table.col_def)"
 }
-New-Item -Path Alias:color_test -Value Text-Colors-Test -Force > $Null
+New-Item -Path Alias:color_test -Value Test-TextColors -Force > $Null
 
 
 ###############

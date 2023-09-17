@@ -31,7 +31,7 @@ function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" li
     # $job_logs = Receive-job $server_list_job
     # Remove-Job -Job $server_list_job
 
-    if ($Env:CONDA_DEFAULT_ENV -eq 'workenv') {$jupyter_lab_list_output = jupyter server list}
+    if ($Env:CONDA_DEFAULT_ENV -eq $default_conda_venv) {$jupyter_lab_list_output = jupyter server list}
     else {cda; $jupyter_lab_list_output = jupyter server list; cdd}
     $url_regex_pattern = 'http://localhost:[\d]+/\?token=[\w]+'
     $urls = ([regex]::matches($jupyter_lab_list_output, $url_regex_pattern)).Value
@@ -43,8 +43,8 @@ function Get-JupyterLabURL { # returns the servers URLs => "jupyter lab list" li
 function Wrapper-JupyterLab {
     [CmdletBinding()]
     param(
-        [string] $EnvConda = 'workenv',
-        [string] $RootDir = $code,
+        [string] $EnvConda = $default_conda_venv,
+        [string] $RootDir = $default_dir,
         [switch] $HiddenProcess,
         [switch] $Job,
         [switch] $URL,
@@ -72,17 +72,16 @@ function Wrapper-JupyterLab {
         $PSCmdlet.WriteVerbose("'-Logs' flag set, writing the logs of the jupyter_server currently running as a job")
         if ($running_servers_urls.Count -eq 0) {
             # Write-Error 'No jupyter server is currently running'
-            $Exception = [Exception]::new("No jupyter server is currently running")
             $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
-                $Exception,
-                "NoRunningServer",
+                [System.InvalidOperationException] 'No jupyter server is currently running',
+                'NoRunningServer',
                 [System.Management.Automation.ErrorCategory]::InvalidOperation,
                 # $TargetObject # usually the object that triggered the error, if possible
                 $null
             )
-            $PSCmdlet.WriteError($ErrorRecord)
+            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
         }
-        else {Write-JobServerLogs}
+        Get-JobServerLogs
         return
     }
     # check if a server is already running
@@ -109,7 +108,7 @@ function Wrapper-JupyterLab {
                 # reset $VerbosePreference and $InformationPreference for the nested prompt
                 if ($Verbose) {$VerbosePreference = $VerbosePreference_backup}
                 if (!$Silent) {$InformationPreference = $InformationPreference_backup}
-                $host.EnterNestedPrompt()
+                $Host.EnterNestedPrompt()
                 if ($Verbose) {$VerbosePreference = 'Continue'}
                 if (!$Silent) {$InformationPreference = 'Continue'}
             }
@@ -134,15 +133,25 @@ function Wrapper-JupyterLab {
             $PSCmdlet.WriteVerbose('Starting a new jupyter lab server')
             $PSCmdlet.WriteVerbose("Conda virtual environment used: '${EnvConda}'")
             $PSCmdlet.WriteVerbose("Root directory: '${RootDir}'")
-            if ($host.Version.Major -eq 5) {$pwsh_exe = 'powershell.exe'}
+            if ($Host.Version.Major -eq 5) {$pwsh_exe = 'powershell.exe'}
             else {$pwsh_exe = 'pwsh.exe'}
             $jupyer_lab_server_path = "${_powershell_dir}\utils\jupyter_lab_server.ps1"
             $commmand_str = "& ${jupyer_lab_server_path} -VEnv ${EnvConda} -RootDir ${RootDir}"
             $args_list = '-NoProfile', '-Command', $commmand_str
-            if ($HiddenProcess -and $Job) {Write-Error 'Both -HiddenProcess and -Job flags are set'; return}
+            if ($HiddenProcess -and $Job) {
+                # Write-Error 'Both -HiddenProcess and -Job flags are set'
+                $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+                    [System.ArgumentException] 'Both -HiddenProcess and -Job flags are set',
+                    'InvalidFlags',
+                    [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                    # $TargetObject # usually the object that triggered the error, if possible
+                    $null
+                )
+                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+            }
             elseif (!($HiddenProcess -or $Job)) { # process
                 # if ($PSCmdlet.ShouldProcess("Starting a new powershell process to host the server", "Start a new powershell process to host the server?", ''))
-                if (ShouldProcess-Yes-No -PSCmdlet:$PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
+                if (ShouldProcess-Yes-No -PSCmdlet $PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
                     -ConfirmQuestion 'Start a new powershell process to host the server?' -WhatIf:$WhatIf `
                     -WhatIfMessage 'Starting a new powershell process to host the server') {
                     Start-Process -FilePath $pwsh_exe -ArgumentList $args_list -WindowStyle 'Minimized'
@@ -150,7 +159,7 @@ function Wrapper-JupyterLab {
             }
             elseif ($HiddenProcess) {
                 # if ($PSCmdlet.ShouldProcess("Starting a new hidden powershell process to host the server", "Start a new hidden powershell process to host the server?", ''))
-                if (ShouldProcess-Yes-No -PSCmdlet:$PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
+                if (ShouldProcess-Yes-No -PSCmdlet $PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
                     -ConfirmQuestion 'Start a new hidden powershell process to host the server?' -WhatIf:$WhatIf `
                     -WhatIfMessage 'Starting a new hidden powershell process to host the server') {
                     Start-Process -FilePath $pwsh_exe -ArgumentList $args_list -WindowStyle 'Hidden'
@@ -158,7 +167,7 @@ function Wrapper-JupyterLab {
             }
             elseif ($Job) {
                 # if ($PSCmdlet.ShouldProcess("Starting a new powershell job to host the server", "Start a new powershell job to host the server?", ''))
-                if (ShouldProcess-Yes-No -PSCmdlet:$PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
+                if (ShouldProcess-Yes-No -PSCmdlet $PSCmdlet -Force:$Force -Confirm:$Confirm -ConfirmImpact 'Low' `
                     -ConfirmQuestion 'Start a new powershell job to host the server?' -WhatIf:$WhatIf -WhatIfMessage 'Starting a new powershell job to host the server') {
                     # Start-Job -Name 'jupyter_server' -ScriptBlock {. $using:profile -S; cda -VEnv $using:EnvConda; cd $using:RootDir; jupyter lab}
                     Start-Job -Name 'jupyter_server' -FilePath $jupyer_lab_server_path -ArgumentList $EnvConda, $RootDir
@@ -172,35 +181,34 @@ function Wrapper-JupyterLab {
 New-Item -Path Alias:jupyter_lab -Value Wrapper-JupyterLab -Force > $null
 
 
-function Write-JobServerLogs { # print the logs of the jupyter server when running in a job
+function Get-JobServerLogs { # print the logs of the jupyter server when running in a job
     [CmdletBinding()]
     param()
     $running_job_servers = Get-Job | ? {($_.Name -eq 'jupyter_server') -and ($_.State -eq 'Running')}
     if ($running_job_servers.Count -eq 0) {
         # Write-Error 'No jupyter server is currently running'
-        $Exception = [Exception]::new("No jupyter server is currently running as a job")
         $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
-            $Exception,
-            "NoRunningServerJob",
+            [System.InvalidOperationException] 'No jupyter server is currently running as a job',
+            'NoRunningServerJob',
             [System.Management.Automation.ErrorCategory]::InvalidOperation,
             # $TargetObject # usually the object that triggered the error, if possible
             $null
         )
-        $PSCmdlet.WriteError($ErrorRecord)
+        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
     }
-    elseif ($running_job_servers.Count -eq 1) {
+    if ($running_job_servers.Count -eq 1) {
         $PSCmdlet.WriteVerbose('Found a single running server as a job')
         Receive-Job $running_job_servers -keep
     }
     else {
         $PSCmdlet.WriteVerbose('Found multiple running servers as jobs')
-        $ofs = ', '
+        $OFS = ', '
         $chosen_id = Read-Host "Multiple jupyter servers are running as jobs, please select one job ID ($($running_job_servers.Id)) (default is most recent)"
         if ($chosen_id -eq '') {$chosen_id = ($running_job_servers.Id | Measure-Object -Maximum).Maximum}
         Receive-Job -Id $chosen_id -keep
     }
 }
-New-Item -Path Alias:jl -Value Write-JobServerLogs -Force > $null
+New-Item -Path Alias:jl -Value Get-JobServerLogs -Force > $null
 
 # need to work:
 # Kill-Jupyter-New -Port 8888, 8889 => kill servers running at port 8888 and 8889
@@ -218,7 +226,7 @@ New-Item -Path Alias:jl -Value Write-JobServerLogs -Force > $null
 # => $Port is null in begin, process and end
 
 function Kill-Jupyter {
-    # TODO: implement -Silent
+    # TODO: implement -Silent => impossible, cannot suppress jupyter server output
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     param(
         [Parameter(ValueFromPipeline)] [int[]] $Port,
@@ -230,7 +238,7 @@ function Kill-Jupyter {
             $PSCmdlet.WriteVerbose("'-Force' flag set, bypassing confirmation")
             $ConfirmPreference = 'None'
         }
-        $port_regex_pattern = 'http://localhost:([\d]+)/\?token=[\w]+'
+        $port_regex_pattern = 'http://localhost:(\d+)/\?token=\w+'
         if ($Env:CONDA_DEFAULT_ENV -eq 'workenv') {$conda_deactivate = $False}
         else {$PSCmdlet.WriteVerbose('Activating workenv for the command'); $conda_deactivate = $True; cda}
         $active_ports = Get-JupyterLabURL | ? {$_} | % {[regex]::matches($_, $port_regex_pattern).Groups} `

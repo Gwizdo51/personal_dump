@@ -159,7 +159,7 @@ $expandablestring = "$($mynumber)"
 Write-Host($staticstring)
 Write-Host($expandablestring)
 #>
-# <#
+<#
 # multiple lines strings
 $multiple_lines_string = @'
 first line
@@ -968,4 +968,21 @@ function MyCmdletProcess {
 # both work the same way:
 # => rm -Path @('.\test1.txt', '.\test2.txt') -Confirm
 # => @('.\test1.txt', '.\test2.txt') | rm -Confirm
+#>
+
+# <#
+# ValueFromRemainingArguments:
+function fake_python {
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromRemainingArguments)] [string[]] $Args
+    )
+
+    "Found $($Args.Count) elements"
+
+    for ($i = 0; $i -lt $Args.Count; $i++) {
+        "${i}: $($Args[$i])"
+    }
+}
+fake_python one two three four lol haha kekw --help -Verbose
 #>
