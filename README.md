@@ -34,9 +34,9 @@
 - [x] make Alias-Python prompt before activating conda
 - [x] convert Touch-File into a cmdlet
 - [x] add specific exception types to exceptions risen by cmdlets
+- [x] adapt "-Force" switch behavior in jupyter_server_wrapper.ps1 to bypass all confirmation
 
 ### *WIP*
-- [ ] adapt "-Force" switch behavior in jupyter_server_wrapper.ps1 to bypass all confirmation
 - [ ] add markdown (+ markdown viewer) notes
 
 ### *TODO*
