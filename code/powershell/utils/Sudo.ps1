@@ -46,9 +46,6 @@
 # >         $last_read_time = current_time
 # >     sleep 0.1s
 
-# $my_process = Start-Process -FilePath .\test.bat -PassThru
-# $my_process.HasExited
-
 # seconds until epoch:
 # (New-TimeSpan -Start (Get-Date "01/01/1970") -End (Get-Date)).TotalSeconds
 
@@ -57,6 +54,14 @@ function Run-AsAdmin {
     param ([switch]$SystemPS)
     # pass "-s" to use powershell.exe instead of pwsh.exe (slightly faster, it seems)
 
+    # if sudo is called in an admin terminal, run the command directly
+    $principal = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
+    $admin_role = [Security.Principal.WindowsBuiltInRole]::Administrator
+    if ($principal.IsInRole($admin_role)) {
+        Invoke-Expression "${args}"
+        return
+    }
+
     # create/clear sudo.bat and ps_buffer.txt
     $bat_script_path = "${_powershell_dir}\utils\sudo.bat"
     Out-File -FilePath $bat_script_path
@@ -64,18 +69,13 @@ function Run-AsAdmin {
 
     $cmd_prompt_args = @()
     foreach ($arg in $args) {
-        # $arg
         if (((type $arg) -eq 'System.String') -and ($arg -match '[ ''"]')) {
             # if a string argument contains either spaces or quotes,
             # replace all '"' with '`\"', and add '\"' at both ends
             $cmd_prompt_args += '\"' + ($arg -replace '"', '`\"') + '\"'
         }
         else {$cmd_prompt_args += [string] $arg}
-        # $cmd_prompt_args[-1]
     }
-    # return
-    # return $cmd_prompt_args
-    # return {$cmd_prompt_args}
 
     # make a .bat file (.\sudo.bat)
     # $cmd_prompt_args is a list of strings
@@ -87,17 +87,21 @@ function Run-AsAdmin {
     # if the current location path ends with a "\", add another to escape it
     if ($cwd[-1] -eq '\') {$cwd += '\'}
     $bat_file_content = "${pwsh_exe} -NoProfile -Command .  \`"`$profile\`" -Silent; cd \`"${cwd}\`"; ${cmd_prompt_args} > ${_ps_buffer}"
-    # return $bat_file_content
     $bat_file_content | Out-File -FilePath $bat_script_path -Encoding 'ascii' # need to add encoding because ps5 is a dumbass
-    # return
 
     # try {Start-Process -FilePath $bat_script_path -Verb 'RunAs' -WindowStyle 'Minimized' -PassThru | Wait-Process}
     try {$sudo_process = Start-Process -FilePath $bat_script_path -Verb 'RunAs' -WindowStyle 'Minimized' -PassThru}
-    catch [System.InvalidOperationException] {Write-Error "The operation was canceled by the user"; return}
-    catch {"another error"; $PSItem | select *; return}
+    catch [System.InvalidOperationException] {
+        Write-Error "The operation was canceled by the user"
+        return
+    }
+    catch {
+        "another error"
+        $PSItem | select *
+        return
+    }
 
     $sudo_output_prefix = "[$($colors_table.bcol_Blue)ADMIN$($colors_table.col_def)]"
-    # foreach ($line in $(read $_ps_buffer)) {Write-Host $sudo_output_prefix $line}
     # scan $_ps_buffer every second until the process is over
     $last_read_time = 0
     $index_last_line_printed = -1
@@ -133,9 +137,5 @@ function Run-AsAdmin {
         }
         ++$index_line
     }
-
-    # empty sudo.bat and ps_buffer.txt
-    # Out-File -FilePath $bat_script_path
-    # Out-File -FilePath $_ps_buffer
 }
 New-Item -Path Alias:sudo -Value Run-AsAdmin -Force > $null

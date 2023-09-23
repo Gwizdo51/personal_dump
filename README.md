@@ -1,7 +1,7 @@
 # TODO list
 
 ### *WIP*
-- [ ] make sudo run the command directly in the terminal if it has elevated privileges
+- [ ] add more verbose to profile
 - [ ] add markdown (+ markdown viewer) notes
 
 ### *TODO*
@@ -65,6 +65,7 @@
 - [x] convert Touch-File into a cmdlet
 - [x] add specific exception types to exceptions risen by cmdlets
 - [x] adapt "-Force" switch behavior in jupyter_server_wrapper.ps1 to bypass all confirmation
+- [x] make sudo run the command directly in the terminal if it has elevated privileges
 
 # Ideas
 
