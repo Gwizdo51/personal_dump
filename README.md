@@ -4,12 +4,13 @@
 - [ ] add more verbose to profile
 - [ ] add markdown (+ markdown viewer) notes
 - [ ] add notes on connecting PS4 controller on windows
+- [ ] make an "Update" cmdlet (conda, git, terminal, powershell, powertoys)
 
 ### *TODO*
-- [ ] add Recycle cmdlet
+- [ ] make a "Recycle" cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
-- [ ] make a Restart-System cmdlet
-- [ ] make a Get-Size cmdlet
+- [ ] make a "Restart-System" cmdlet
+- [ ] make a "Get-Size" cmdlet
 - [ ] add powershell docstrings to own cmdlets
 - [ ] add tkinter tests
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior

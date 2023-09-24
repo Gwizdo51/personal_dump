@@ -331,10 +331,14 @@ function Windows-Terminal { # allows opening a windows terminal as admin with no
     else {wt.exe $args}
 }
 New-Item -Path Alias:wt -Value Windows-Terminal -Force | Out-Null
+function Update-WindowsTerminal {winget upgrade --name Terminal}
+New-Item -Path Alias:terminal_update -Value Update-WindowsTerminal -Force | Out-Null
 function Update-PS7 {winget upgrade --id Microsoft.PowerShell}
-New-Item -Path Alias:psupdate -Value Update-PS7 -Force | Out-Null
+New-Item -Path Alias:ps_update -Value Update-PS7 -Force | Out-Null
 function Update-Git {git update-git-for-windows}
 New-Item -Path Alias:git_update -Value Update-Git -Force | Out-Null
+function Update-PowerToys {winget upgrade --id Microsoft.PowerToys}
+New-Item -Path Alias:powertoys_update -Value Update-PowerToys -Force | Out-Null
 
 ### powershell stuff
 function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
