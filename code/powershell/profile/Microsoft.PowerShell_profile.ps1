@@ -9,18 +9,14 @@ $horoview = "${code}\projects\01_horoview"
 # "$dump" must point to the root of this git repository
 $dump = "${code}\personal_dump"
 
-# - Git
-# "$Env:GIT_EXE" must point to the git.exe executable
-$Env:GIT_EXE = 'C:\Program Files\Git\cmd\git.exe'
-
 # <#
 # - Anaconda
 # comment this block if anaconda isn't installed
 # "$Env:_CONDA_ROOT" must point to the anaconda installation directory (anaconda3)
 $Env:_CONDA_ROOT = 'C:\ProgramData\anaconda3'
-# default conda venv (default is 'base')
+# default conda venv (default: 'base')
 $default_conda_venv = 'workenv'
-# default root directory for jupyter lab (default is $HOME)
+# default root directory for jupyter lab (default: $HOME)
 $default_dir = $code
 #>
 

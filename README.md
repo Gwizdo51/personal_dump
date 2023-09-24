@@ -1,4 +1,36 @@
-# TODO
+# TODO list
+
+### *WIP*
+- [ ] add more verbose to profile
+- [ ] add markdown (+ markdown viewer) notes
+- [ ] add notes on connecting PS4 controller on windows
+
+### *TODO*
+- [ ] add Recycle cmdlet
+- [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
+- [ ] make a Restart-System cmdlet
+- [ ] make a Get-Size cmdlet
+- [ ] add powershell docstrings to own cmdlets
+- [ ] add tkinter tests
+- [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
+- [ ] make every DotDict dict method consistent with the dict class
+- [ ] mess with [PSReadLine](https://learn.microsoft.com/en-us/powershell/module/psreadline/?view=powershell-7.3)
+- [ ] make pretty_string_factory a module on its own
+- [ ] add a docstring to logger_factory.py and touch.py
+- [ ] add unit tests for dotdict.py
+- [ ] add django notes + test code
+- [ ] add ssh notes
+- [ ] add windows command prompt notes
+- [ ] add linux + bash notes
+- [ ] add vscode JSON config files
+- [ ] add a RegEx UUID detector to tests.py
+- [ ] test python decorators
+- [ ] add windows notes about setting up coding environment (vs code, windows terminal, powershell, anaconda, git)
+- [ ] add windows notes about adding virtual memory
+- [ ] add git flow notes
+- [ ] add keyboard shortcut to start screensaver on demand on windows
+- [ ] create "Réussite" game
+- [ ] reinstall OS at some point (never update conda on base with conda-forge, btw)
 
 ### *DONE*
 - [x] add .gitattribute file
@@ -35,33 +67,8 @@
 - [x] convert Touch-File into a cmdlet
 - [x] add specific exception types to exceptions risen by cmdlets
 - [x] adapt "-Force" switch behavior in jupyter_server_wrapper.ps1 to bypass all confirmation
-
-### *WIP*
-- [ ] add markdown (+ markdown viewer) notes
-
-### *TODO*
-- [ ] add Recycle cmdlet
-- [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
-- [ ] make a Restart-System cmdlet
-- [ ] make a Get-Size cmdlet
-- [ ] add tkinter tests
-- [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
-- [ ] make every DotDict dict method consistent with the dict class
-- [ ] mess with [PSReadLine](https://learn.microsoft.com/en-us/powershell/module/psreadline/?view=powershell-7.3)
-- [ ] make pretty_string_factory a module on its own
-- [ ] add a docstring to logger_factory.py and touch.py
-- [ ] add unit tests for dotdict.py
-- [ ] add django notes + test code
-- [ ] add ssh notes
-- [ ] add vscode JSON config files
-- [ ] add a RegEx UUID detector to tests.py
-- [ ] test python decorators
-- [ ] add windows notes about setting up coding environment (vs code, windows terminal, powershell, anaconda, git)
-- [ ] add windows notes about adding virtual memory
-- [ ] add git flow notes
-- [ ] add keyboard shortcut to start screensaver on demand on windows
-- [ ] create "Réussite" game
-- [ ] reinstall OS at some point (never update conda on base with conda-forge, btw)
+- [x] make sudo run the command directly in the terminal if it has elevated privileges
+- [x] make sudo always run in the version of powershell that called it
 
 # Ideas
 
