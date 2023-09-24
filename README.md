@@ -1,7 +1,6 @@
 # TODO list
 
 ### *WIP*
-- [ ] make sudo always run in the version of powershell that called it
 - [ ] add more verbose to profile
 - [ ] add markdown (+ markdown viewer) notes
 - [ ] add notes on connecting PS4 controller on windows
@@ -68,6 +67,7 @@
 - [x] add specific exception types to exceptions risen by cmdlets
 - [x] adapt "-Force" switch behavior in jupyter_server_wrapper.ps1 to bypass all confirmation
 - [x] make sudo run the command directly in the terminal if it has elevated privileges
+- [x] make sudo always run in the version of powershell that called it
 
 # Ideas
 

@@ -423,7 +423,7 @@ function is_var_assigned {
 If (Test-Path "$home\anaconda3\Scripts\conda.exe") {
     $Env:_is_conda_set_up = $false
     function conda_set_up {
-        # Write-host "is conda not set up: $Env:_is_conda_set_up"
+        # Write-Host "is conda not set up: $Env:_is_conda_set_up"
         if ($Env:_is_conda_set_up -eq $false) {
             # $f_tick = Get-Date
             Write-Host 'Setting up conda ...'
