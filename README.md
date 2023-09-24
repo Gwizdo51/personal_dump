@@ -21,6 +21,7 @@
 - [ ] add django notes + test code
 - [ ] add ssh notes
 - [ ] add windows command prompt notes
+- [ ] add linux + bash notes
 - [ ] add vscode JSON config files
 - [ ] add a RegEx UUID detector to tests.py
 - [ ] test python decorators

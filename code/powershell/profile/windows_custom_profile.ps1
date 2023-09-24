@@ -67,12 +67,12 @@ $colors_table = _gen_colors_hashtable
 
 function _gen_git_prompt {
     # look for possible branch name, silence git "not in git repo" error
-    $branch = $(& $Env:GIT_EXE 'rev-parse' '--abbrev-ref' 'HEAD' 2> $null)
+    $branch = $(& 'git.exe' 'rev-parse' '--abbrev-ref' 'HEAD' 2> $null)
     if ($branch -eq $null) { # not in a git repo, don't return anything
         return ''
     }
     if ($branch -eq 'HEAD') { # we're in detached HEAD state, so print the SHA
-        return "($($colors_table.col_Red)$(& $Env:GIT_EXE 'rev-parse' '--short' 'HEAD')$($colors_table.col_def))"
+        return "($($colors_table.col_Red)$(& 'git.exe' 'rev-parse' '--short' 'HEAD')$($colors_table.col_def))"
     }
     else { # we're on an actual branch, so print it
         return "($($colors_table.col_Blue)$($branch)$($colors_table.col_def))"
@@ -186,7 +186,7 @@ New-Item -Path Alias:python -Value Alias-Python -Force | Out-Null
 ### git
 function Alias-GIT {
     # call git
-    & $Env:GIT_EXE $args
+    & 'git.exe' $args
     # udpate $Env:_GIT_PROMPT_MODIFIER
     Alias-CD -DirPath '.'
 }

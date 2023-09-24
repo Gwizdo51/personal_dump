@@ -9,10 +9,6 @@ $horoview = "${code}\projects\01_horoview"
 # "$dump" must point to the root of this git repository
 $dump = "${code}\personal_dump"
 
-# - Git
-# "$Env:GIT_EXE" must point to the git.exe executable
-$Env:GIT_EXE = 'C:\Program Files\Git\cmd\git.exe'
-
 # <#
 # - Anaconda
 # comment this block if anaconda isn't installed
