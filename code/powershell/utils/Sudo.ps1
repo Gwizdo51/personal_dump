@@ -84,7 +84,7 @@ function Run-AsAdmin {
     if (($host.Version.Major -eq 5) -or ($SystemPS)) {$pwsh_exe = 'powershell.exe'}
     else {$pwsh_exe = 'pwsh.exe'}
     $cwd = (Get-Location).Path
-    # if the current location path ends with a "\", add another to escape it
+    # if the current location path ends with a "\" (drive roots), add another to escape it
     if ($cwd[-1] -eq '\') {$cwd += '\'}
     $bat_file_content = "${pwsh_exe} -NoProfile -Command .  \`"`$profile\`" -Silent; cd \`"${cwd}\`"; ${cmd_prompt_args} > ${_ps_buffer}"
     $bat_file_content | Out-File -FilePath $bat_script_path -Encoding 'ascii' # need to add encoding because ps5 is a dumbass
@@ -138,4 +138,4 @@ function Run-AsAdmin {
         ++$index_line
     }
 }
-New-Item -Path Alias:sudo -Value Run-AsAdmin -Force > $null
+New-Item -Path Alias:sudo -Value Run-AsAdmin -Force | Out-Null

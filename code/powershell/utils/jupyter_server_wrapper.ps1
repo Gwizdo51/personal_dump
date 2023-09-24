@@ -198,7 +198,7 @@ function Wrapper-JupyterLab {
         default {throw 'This should never be thrown'}
     }
 }
-New-Item -Path Alias:jupyter_lab -Value Wrapper-JupyterLab -Force > $null
+New-Item -Path Alias:jupyter_lab -Value Wrapper-JupyterLab -Force | Out-Null
 
 
 function Get-JobServerLogs { # print the logs of the jupyter server when running in a job
@@ -228,7 +228,7 @@ function Get-JobServerLogs { # print the logs of the jupyter server when running
         Receive-Job -Id $chosen_id -keep
     }
 }
-# New-Item -Path Alias:jl -Value Get-JobServerLogs -Force > $null
+# New-Item -Path Alias:jl -Value Get-JobServerLogs -Force | Out-Null
 
 # need to work:
 # Kill-Jupyter-New -Port 8888, 8889 => kill servers running at port 8888 and 8889
@@ -264,10 +264,10 @@ function Kill-Jupyter {
         }
         # Write-Host 'Kill-Jupyter $ConfirmPreference', $ConfirmPreference
         $port_regex_pattern = 'http://localhost:(\d+)/\?token=\w+'
-        if ($Env:CONDA_DEFAULT_ENV -eq $default_conda_venv) {$conda_deactivate = $False}
+        if ($Env:CONDA_DEFAULT_ENV -eq $default_conda_venv) {$conda_deactivate = $false}
         else {
             $PSCmdlet.WriteVerbose("Kill-Jupyter: Activating ${default_conda_venv} for the command")
-            $conda_deactivate = $True
+            $conda_deactivate = $true
             Conda-Activate
         }
         $active_ports = Get-JupyterLabURL | ? {$_} | % {[regex]::matches($_, $port_regex_pattern).Groups} `

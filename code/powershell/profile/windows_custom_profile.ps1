@@ -15,27 +15,28 @@ if ($Verbose) {
     $VerbosePreference = 'Continue'
 }
 
-Write-Information "Loading personal profile (windows_custom_profile.ps1)..."
+Write-Information "Loading personal profile (${custom_profile})..."
 
 
 #############
 ### CONDA ###
 #############
 
-if (Test-Path -Path 'Env:_CONDA_ROOT') {
+if (Test-Path -Path 'Env:\_CONDA_ROOT') {
     Write-Verbose 'Setting up Conda ...'
     $Env:CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
     $Env:_CONDA_EXE = "${Env:_CONDA_ROOT}\Scripts\conda.exe"
-    Import-Module "${Env:_CONDA_ROOT}\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False} -Verbose:$False
+    Import-Module "${Env:_CONDA_ROOT}\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $false} -Verbose:$false
     # conda activate base
 }
+else {Write-Verbose 'Conda not installed, skipping'}
 
 
 ##############
 ### PROMPT ###
 ##############
 
-Write-Verbose 'Setting up prompt colors ...'
+Write-Verbose 'Setting up prompt ...'
 function _gen_colors_hashtable {
     function gen_color_char {
         param ([int] $color_char_number)
@@ -138,9 +139,9 @@ $_ps_buffer = "${_powershell_dir}\profile\ps_buffer.txt"
 ##############
 
 # registry
-New-PSDrive -Name 'HKCR' -PSProvider 'Registry' -Root 'HKEY_CLASSES_ROOT' *> $null
-New-PSDrive -Name 'HKU' -PSProvider 'Registry' -Root 'HKEY_USERS' *> $null
-New-PSDrive -Name 'HKCC' -PSProvider 'Registry' -Root 'HKEY_CURRENT_CONFIG' *> $null
+New-PSDrive -Name 'HKCR' -PSProvider 'Registry' -Root 'HKEY_CLASSES_ROOT' -ErrorAction 'SilentlyContinue' | Out-Null
+New-PSDrive -Name 'HKU' -PSProvider 'Registry' -Root 'HKEY_USERS'  -ErrorAction 'SilentlyContinue' | Out-Null
+New-PSDrive -Name 'HKCC' -PSProvider 'Registry' -Root 'HKEY_CURRENT_CONFIG' -ErrorAction 'SilentlyContinue' | Out-Null
 
 
 ###############
@@ -152,11 +153,11 @@ function Conda-Activate {
     param($VEnv = $default_conda_venv) # default to $default_conda_venv instead of "base"
     conda activate $VEnv
 }
-New-Item -Path Alias:cda -Value Conda-Activate -Force > $null
+New-Item -Path Alias:cda -Value Conda-Activate -Force | Out-Null
 function Conda-Deactivate {conda deactivate}
-New-Item -Path Alias:cdd -Value Conda-Deactivate -Force > $null
+New-Item -Path Alias:cdd -Value Conda-Deactivate -Force | Out-Null
 function Conda-Update {conda update conda -n base -c defaults -y}
-New-Item -Path Alias:cdu -Value Conda-Update -Force > $null
+New-Item -Path Alias:cdu -Value Conda-Update -Force | Out-Null
 
 ### python
 function Alias-Python {
@@ -180,7 +181,7 @@ function Alias-Python {
         }
     }
 }
-New-Item -Path Alias:python -Value Alias-Python -Force > $null
+New-Item -Path Alias:python -Value Alias-Python -Force | Out-Null
 
 ### git
 function Alias-GIT {
@@ -189,20 +190,20 @@ function Alias-GIT {
     # udpate $Env:_GIT_PROMPT_MODIFIER
     Alias-CD -DirPath '.'
 }
-New-Item -Path Alias:git -Value Alias-GIT -Force > $null
+New-Item -Path Alias:git -Value Alias-GIT -Force | Out-Null
 function Git-Tree {git log --graph --decorate --pretty=oneline --abbrev-commit}
-New-Item -Path Alias:git_tree -Value Git-Tree -Force > $null
+New-Item -Path Alias:git_tree -Value Git-Tree -Force | Out-Null
 function Git-PullSubmodules {git submodules update --init --recursive}
-New-Item -Path Alias:git_ps -Value Git-PullSubmodules -Force > $null
+New-Item -Path Alias:git_ps -Value Git-PullSubmodules -Force | Out-Null
 function Git-UpdateSubmodules {git submodules update --init --recursive --remote}
-New-Item -Path Alias:git_us -Value Git-UpdateSubmodules -Force > $null
+New-Item -Path Alias:git_us -Value Git-UpdateSubmodules -Force | Out-Null
 function Git-FetchStatus {git fetch --all; git status}
-New-Item -Path Alias:gfs -Value Git-FetchStatus -Force > $null
+New-Item -Path Alias:gfs -Value Git-FetchStatus -Force | Out-Null
 
 ### shell stuff
 # edit the profile file in VSCode
 function Edit-Profile {code $PROFILE}
-New-Item -Path Alias:ep -Value Edit-Profile -Force > $null
+New-Item -Path Alias:ep -Value Edit-Profile -Force | Out-Null
 function Alias-CD {
     [CmdletBinding()]
     param([string] $DirPath)
@@ -219,8 +220,8 @@ function Alias-CD {
     }
 }
 # override "cd" alias with cd_alias
-New-Item -Path Alias:cd -Value Alias-CD -Force > $null
-New-Item -Path Alias:read -Value Get-Content -Force > $null
+New-Item -Path Alias:cd -Value Alias-CD -Force | Out-Null
+New-Item -Path Alias:read -Value Get-Content -Force | Out-Null
 # items listing:
 # mode:
 # l (link)
@@ -254,13 +255,13 @@ function List-Items {
         }
     }
 }
-New-Item -Path Alias:l -Value List-Items -Force > $null
-New-Item -Path Alias:la -Value List-Items -Force > $null
+New-Item -Path Alias:l -Value List-Items -Force | Out-Null
+New-Item -Path Alias:la -Value List-Items -Force | Out-Null
 function List-ItemsRecursive {Invoke-Expression "List-Items -Recurse ${args}"}
-New-Item -Path Alias:lr -Value List-ItemsRecursive -Force > $null
+New-Item -Path Alias:lr -Value List-ItemsRecursive -Force | Out-Null
 
 function Find-Item {Get-ChildItem -Recurse -Filter $args[0]}
-New-Item -Path Alias:find -Value Find-Item -Force > $null
+New-Item -Path Alias:find -Value Find-Item -Force | Out-Null
 # function Touch {python "D:\code\personal_dump\code\python\touch.py" $args}
 function Touch-File {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Medium')]
@@ -275,12 +276,12 @@ function Touch-File {
         }
     }
 }
-New-Item -Path Alias:touch -Value Touch-File -Force > $null
+New-Item -Path Alias:touch -Value Touch-File -Force | Out-Null
 function Get-Path {Write-Output "${Env:Path}".Split(';')}
-New-Item -Path Alias:path -Value Get-Path -Force > $null
-New-Item -Path Alias:gj -Value Get-Job -Force > $null
+New-Item -Path Alias:path -Value Get-Path -Force | Out-Null
+New-Item -Path Alias:gj -Value Get-Job -Force | Out-Null
 function Clear-Job {Get-Job | ? {$_.State -ne 'Running'} | Remove-Job}
-New-Item -Path Alias:cj -Value Clear-Job -Force > $null
+New-Item -Path Alias:cj -Value Clear-Job -Force | Out-Null
 function Stop-ProcessTree {
     Param([int] $parent_id)
     # ? = Where-Object | % = ForEach-Object
@@ -293,10 +294,10 @@ function Get-FullHelp {
     param([string] $function)
     Get-Help -Full $function
 }
-New-Item -Path Alias:man2 -Value Get-FullHelp -Force > $null
+New-Item -Path Alias:man2 -Value Get-FullHelp -Force | Out-Null
 
 ### Windows specific stuff
-New-Item -Path Alias:np -Value notepad -Force > $null
+New-Item -Path Alias:np -Value notepad -Force | Out-Null
 function Make-SymLink {
     [CmdletBinding()]
     param(
@@ -317,27 +318,27 @@ function Make-SymLink {
     }
     New-Item -ItemType 'SymbolicLink' -Path $LinkPath -Target (Get-Item $TargetPath).ResolvedTarget
 }
-New-Item -Path Alias:mklink -Value Make-SymLink -Force > $null
+New-Item -Path Alias:mklink -Value Make-SymLink -Force | Out-Null
 function Open-Ise {
     # opens a file in PowerShell ISE
 }
-New-Item -Path Alias:ise -Value Open-Ise -Force > $null
+New-Item -Path Alias:ise -Value Open-Ise -Force | Out-Null
 function Windows-Terminal { # allows opening a windows terminal as admin with no confirmation
-    $as_admin = $False
-    foreach ($arg in $args) {if ($arg -match '^(--as-admin|-a)$') {$as_admin = $True}}
+    $as_admin = $false
+    foreach ($arg in $args) {if ($arg -match '^(--as-admin|-a)$') {$as_admin = $true}}
     # $wt_args = $args | ? {($_ -ne '--as-admin') -and ($_ -ne '-a')}
     if ($as_admin) {ii "${HOME}\Desktop\wt_asadmin.lnk"}
     else {wt.exe $args}
 }
-New-Item -Path Alias:wt -Value Windows-Terminal -Force > $null
-function Update-PS7 {winget upgrade --name powershell}
-New-Item -Path Alias:psupdate -Value Update-PS7 -Force > $null
+New-Item -Path Alias:wt -Value Windows-Terminal -Force | Out-Null
+function Update-PS7 {winget upgrade --id Microsoft.PowerShell}
+New-Item -Path Alias:psupdate -Value Update-PS7 -Force | Out-Null
 function Update-Git {git update-git-for-windows}
-New-Item -Path Alias:git_update -Value Update-Git -Force > $null
+New-Item -Path Alias:git_update -Value Update-Git -Force | Out-Null
 
 ### powershell stuff
 function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
-New-Item -Path Alias:type -Value Get-Type -Force > $Null
+New-Item -Path Alias:type -Value Get-Type -Force | Out-Null
 function Test-TextColors { # tests the string colors of the terminal
     param([string[]] $color_names = ("Black","Red","Green","Yellow","Blue","Magenta","Cyan","White"))
     foreach ($color_name in $color_names) {
@@ -348,7 +349,7 @@ function Test-TextColors { # tests the string colors of the terminal
     }
     "$($colors_table.col_def)"
 }
-New-Item -Path Alias:color_test -Value Test-TextColors -Force > $Null
+New-Item -Path Alias:color_test -Value Test-TextColors -Force | Out-Null
 
 
 ###############
@@ -420,10 +421,10 @@ function is_var_assigned {
 }
 
 If (Test-Path "$home\anaconda3\Scripts\conda.exe") {
-    $Env:_is_conda_set_up = $False
+    $Env:_is_conda_set_up = $false
     function conda_set_up {
         # Write-host "is conda not set up: $Env:_is_conda_set_up"
-        if ($Env:_is_conda_set_up -eq $False) {
+        if ($Env:_is_conda_set_up -eq $false) {
             # $f_tick = Get-Date
             Write-Host 'Setting up conda ...'
             # (& "$($home)\anaconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
@@ -438,10 +439,10 @@ If (Test-Path "$home\anaconda3\Scripts\conda.exe") {
             # & "$($home)\anaconda3\Scripts\conda.exe" shell.powershell hook | ?{$_} | iex
             # & "$($Env:_CONDA_ROOT)\Scripts\conda.exe" 'shell.powershell' 'hook' > $null
             # conda PS module
-            # Import-Module "$($Env:_CONDA_ROOT)\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $False}
-            Import-Module "$dump\code\powershell\Conda.psm1" -ArgumentList @{ChangePs1 = $False} #-Verbose
+            # Import-Module "$($Env:_CONDA_ROOT)\shell\condabin\Conda.psm1" -ArgumentList @{ChangePs1 = $false}
+            Import-Module "$dump\code\powershell\Conda.psm1" -ArgumentList @{ChangePs1 = $false} #-Verbose
             # Conda.psm1 overrides "conda" alias by itself
-            $Env:_is_conda_set_up = $True
+            $Env:_is_conda_set_up = $true
             # $f_tock = Get-Date
             # Write-Host "Conda load time: $([math]::Round($load_time, 3))"
         }
@@ -451,7 +452,7 @@ If (Test-Path "$home\anaconda3\Scripts\conda.exe") {
         conda_set_up
         conda $args
     }
-    New-Item -Path Alias:conda -Value Alias-Conda-Profile -Force > $null
+    New-Item -Path Alias:conda -Value Alias-Conda-Profile -Force | Out-Null
 }
 #>
 

@@ -52,14 +52,14 @@ function ShouldProcess-Yes-No {
     $should_confirm = $($ConfirmImpact_int -ge $ConfirmPreference_int)
     # Write-Host $should_confirm
     if ($WhatIf) {
-        $user_answer = $False
+        $user_answer = $false
         $PSCmdlet.WriteInformation("What if: ${WhatIfMessage}", '')
     }
     elseif ($Confirm -or $should_confirm) {
         $user_answer = $PSCmdlet.ShouldContinue("${ConfirmQuestion}", '')
     }
     else {
-        $user_answer = $True
+        $user_answer = $true
         # Write the WhatIf message as a verbose message
         $PSCmdlet.WriteVerbose($WhatIfMessage)
     }

@@ -1,8 +1,10 @@
 # TODO list
 
 ### *WIP*
+- [ ] make sudo always run in the version of powershell that called it
 - [ ] add more verbose to profile
 - [ ] add markdown (+ markdown viewer) notes
+- [ ] add notes on connecting PS4 controller on windows
 
 ### *TODO*
 - [ ] add Recycle cmdlet
