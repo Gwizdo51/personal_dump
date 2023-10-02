@@ -20,10 +20,6 @@ $default_conda_venv = 'workenv'
 $default_dir = $code
 #>
 
-# "$Env:GCC_EXE" must point to the 'gcc.exe' file in MinGW/bin
-# comment this line if MinGW/bin is in the path or isn't installed
-$Env:GCC_EXE = 'D:\Programs\MinGW\bin\gcc.exe'
-
 
 # run windows_custom_profile.ps1
 $custom_profile = "${dump}\code\powershell\profile\windows_custom_profile.ps1"

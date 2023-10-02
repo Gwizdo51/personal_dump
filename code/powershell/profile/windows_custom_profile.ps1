@@ -213,10 +213,8 @@ function GCC-Wrapper {
     if ($OutputFileName -eq '') {
         $OutputFileName = Split-Path -Path $SourceFilePath -LeafBase
     }
-    if (Test-Path -Path 'Env:\GCC_EXE') { # gcc.exe path has been provided
-        & $Env:GCC_EXE ${SourceFilePath} -o ${OutputFileName} -Wall
-    }
-    elseif (where.exe 'gcc.exe' *> $null) { # gcc is in the path
+    where.exe 'gcc.exe' *> $null
+    if ($?) { # gcc is in the path
         gcc.exe $SourceFilePath -o $OutputFileName -Wall
     }
     else {
