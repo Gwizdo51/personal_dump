@@ -200,6 +200,31 @@ New-Item -Path Alias:git_us -Value Git-UpdateSubmodules -Force | Out-Null
 function Git-FetchStatus {git fetch --all; git status}
 New-Item -Path Alias:gfs -Value Git-FetchStatus -Force | Out-Null
 
+### gcc
+function GCC-Wrapper {
+    param(
+        [string] $SourceFilePath,
+        [string] $OutputFileName = ''
+    )
+    if (-not (Test-Path -Path $SourceFilePath)) {
+        Write-Error 'Missing source file'
+        return
+    }
+    if ($OutputFileName -eq '') {
+        $OutputFileName = Split-Path -Path $SourceFilePath -LeafBase
+    }
+    if (Test-Path -Path 'Env:\GCC_EXE') { # gcc.exe path has been provided
+        & $Env:GCC_EXE ${SourceFilePath} -o ${OutputFileName} -Wall
+    }
+    elseif (where.exe 'gcc.exe' *> $null) { # gcc is in the path
+        gcc.exe $SourceFilePath -o $OutputFileName -Wall
+    }
+    else {
+        Write-Error 'Missing gcc.exe compiler'
+    }
+}
+New-Item -Path Alias:gcc -Value GCC-Wrapper -Force | Out-Null
+
 ### shell stuff
 # edit the profile file in VSCode
 function Edit-Profile {code $PROFILE}
