@@ -362,6 +362,35 @@ function Update-Git {git update-git-for-windows}
 New-Item -Path Alias:git_update -Value Update-Git -Force | Out-Null
 function Update-PowerToys {winget upgrade --id Microsoft.PowerToys}
 New-Item -Path Alias:powertoys_update -Value Update-PowerToys -Force | Out-Null
+function Update-Software {
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Medium')]
+    param(
+        [switch] $All,
+        [switch] $WindowsTerminal,
+        [switch] $PS7,
+        [switch] $Git,
+        [switch] $Powertoys
+    )
+    if ($All) { # update everything if -All is passed
+        $PSCmdlet.WriteVerbose("Update-Software: Updating all updatable software")
+        # $WindowsTerminal = $true
+        # $PS7 = $true
+        # $Git = $true
+        # $Powertoys = $true
+        $WindowsTerminal = $PS7 = $Git = $Powertoys = $true
+    }
+    if ($WindowsTerminal) {
+        if ($PSCmdlet.ShouldProcess(
+            "Update-Software: Updating Windows Terminal",
+            "Update-Software: Update Windows Terminal?",
+            ''
+        )) {winget upgrade --name Terminal}
+    }
+    if ($PS7) {winget upgrade --id Microsoft.PowerShell}
+    if ($Git) {git update-git-for-windows}
+    if ($Powertoys) {winget upgrade --id Microsoft.PowerToys}
+}
+New-Item -Path Alias:update -Value Update-Software -Force | Out-Null
 
 ### powershell stuff
 function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
@@ -387,9 +416,9 @@ New-Item -Path Alias:color_test -Value Test-TextColors -Force | Out-Null
 . "${_powershell_dir}\utils\Confirm.ps1"
 # jupyter lab wrapper
 . "${_powershell_dir}\utils\jupyter_server_wrapper.ps1"
-# Recycle bin
+# recycle bin
 . "${_powershell_dir}\utils\Recycle.ps1"
-# Sudo
+# sudo
 . "${_powershell_dir}\utils\Sudo.ps1"
 
 
