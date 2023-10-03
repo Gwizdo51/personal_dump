@@ -156,8 +156,6 @@ function Conda-Activate {
 New-Item -Path Alias:cda -Value Conda-Activate -Force | Out-Null
 function Conda-Deactivate {conda deactivate}
 New-Item -Path Alias:cdd -Value Conda-Deactivate -Force | Out-Null
-function Conda-Update {conda update conda -n base -c defaults -y}
-New-Item -Path Alias:cdu -Value Conda-Update -Force | Out-Null
 
 ### python
 function Alias-Python {
@@ -354,14 +352,6 @@ function Windows-Terminal { # allows opening a windows terminal as admin with no
     else {wt.exe $args}
 }
 New-Item -Path Alias:wt -Value Windows-Terminal -Force | Out-Null
-function Update-WindowsTerminal {winget upgrade --name Terminal}
-New-Item -Path Alias:terminal_update -Value Update-WindowsTerminal -Force | Out-Null
-function Update-PS7 {winget upgrade --id Microsoft.PowerShell}
-New-Item -Path Alias:ps_update -Value Update-PS7 -Force | Out-Null
-function Update-Git {git update-git-for-windows}
-New-Item -Path Alias:git_update -Value Update-Git -Force | Out-Null
-function Update-PowerToys {winget upgrade --id Microsoft.PowerToys}
-New-Item -Path Alias:powertoys_update -Value Update-PowerToys -Force | Out-Null
 function Update-Software {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Medium')]
     param(
@@ -369,26 +359,48 @@ function Update-Software {
         [switch] $WindowsTerminal,
         [switch] $PS7,
         [switch] $Git,
-        [switch] $Powertoys
+        [switch] $Powertoys,
+        [switch] $Conda
     )
     if ($All) { # update everything if -All is passed
-        $PSCmdlet.WriteVerbose("Update-Software: Updating all updatable software")
-        # $WindowsTerminal = $true
-        # $PS7 = $true
-        # $Git = $true
-        # $Powertoys = $true
-        $WindowsTerminal = $PS7 = $Git = $Powertoys = $true
+        $PSCmdlet.WriteVerbose('Update-Software: Updating all updatable software')
+        $WindowsTerminal = $PS7 = $Git = $Powertoys = $Conda = $true
     }
     if ($WindowsTerminal) {
         if ($PSCmdlet.ShouldProcess(
-            "Update-Software: Updating Windows Terminal",
-            "Update-Software: Update Windows Terminal?",
+            'Update-Software: Updating Windows Terminal',
+            'Update-Software: Update Windows Terminal?',
             ''
         )) {winget upgrade --name Terminal}
     }
-    if ($PS7) {winget upgrade --id Microsoft.PowerShell}
-    if ($Git) {git update-git-for-windows}
-    if ($Powertoys) {winget upgrade --id Microsoft.PowerToys}
+    if ($PS7) {
+        if ($PSCmdlet.ShouldProcess(
+            'Update-Software: Updating Powershell',
+            'Update-Software: Update Powershell?',
+            ''
+        )) {winget upgrade --id Microsoft.PowerShell}
+    }
+    if ($Git) {
+        if ($PSCmdlet.ShouldProcess(
+            'Update-Software: Updating Git',
+            'Update-Software: Update Git?',
+            ''
+        )) {git update-git-for-windows}
+    }
+    if ($Powertoys) {
+        if ($PSCmdlet.ShouldProcess(
+            'Update-Software: Updating Powertoys',
+            'Update-Software: Update Powertoys?',
+            ''
+        )) {winget upgrade --id Microsoft.PowerToys}
+    }
+    if ($Conda) {
+        if ($PSCmdlet.ShouldProcess(
+            'Update-Software: Updating Conda',
+            'Update-Software: Update Conda?',
+            ''
+        )) {conda update conda -n base -c defaults -y}
+    }
 }
 New-Item -Path Alias:update -Value Update-Software -Force | Out-Null
 

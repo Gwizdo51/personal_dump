@@ -4,7 +4,6 @@
 - [ ] add more verbose to profile
 - [ ] add markdown (+ markdown viewer) notes
 - [ ] add notes on connecting PS4 controller on windows
-- [ ] make an "Update" cmdlet (conda, git, terminal, powershell, powertoys)
 - [ ] convert "GCC-Wrapper" into a cmdlet
 
 ### *TODO*
@@ -71,6 +70,7 @@
 - [x] adapt "-Force" switch behavior in jupyter_server_wrapper.ps1 to bypass all confirmation
 - [x] make sudo run the command directly in the terminal if it has elevated privileges
 - [x] make sudo always run in the version of powershell that called it
+- [x] make an "Update" cmdlet (conda, git, terminal, powershell, powertoys)
 
 # Ideas
 
