@@ -8,6 +8,7 @@ $code = 'D:\code'
 $horoview = "${code}\projects\01_horoview"
 # "$dump" must point to the root of this git repository
 $dump = "${code}\personal_dump"
+$esaip = "${code}\esaip_repo"
 
 # <#
 # - Anaconda
