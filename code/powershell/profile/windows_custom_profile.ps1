@@ -362,6 +362,11 @@ function Update-Software {
         [switch] $Powertoys,
         [switch] $Conda
     )
+    # if no switches was passed, run "update -All -Confirm"
+    if (-not ($All -or $WindowsTerminal -or $PS7 -or $Git -or $Powertoys -or $Conda)) {
+        $ConfirmPreference = 'Low'
+        $All = $true
+    }
     if ($All) { # update everything if -All is passed
         $PSCmdlet.WriteVerbose('Update-Software: Updating all updatable software')
         $WindowsTerminal = $PS7 = $Git = $Powertoys = $Conda = $true
