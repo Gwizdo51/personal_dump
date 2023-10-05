@@ -5,6 +5,7 @@
 - [ ] add markdown (+ markdown viewer) notes
 - [ ] add notes on connecting PS4 controller on windows
 - [ ] convert "GCC-Wrapper" into a cmdlet
+- [ ] convert "Get-Type" into a cmdlet
 
 ### *TODO*
 - [ ] make a "Recycle" cmdlet

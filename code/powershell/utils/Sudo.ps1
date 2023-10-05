@@ -87,7 +87,7 @@ function Run-AsAdmin {
         $encoding = 'UTF8'
     }
     $cwd = (Get-Location).Path
-    # if the current location path ends with a "\" (drive roots), add another to escape it
+    # if the current location path ends with a "\" (drive root), add another to escape it
     if ($cwd[-1] -eq '\') {$cwd += '\'}
     $bat_file_content = "${pwsh_exe} -NoProfile -Command . `$PROFILE -Silent; cd \`"${cwd}\`"; ${cmd_prompt_args} > `"${_ps_buffer}`""
     $bat_file_content | Out-File -FilePath $bat_script_path -Encoding $encoding
@@ -132,7 +132,7 @@ function Run-AsAdmin {
         }
         Start-Sleep .2
     }
-    # scan $_ps_buffer one last time before exiting command
+    # scan $_ps_buffer one last time before exiting
     $index_line = 0
     foreach ($line in $(read $_ps_buffer)) {
         if ($index_line -gt $index_last_line_printed) {

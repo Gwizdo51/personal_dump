@@ -5,9 +5,9 @@ param([switch]$Silent, [switch]$Verbose)
 # - directories shortcuts
 # delete and add as necessary
 $code = 'D:\code'
-$horoview = "${code}\projects\01_horoview"
 # "$dump" must point to the root of this git repository
 $dump = "${code}\personal_dump"
+$horoview = "${code}\projects\01_horoview"
 $esaip = "${code}\esaip_repo"
 
 # <#
