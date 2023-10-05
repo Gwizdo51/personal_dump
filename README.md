@@ -4,12 +4,13 @@
 - [ ] add more verbose to profile
 - [ ] add markdown (+ markdown viewer) notes
 - [ ] add notes on connecting PS4 controller on windows
+- [ ] convert "GCC-Wrapper" into a cmdlet
 
 ### *TODO*
-- [ ] add Recycle cmdlet
+- [ ] make a "Recycle" cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
-- [ ] make a Restart-System cmdlet
-- [ ] make a Get-Size cmdlet
+- [ ] make a "Restart-System" cmdlet
+- [ ] make a "Get-Size" cmdlet
 - [ ] add powershell docstrings to own cmdlets
 - [ ] add tkinter tests
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
@@ -69,6 +70,7 @@
 - [x] adapt "-Force" switch behavior in jupyter_server_wrapper.ps1 to bypass all confirmation
 - [x] make sudo run the command directly in the terminal if it has elevated privileges
 - [x] make sudo always run in the version of powershell that called it
+- [x] make an "Update" cmdlet (conda, git, terminal, powershell, powertoys)
 
 # Ideas
 
