@@ -89,7 +89,6 @@ function Wrapper-JupyterLab {
                 [System.InvalidOperationException] 'No jupyter server is currently running',
                 'NoRunningServer',
                 [System.Management.Automation.ErrorCategory]::InvalidOperation,
-                # $TargetObject # usually the object that triggered the error, if possible
                 $null
             )
             $PSCmdlet.ThrowTerminatingError($ErrorRecord)
@@ -160,7 +159,6 @@ function Wrapper-JupyterLab {
                     [System.ArgumentException] 'Both -HiddenProcess and -Job flags are set',
                     'InvalidFlags',
                     [System.Management.Automation.ErrorCategory]::InvalidArgument,
-                    # $TargetObject # usually the object that triggered the error, if possible
                     $null
                 )
                 $PSCmdlet.ThrowTerminatingError($ErrorRecord)
@@ -211,7 +209,6 @@ function Get-JobServerLogs { # print the logs of the jupyter server when running
             [System.InvalidOperationException] 'No jupyter server is currently running as a job',
             'NoRunningServerJob',
             [System.Management.Automation.ErrorCategory]::InvalidOperation,
-            # $TargetObject # usually the object that triggered the error, if possible
             $null
         )
         $PSCmdlet.ThrowTerminatingError($ErrorRecord)

@@ -1,11 +1,11 @@
-param([switch]$Silent, [switch]$Verbose)
+param([switch] $Silent, [switch] $Verbose)
 $tick = Get-Date
 
 # set output and input shell encoding to UTF-8
 $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
 # display the messages from the information stream
 $InformationPreference = 'Continue'
-# set $InformationPreference to 'Continue' for the profile load, unless $Silent is on
+# suppress information messages for the profile load if $Silent is on
 if ($Silent) {
     $InformationPreference_backup = $InformationPreference
     $InformationPreference = 'SilentlyContinue'
@@ -195,19 +195,26 @@ function Git-PullSubmodules {git submodules update --init --recursive}
 New-Item -Path Alias:git_ps -Value Git-PullSubmodules -Force | Out-Null
 function Git-UpdateSubmodules {git submodules update --init --recursive --remote}
 New-Item -Path Alias:git_us -Value Git-UpdateSubmodules -Force | Out-Null
-function Git-FetchStatus {git fetch --all; git status}
+function Git-FetchStatus {git fetch --all -p; git status}
 New-Item -Path Alias:gfs -Value Git-FetchStatus -Force | Out-Null
 
 ### gcc
 function GCC-Wrapper {
+    [CmdletBinding()]
     param(
         [string] $SourceFilePath,
         [string] $OutputFileName = ''
     )
     if (-not (Test-Path -Path $SourceFilePath)) {
-        Write-Error 'Missing source file'
-        return
+        $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+            [System.IO.FileNotFoundException] "'${SourceFilePath}' not found",
+            'SourceNotFound',
+            [System.Management.Automation.ErrorCategory]::ObjectNotFound,
+            $SourceFilePath
+        )
+        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
     }
+    # if not output file name is provided, use the source file name
     if ($OutputFileName -eq '') {
         $OutputFileName = Split-Path -Path $SourceFilePath -LeafBase
     }
@@ -216,7 +223,13 @@ function GCC-Wrapper {
         gcc.exe $SourceFilePath -o $OutputFileName -Wall
     }
     else {
-        Write-Error 'Missing gcc.exe compiler'
+        $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+            [System.IO.FileNotFoundException] "compiler (gcc.exe) not found",
+            'CompilerNotFound',
+            [System.Management.Automation.ErrorCategory]::NotInstalled,
+            $null
+        )
+        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
     }
 }
 New-Item -Path Alias:gcc -Value GCC-Wrapper -Force | Out-Null
@@ -329,10 +342,9 @@ function Make-SymLink {
     # if (-not $(Test-Path $TargetPath)) {Write-Error "$TargetPath does not exist"}
     if (-not (Test-Path $TargetPath)) {
         $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
-            [System.IO.FileNotFoundException] "${TargetPath} does not exist",
+            [System.IO.FileNotFoundException] "'${TargetPath}' not found",
             'TargetNotFound',
             [System.Management.Automation.ErrorCategory]::ObjectNotFound,
-            # $TargetObject # usually the object that triggered the error, if possible
             $TargetPath
         )
         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
@@ -410,13 +422,18 @@ function Update-Software {
 New-Item -Path Alias:update -Value Update-Software -Force | Out-Null
 
 ### powershell stuff
-function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
+# function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
+function Get-Type {
+    [CmdletBinding()]
+    param([Parameter(ValueFromPipeline)] [object] $Object)
+    process {$PSCmdlet.WriteObject($Object.GetType().FullName)}
+}
 New-Item -Path Alias:type -Value Get-Type -Force | Out-Null
 function Test-TextColors { # tests the string colors of the terminal
-    param([string[]] $color_names = ("Black","Red","Green","Yellow","Blue","Magenta","Cyan","White"))
+    param([string[]] $color_names = ('Black', 'Red', 'Green', 'Yellow', 'Blue', 'Magenta', 'Cyan', 'White'))
     foreach ($color_name in $color_names) {
-        $reg_col = $colors_table["col_$color_name"]
-        $bri_col = $colors_table["bcol_$color_name"]
+        $reg_col = $colors_table["col_${color_name}"]
+        $bri_col = $colors_table["bcol_${color_name}"]
         "${reg_col}This is a sentence colored with regular ${color_name}"
         "${bri_col}This is a sentence colored with bright ${color_name}"
     }
@@ -443,8 +460,14 @@ $tock = Get-Date
 $load_time = ($tock - $tick).TotalMilliseconds
 # [math]::Round(($tock - $tick).TotalSeconds), 3)
 Write-Information "Profile load time: $([int] [math]::Round($load_time))ms"
-if ($Silent) {$InformationPreference = $InformationPreference_backup}
-if ($Verbose) {$VerbosePreference = $VerbosePreference_backup}
+if ($Silent) {
+    $InformationPreference = $InformationPreference_backup
+    Remove-Item 'Variable:\InformationPreference_backup'
+}
+if ($Verbose) {
+    $VerbosePreference = $VerbosePreference_backup
+    Remove-Item 'Variable:\VerbosePreference_backup'
+}
 
 
 ############
