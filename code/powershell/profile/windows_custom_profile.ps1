@@ -1,11 +1,11 @@
-param([switch]$Silent, [switch]$Verbose)
+param([switch] $Silent, [switch] $Verbose)
 $tick = Get-Date
 
 # set output and input shell encoding to UTF-8
 $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
 # display the messages from the information stream
 $InformationPreference = 'Continue'
-# set $InformationPreference to 'Continue' for the profile load, unless $Silent is on
+# suppress information messages for the profile load if $Silent is on
 if ($Silent) {
     $InformationPreference_backup = $InformationPreference
     $InformationPreference = 'SilentlyContinue'
@@ -410,13 +410,18 @@ function Update-Software {
 New-Item -Path Alias:update -Value Update-Software -Force | Out-Null
 
 ### powershell stuff
-function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
+# function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
+function Get-Type {
+    [CmdletBinding()]
+    param([Parameter(ValueFromPipeline)] [object] $Object)
+    process {$PSCmdlet.WriteObject($Object.GetType().FullName)}
+}
 New-Item -Path Alias:type -Value Get-Type -Force | Out-Null
 function Test-TextColors { # tests the string colors of the terminal
-    param([string[]] $color_names = ("Black","Red","Green","Yellow","Blue","Magenta","Cyan","White"))
+    param([string[]] $color_names = ('Black', 'Red', 'Green', 'Yellow', 'Blue', 'Magenta', 'Cyan', 'White'))
     foreach ($color_name in $color_names) {
-        $reg_col = $colors_table["col_$color_name"]
-        $bri_col = $colors_table["bcol_$color_name"]
+        $reg_col = $colors_table["col_${color_name}"]
+        $bri_col = $colors_table["bcol_${color_name}"]
         "${reg_col}This is a sentence colored with regular ${color_name}"
         "${bri_col}This is a sentence colored with bright ${color_name}"
     }
@@ -443,8 +448,14 @@ $tock = Get-Date
 $load_time = ($tock - $tick).TotalMilliseconds
 # [math]::Round(($tock - $tick).TotalSeconds), 3)
 Write-Information "Profile load time: $([int] [math]::Round($load_time))ms"
-if ($Silent) {$InformationPreference = $InformationPreference_backup}
-if ($Verbose) {$VerbosePreference = $VerbosePreference_backup}
+if ($Silent) {
+    $InformationPreference = $InformationPreference_backup
+    Remove-Item 'Variable:\InformationPreference_backup'
+}
+if ($Verbose) {
+    $VerbosePreference = $VerbosePreference_backup
+    Remove-Item 'Variable:\VerbosePreference_backup'
+}
 
 
 ############

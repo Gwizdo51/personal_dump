@@ -1,4 +1,4 @@
-param([switch]$Silent, [switch]$Verbose)
+param([switch] $Silent, [switch] $Verbose)
 
 # environment config:
 

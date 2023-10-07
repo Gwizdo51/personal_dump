@@ -970,7 +970,7 @@ function MyCmdletProcess {
 # => @('.\test1.txt', '.\test2.txt') | rm -Confirm
 #>
 
-# <#
+<#
 # ValueFromRemainingArguments:
 function fake_python {
     [CmdletBinding()]
@@ -985,4 +985,18 @@ function fake_python {
     }
 }
 fake_python one two three four lol haha kekw --help -Verbose
+#>
+
+# <# Get-Type as cmdlet
+function get_type {
+    [CmdletBinding()]
+    param([Parameter(ValueFromPipeline)] [object[]] $Objects)
+    process {
+        foreach ($Object in $Objects) {
+            # Write-Host $Object
+            $PSCmdlet.WriteObject($Object.GetType().FullName)
+        }
+    }
+}
+23, '2abc' | get_type
 #>

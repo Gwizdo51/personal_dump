@@ -5,7 +5,6 @@
 - [ ] add markdown (+ markdown viewer) notes
 - [ ] add notes on connecting PS4 controller on windows
 - [ ] convert "GCC-Wrapper" into a cmdlet
-- [ ] convert "Get-Type" into a cmdlet
 
 ### *TODO*
 - [ ] make a "Recycle" cmdlet
@@ -72,6 +71,7 @@
 - [x] make sudo run the command directly in the terminal if it has elevated privileges
 - [x] make sudo always run in the version of powershell that called it
 - [x] make an "Update" cmdlet (conda, git, terminal, powershell, powertoys)
+- [x] convert "Get-Type" into a cmdlet
 
 # Ideas
 
