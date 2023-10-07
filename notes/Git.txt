@@ -40,7 +40,7 @@ git push
 display the status of the local copy compared to the index:
 git status
 
-delete local branches that have been deleted on the cloud repository:
+delete references of branches that have been deleted on the cloud repository:
 git fetch --prune
 git fetch -p
 
@@ -70,7 +70,7 @@ git branch -d <branch>
 git branch -D <branch> (== git branch -df <branch>)
 
 delete a branch on the cloud repository:
-git push origin -d <branch>
+git push -d origin <branch>
 
 apply changes of a parent branch on a child branch:
 git checkout <child_branch>

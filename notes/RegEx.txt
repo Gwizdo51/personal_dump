@@ -1,3 +1,6 @@
+great regex tester:
+https://regexr.com/
+
 any character except line break:
 .
 

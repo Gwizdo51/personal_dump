@@ -2,8 +2,8 @@
 
 ### *WIP*
 - [ ] add more verbose to profile
-- [ ] add markdown (+ markdown viewer) notes
 - [ ] add notes on connecting PS4 controller on windows
+- [ ] add linux + bash notes
 
 ### *TODO*
 - [ ] make a "Recycle" cmdlet
@@ -21,7 +21,6 @@
 - [ ] add django notes + test code
 - [ ] add ssh notes
 - [ ] add windows command prompt notes
-- [ ] add linux + bash notes
 - [ ] add vscode JSON config files
 - [ ] add a RegEx UUID detector to tests.py
 - [ ] test python decorators
@@ -72,6 +71,7 @@
 - [x] make an "Update" cmdlet (conda, git, terminal, powershell, powertoys)
 - [x] convert "Get-Type" into a cmdlet
 - [x] convert "GCC-Wrapper" into a cmdlet
+- [x] add markdown (+ markdown viewer) notes
 
 # Ideas
 
