@@ -195,19 +195,26 @@ function Git-PullSubmodules {git submodules update --init --recursive}
 New-Item -Path Alias:git_ps -Value Git-PullSubmodules -Force | Out-Null
 function Git-UpdateSubmodules {git submodules update --init --recursive --remote}
 New-Item -Path Alias:git_us -Value Git-UpdateSubmodules -Force | Out-Null
-function Git-FetchStatus {git fetch --all; git status}
+function Git-FetchStatus {git fetch --all -p; git status}
 New-Item -Path Alias:gfs -Value Git-FetchStatus -Force | Out-Null
 
 ### gcc
 function GCC-Wrapper {
+    [CmdletBinding()]
     param(
         [string] $SourceFilePath,
         [string] $OutputFileName = ''
     )
     if (-not (Test-Path -Path $SourceFilePath)) {
-        Write-Error 'Missing source file'
-        return
+        $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+            [System.IO.FileNotFoundException] "'${SourceFilePath}' not found",
+            'SourceNotFound',
+            [System.Management.Automation.ErrorCategory]::ObjectNotFound,
+            $SourceFilePath
+        )
+        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
     }
+    # if not output file name is provided, use the source file name
     if ($OutputFileName -eq '') {
         $OutputFileName = Split-Path -Path $SourceFilePath -LeafBase
     }
@@ -216,7 +223,13 @@ function GCC-Wrapper {
         gcc.exe $SourceFilePath -o $OutputFileName -Wall
     }
     else {
-        Write-Error 'Missing gcc.exe compiler'
+        $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+            [System.IO.FileNotFoundException] "compiler (gcc.exe) not found",
+            'CompilerNotFound',
+            [System.Management.Automation.ErrorCategory]::NotInstalled,
+            $null
+        )
+        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
     }
 }
 New-Item -Path Alias:gcc -Value GCC-Wrapper -Force | Out-Null
@@ -329,10 +342,9 @@ function Make-SymLink {
     # if (-not $(Test-Path $TargetPath)) {Write-Error "$TargetPath does not exist"}
     if (-not (Test-Path $TargetPath)) {
         $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
-            [System.IO.FileNotFoundException] "${TargetPath} does not exist",
+            [System.IO.FileNotFoundException] "'${TargetPath}' not found",
             'TargetNotFound',
             [System.Management.Automation.ErrorCategory]::ObjectNotFound,
-            # $TargetObject # usually the object that triggered the error, if possible
             $TargetPath
         )
         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
