@@ -1,6 +1,8 @@
 [good cheatsheet](https://www.markdownguide.org/cheat-sheet/)<br>
 [list of github emojis](https://gist.github.com/rxaviers/7360908)
 
+[markdown viewer chrome extension](https://chrome.google.com/webstore/detail/markdown-viewer/ckkdlimhmcjmikdlpkmbgfkaikojcbjk)
+
 
 <!-- Headings -->
 
