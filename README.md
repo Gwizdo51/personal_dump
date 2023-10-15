@@ -86,10 +86,10 @@
 
 ### *powershell profile*
 - add a script to interact with the trashbin ?
-    - restore a file from the recycle bin if it is unique, or maybe the last one
-    - [empty it completely](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/clear-recyclebin?view=powershell-7.3)
-    - open in file explorer
-    - [good blog post](https://jdhitsolutions.com/blog/powershell/7024/managing-the-recycle-bin-with-powershell/)
+  - restore a file from the recycle bin if it is unique, or maybe the last one
+  - [empty it completely](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/clear-recyclebin?view=powershell-7.3)
+  - open in file explorer
+  - [good blog post](https://jdhitsolutions.com/blog/powershell/7024/managing-the-recycle-bin-with-powershell/)
 
 ### *Windows*
 - add a scheduler task to start the task manager on session start ?
