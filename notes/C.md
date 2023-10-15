@@ -14,3 +14,7 @@ types available:
     - `unsigned short`
     - `unsigned int`
     - `unsigned long`
+- decimal types (always signed):
+    - `float` (~4 bytes)
+    - `double` (~8 bytes)
+- characters: no difference between an integer written with a byte and a character
