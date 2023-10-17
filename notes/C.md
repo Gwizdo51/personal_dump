@@ -29,3 +29,5 @@ i.e. `1234` or `0.25`
 
 - **integers**: always typed `int` -> to get a `long`: add `L` at the end: `10000000000L`
 - **floats**: always typed `double` -> to get a `float`: add `f` at the end: `1.25f`
+- **octal**: `0104`
+- **hexadecimal**: `0xff`
