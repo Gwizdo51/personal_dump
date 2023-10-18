@@ -38,14 +38,14 @@ Less big title too
 <!-- bullet point list -->
 - bullet point
 - list of
-  - sometimes
-  - indented
+    - sometimes
+    - indented
 - awesome items
 
 <!-- numbered list -->
 1. numbered
-  1. sometimes
-  2. indented
+    1. sometimes
+    2. indented
 2. list of
 1. great items
 
