@@ -31,3 +31,11 @@ i.e. `1234` or `0.25`
 - **floats**: always typed `double` -> to get a `float`: add `f` at the end: `1.25f`
 - **octal**: `0104`
 - **hexadecimal**: `0xff`
+
+## Arrays
+
+
+
+# Operators
+
+# Macros
