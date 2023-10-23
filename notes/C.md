@@ -34,7 +34,24 @@ i.e. `1234` or `0.25`
 
 ## Arrays
 
+```C
+int int_array[10];
+int int_matrix[10][10];
+```
 
+## Pointers
+
+## Structures
+
+## Keywords
+
+### define
+
+### typedef
+
+## Enumeration
+
+## Constants
 
 # Operators
 
