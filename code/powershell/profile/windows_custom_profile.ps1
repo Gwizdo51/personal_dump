@@ -255,6 +255,8 @@ function Alias-CD {
 }
 # override "cd" alias with cd_alias
 New-Item -Path Alias:cd -Value Alias-CD -Force | Out-Null
+function Alias-CD.. {cd ..}
+New-Item -Path Alias:cd.. -Value Alias-CD.. -Force | Out-Null
 New-Item -Path Alias:read -Value Get-Content -Force | Out-Null
 # items listing:
 # mode:
