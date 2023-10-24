@@ -32,24 +32,89 @@ i.e. `1234` or `0.25`
 - **octal**: `0104`
 - **hexadecimal**: `0xff`
 
-## Arrays
+## Strings
 
 ```C
-int int_array[10];
-int int_matrix[10][10];
+char my_string[20];
+char *my_other_string;
+// my_string = "A great string"; // Doesn't work
+strcpy(my_string, "A great string");
+my_other_string = "An other great string";
+```
+
+## Arrays
+
+list of items
+
+```C
+int int_array[10]; // arrays
+int int_matrix[10][10]; // matrices
 ```
 
 ## Pointers
 
+Variables that point to a memory address
+
+```C
+int value = 33;
+int *addr = &value; // &<variable> returns the memory address of the variable
+```
+
 ## Structures
+
+Some OOP -> structures that hold other variables
+
+```C
+struct Rational {
+    int numerator;
+    int denominator;
+};
+
+// access elements directly
+struct Rational my_rational;
+my_rational.numerator = 15;
+
+// access elements through memory address
+struct Rational *my_rational_pointer;
+my_rational_pointer->denominator = 7;
+```
 
 ## Keywords
 
 ### define
 
+Macro definition, used to define variables outside of functions (global constant, invariable) -> always written in UPPERCASE
+
+**syntax**:
+- `#define CNAME value`
+- `#define CNAME (expression)`
+
+```C
+#define NAME "TechOnTheNet.com"
+#define AGE 10
+
+// define the BOOL type
+#define BOOL int
+#define FALSE 0
+#define TRUE 1
+```
+
 ### typedef
 
 ## Enumeration
+
+Used to define a given number of possible states
+
+```C
+enum LifeCycleState {
+    INITIALIZED, STARTED, STOPPED, DESTROYED
+};
+enum LifeCycleState currentState = INITIALIZED;
+currentState = STARTED;
+currentState = STOPPED;
+currentState = INITIALIZED;
+currentState = DESTROYED;
+```
 
 ## Constants
 
