@@ -60,6 +60,8 @@ int value = 33;
 int *addr = &value; // &<variable> returns the memory address of the variable
 ```
 
+empty pointer: `NULL`
+
 ## Structures
 
 Some OOP -> structures that hold other variables
@@ -101,6 +103,25 @@ Macro definition, used to define variables outside of functions (global constant
 
 ### typedef
 
+Used to define structures as types
+
+```C
+struct _Rational {
+    int numerator;
+    int denominator;
+};
+typedef struct _Rational Rational;
+Rational my_rational;
+```
+<=>
+```C
+typedef struct _Rational {
+    int numerator;
+    int denominator;
+} Rational;
+Rational my_rational;
+```
+
 ## Enumeration
 
 Used to define a given number of possible states
@@ -116,8 +137,64 @@ currentState = INITIALIZED;
 currentState = DESTROYED;
 ```
 
+defined in `<stdlib.h>`:
+```C
+enum ExitState {
+    EXIT_SUCCESS, EXIT_FAILURE
+};
+```
+
 ## Constants
+
+Constants are global variables that can't be modified by functions
+
+```C
+const double MY_PI = 3.14159265;
+const unsigned int ARRAY_SIZE = 5;
+```
 
 # Operators
 
+## arithmetic
+
+- **+** : add 2 ints / floats
+- **-** : substract 2 ints / floats
+- **\*** : multiply 2 ints / floats
+- **/** : divide 2 ints / floats -> can be used to get the quotient of the euclidean division between 2 ints
+- **%** : rest of euclidean division between 2 ints / floats
+
+# Functions
+
+## printf
+
+syntax:
+- `printf(const char *format, ...);`
+- `printf("%d\n", my_int);`
+
+-> to print the "%" char: `printf("%%");`
+
+format syntax: `%[flags][width][.precision][length]specifier`
+- **specifier**: the type of variable to print
+    - `c`: character
+    - `d` or `i`: signed integer
+    - `u`: unsigned integer
+    - `e` or `E`: exponential notation
+    - `f`: decimal floating point
+    - `g`: shorter of `e` or `f`
+    - `G`: shorter of `E` or `f`
+    - `o`: signed octal
+    - `s`: string
+    - `x`: unsigned hexadecimal integer
+    - `X`: same with capital letters
+    - `p`: pointer address
+- **flags**:
+- **width**:
+- **.precision**:
+- **length**:
+
 # Macros
+
+# Ressources
+
+- https://www.koor.fr/
+- https://en.cppreference.com/
