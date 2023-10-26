@@ -76,7 +76,7 @@ struct Rational {
 struct Rational my_rational;
 my_rational.numerator = 15;
 
-// access elements through memory address
+// access elements through memory address (requires "malloc")
 struct Rational *my_rational_pointer;
 my_rational_pointer->denominator = 7;
 ```
@@ -85,7 +85,7 @@ my_rational_pointer->denominator = 7;
 
 ### define
 
-Macro definition, used to define variables outside of functions (global constant, invariable) -> always written in UPPERCASE
+Macro definition, used to define variables outside of functions (global constant, invariable) -> always written in **UPPERCASE**
 
 **syntax**:
 - `#define CNAME value`
