@@ -390,14 +390,14 @@ function Update-Software {
             'Update-Software: Updating Windows Terminal',
             'Update-Software: Update Windows Terminal?',
             ''
-        )) {winget upgrade --name Terminal}
+        )) {winget upgrade --id Microsoft.WindowsTerminal -s winget -e -i}
     }
     if ($PS7) {
         if ($PSCmdlet.ShouldProcess(
             'Update-Software: Updating Powershell',
             'Update-Software: Update Powershell?',
             ''
-        )) {winget upgrade --id Microsoft.PowerShell}
+        )) {winget upgrade --id Microsoft.PowerShell -s winget -e -i}
     }
     if ($Git) {
         if ($PSCmdlet.ShouldProcess(
@@ -411,7 +411,7 @@ function Update-Software {
             'Update-Software: Updating Powertoys',
             'Update-Software: Update Powertoys?',
             ''
-        )) {winget upgrade --id Microsoft.PowerToys}
+        )) {winget upgrade --id Microsoft.PowerToys -s winget -e -i}
     }
     if ($Conda) {
         if ($PSCmdlet.ShouldProcess(
