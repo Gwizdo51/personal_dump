@@ -155,13 +155,59 @@ const unsigned int ARRAY_SIZE = 5;
 
 # Operators
 
-## arithmetic
+## Arithmetic
 
-- **+** : add 2 ints / floats
-- **-** : substract 2 ints / floats
-- **\*** : multiply 2 ints / floats
-- **/** : divide 2 ints / floats -> can be used to get the quotient of the euclidean division between 2 ints
-- **%** : rest of euclidean division between 2 ints / floats
+- `+` : add 2 ints / floats
+- `-` : substract 2 ints / floats
+- `*` : multiply 2 ints / floats
+- `/` : divide 2 ints / floats -> can be used to get the quotient of the euclidean division between 2 ints
+- `%` : rest of euclidean division between 2 ints / floats
+
+## Bitwise
+
+- `&` : AND
+- `|` : OR
+- `^` : XOR
+- `~` : NOT
+- `<<` : moves to the left (`0b0010 << 2` == `0b1000`)
+- `>>` : moves to the right (`0b1000 >> 2` == `0b0010`)
+
+## Comparison
+
+- `<` : ... is less than ...
+- `<=` : ... is less or equal than ...
+- `>` : ... is more than ...
+- `>=` : ... is more or equal than ...
+- `==` : ... is equal to ...
+- `!=` : ... is not equal to ...
+
+## Logic
+
+- `&&` : AND
+- `||` : OR
+- `!` : NOT
+
+## Assignment
+
+- `a = 5` : assign
+- `a += 5` : adds and assign
+- `a -= 5` : substract and assign
+- `a *= 5` : multiply and assign
+- `a  /= 5` : divide and assign
+- `a %= 5` : modulus and assign
+- `a &= 5` : bitwise AND and assign
+- `a |= 5` : bitwise OR and assign
+- `a ^= 5` : bitwise XOR and assign
+- `a <<= 5` : bitwise left move and assign
+- `a >>= 5` : bitwise right move ans assign
+- `a++` : increment by one and assign
+- `a--` : decrement by one and assign
+
+Assignments are operations; they return the result:
+- `printf("%d", b = 5);` will print `5`
+- `a = b = c = 5;` works, and assigns `5` to `c`, then `b`, then `a`
+
+## Cast
 
 # Functions
 
@@ -175,22 +221,42 @@ syntax:
 
 format syntax: `%[flags][width][.precision][length]specifier`
 - **specifier**: the type of variable to print
-    - `c`: character
-    - `d` or `i`: signed integer
-    - `u`: unsigned integer
-    - `e` or `E`: exponential notation
-    - `f`: decimal floating point
-    - `g`: shorter of `e` or `f`
-    - `G`: shorter of `E` or `f`
-    - `o`: signed octal
-    - `s`: string
-    - `x`: unsigned hexadecimal integer
-    - `X`: same with capital letters
-    - `p`: pointer address
+    - `c` : character
+    - `d` or `i` : signed integer
+    - `u` : unsigned integer
+    - `e` or `E` : exponential notation
+    - `f` : decimal floating point
+    - `g` : shorter of `e` or `f`
+    - `G` : shorter of `E` or `f`
+    - `o` : signed octal
+    - `s` : string
+    - `x` : unsigned hexadecimal integer
+    - `X` : same with capital letters
+    - `p` : pointer address
 - **flags**:
+    - `-` : left adjust with the width given (right adjust is the default)
+    - `+` : write a + for positive numbers (minus for negative is always there)
+    - `(space)` : leave a space in place of the + sign for positive numbers
+    - `#` : writes the number as it would be in the code (preceded with `0x` for hexadecimals, ...)
+    - `0` : left pads number with zeros with the width specified
 - **width**:
+    - `(number)` : minimum number of characters to print; pads with blank spaces, does not truncate
+    - `*` : width not specified here but as an additional argument preceding the value to format
 - **.precision**:
+    - `.(number)` : (default is 1)
+        - for integers (d, i, o, u, x, X): padding with zeros
+        - for floats (e, E and f): number of digits after the decimal point
+        - for g and G: maximum number of significant digits
+        - for s: maximum number of characters to be printed
+    - `.*` : precision not specified here but as an additional argument preceding the value to format
 - **length**:
+    - `h` :
+        - for integers: argument interpreted as a short int or unsigned short int
+    - `l` :
+        - for integers: argument interpreted as a long int or unsigned long int
+        - for characters and strings: argument interpreted as a wide character or wide character string
+    - `L` :
+        - for floats: argument interpreted as a long double
 
 # Macros
 
