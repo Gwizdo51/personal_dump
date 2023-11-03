@@ -199,40 +199,40 @@ function Git-FetchStatus {git fetch --all -p; git status}
 New-Item -Path Alias:gfs -Value Git-FetchStatus -Force | Out-Null
 
 ### gcc
-function GCC-Wrapper {
-    [CmdletBinding()]
-    param(
-        [string] $SourceFilePath,
-        [string] $OutputFileName = ''
-    )
-    if (-not (Test-Path -Path $SourceFilePath)) {
-        $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
-            [System.IO.FileNotFoundException] "'${SourceFilePath}' not found",
-            'SourceNotFound',
-            [System.Management.Automation.ErrorCategory]::ObjectNotFound,
-            $SourceFilePath
-        )
-        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-    }
-    # if not output file name is provided, use the source file name
-    if ($OutputFileName -eq '') {
-        $OutputFileName = Split-Path -Path $SourceFilePath -LeafBase
-    }
-    where.exe 'gcc.exe' *> $null
-    if ($?) { # gcc is in the path
-        gcc.exe $SourceFilePath -o $OutputFileName -Wall
-    }
-    else {
-        $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
-            [System.IO.FileNotFoundException] "compiler (gcc.exe) not found",
-            'CompilerNotFound',
-            [System.Management.Automation.ErrorCategory]::NotInstalled,
-            $null
-        )
-        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-    }
-}
-New-Item -Path Alias:gcc -Value GCC-Wrapper -Force | Out-Null
+# function GCC-Wrapper {
+#     [CmdletBinding()]
+#     param(
+#         [string] $SourceFilePath,
+#         [string] $OutputFileName = ''
+#     )
+#     if (-not (Test-Path -Path $SourceFilePath)) {
+#         $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+#             [System.IO.FileNotFoundException] "'${SourceFilePath}' not found",
+#             'SourceNotFound',
+#             [System.Management.Automation.ErrorCategory]::ObjectNotFound,
+#             $SourceFilePath
+#         )
+#         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+#     }
+#     # if not output file name is provided, use the source file name
+#     if ($OutputFileName -eq '') {
+#         $OutputFileName = Split-Path -Path $SourceFilePath -LeafBase
+#     }
+#     where.exe 'gcc.exe' *> $null
+#     if ($?) { # gcc is in the path
+#         gcc.exe $SourceFilePath -o $OutputFileName -Wall
+#     }
+#     else {
+#         $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+#             [System.IO.FileNotFoundException] "compiler (gcc.exe) not found",
+#             'CompilerNotFound',
+#             [System.Management.Automation.ErrorCategory]::NotInstalled,
+#             $null
+#         )
+#         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+#     }
+# }
+# New-Item -Path Alias:gcc -Value GCC-Wrapper -Force | Out-Null
 
 ### shell stuff
 # edit the profile file in VSCode
@@ -242,7 +242,7 @@ function Alias-CD {
     [CmdletBinding()]
     param([string] $DirPath)
     # set the new current directory
-    Set-Location $DirPath -ErrorAction Stop
+    Set-Location $DirPath -ErrorAction 'Stop'
     # update the git prompt when necessary
     if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
         # we are in a FileSystem drive, safe to look for git branches

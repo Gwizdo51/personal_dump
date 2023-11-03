@@ -209,7 +209,177 @@ Assignments are operations; they return the result:
 
 ## Cast
 
+Converts types into other types
+
+Syntax: `(type) value`
+
+## Ternary operator (?:)
+
+Fast way to write a if-else
+
+syntax: `condition ? IfTrueExpression : IfFalseExpression`
+
+```C
+printf("%s\n", a >= 2 ? "a greater than 2" : "a less than 2");
+```
+
+## sizeof
+
+Returns the number of bytes taken by a value: `printf("sizeof(int) == %d bytes\n", sizeof(int));`
+
+## operators on pointers
+
+- `&a` : returns the address of a
+- `*a` : returns the value pointed by a
+- `a->b` : accesses the attribute b of the structure pointed by a
+
+# Control statements
+
+## Conditions
+
+### if else
+
+syntax: `if ( condition ) { statements ... } else if { statements ... } else { statements ... }`
+
+```C
+if (b < 100 && b > 50) {
+    printf("gotta print b\n");
+    printf("b is equal to: %d\n", b);
+}
+else if (b >= 1000) {
+    printf("b is very large\n");
+}
+else {
+    printf("b is quite average tbh\n");
+}
+```
+
+### switch
+
+Used to choose between options
+
+```C
+switch (key) {
+    case 'r': // equivalent to: if (key == 'r') {...}
+        printf("pressed r\n");
+        break;
+    case 'e':
+        printf("pressed e\n");
+        break;
+    default: // equivalent to "else"
+        printf("didn't press r or e\n");
+        break;
+}
+```
+
+## Loops
+
+### for loop
+
+Used when the number of iterations is known
+
+syntax: `for ( init ; loop_condition ; increment ) { statements ... }`
+
+```C
+for (int i=0 ; i<100 ; i++) {
+    printf("%d\n", i);
+}
+```
+
+### while loop
+
+Used when the number of iterations is unknown
+
+syntax: `while ( condition ) { statements ... }`
+
+```C
+while (right_price != guessed_price) {
+    printf("Entrez une estimation: ");
+    scanf("%d", &guessed_price);
+    // printf("estimation: %d\n", guessed_price);
+    if (guessed_price == right_price) {
+        printf("C'est gagne !\n");
+    }
+    else if (guessed_price < right_price) {
+        printf("c'est + !\n");
+    }
+    else if (guessed_price > right_price) {
+        printf("c'est - !\n");
+    }
+    else {
+        printf("this should never be printed\n");
+    }
+}
+```
+
+### do while loop
+
+Same as while loop, but condition is checked after the statements
+
+syntax: `do { statements ... } while ( condition );`
+
+### loops keywords
+
+- `continue` : stop the current loop iteration and start the next one
+- `break` : break the loop and run the rest of the program
+
 # Functions
+
+syntax: `<return_type> <function_name> ( parameters ... ) { statements ... x}`
+
+## main
+
+The `main` function is the one executed when running the .exe file
+
+```C
+// regular syntax
+int main() {
+    // statements ...
+    return EXIT_SUCCESS;
+}
+
+// syntax with command line arguments
+int main(int argc, char * argv []) {
+    // statements ...
+    return EXIT_SUCCESS;
+}
+```
+
+## Libraries
+
+Libraries are defined by header files (.h), which are implemented by code file (.c)
+
+### Library header file
+
+```C
+#ifndef __UTILS_LIB // useful if the library is imported by multiple files
+#define __UTILS_LIB
+
+void my_lib_function();
+
+#endif
+```
+
+### Library code file
+
+```C
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "utils.h" // use quotes
+
+
+void my_lib_function() {
+    printf("This function is in the utils lib\n");
+}
+```
+
+### Use library in another file
+
+- add `#include "utils.h"` in your main program
+- Create the object file (.o) of the library: `gcc -c utils.c`
+- Create the object file of your main program: `gcc -c <main_file>.c`
+- Create the executable of your main program by linking every .o files: `gcc -o <exe_name>.exe <main_file>.o utils.o`
 
 ## printf
 
@@ -264,3 +434,5 @@ format syntax: `%[flags][width][.precision][length]specifier`
 
 - https://www.koor.fr/
 - https://en.cppreference.com/
+- https://www.javatpoint.com/c-programming-language-tutorial
+- https://computer.howstuffworks.com/c15.htm
