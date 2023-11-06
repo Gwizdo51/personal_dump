@@ -18,6 +18,7 @@ type variableName = initialValue;
     - `unsigned short`
     - `unsigned int`
     - `unsigned long`
+    - `size_t` (~unsigned int, used for sizes)
 - decimal types (always signed):
     - `float` (~4 bytes)
     - `double` (~8 bytes)
@@ -377,8 +378,7 @@ void my_lib_function() {
 ### Use library in another file
 
 - add `#include "utils.h"` in your main program
-- Create the object file (.o) of the library: `gcc -c utils.c`
-- Create the object file of your main program: `gcc -c <main_file>.c`
+- Create the object files (.o) of the the library and the main program: `gcc -Wall -Wextra -c <main_file>.c utils.c`
 - Create the executable of your main program by linking every .o files: `gcc -o <exe_name>.exe <main_file>.o utils.o`
 
 ## printf
@@ -430,9 +430,18 @@ format syntax: `%[flags][width][.precision][length]specifier`
 
 # Macros
 
+# GCC options
+
+- `-Wall` : prints all warnings
+- `-Werror` : makes all warning into errors
+- `-Wextra` : prints even more warnings
+- `-c` : compile and assemble, but do not link (create .o files)
+- `-o <file>` : create the main output file (.exe) at the \<file\> path
+
 # Ressources
 
 - https://www.koor.fr/
 - https://en.cppreference.com/
 - https://www.javatpoint.com/c-programming-language-tutorial
 - https://computer.howstuffworks.com/c15.htm
+- [gcc command line options](https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html)
