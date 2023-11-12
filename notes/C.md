@@ -445,3 +445,4 @@ format syntax: `%[flags][width][.precision][length]specifier`
 - https://www.javatpoint.com/c-programming-language-tutorial
 - https://computer.howstuffworks.com/c15.htm
 - [gcc command line options](https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html)
+- [MakeFiles tutorial](https://makefiletutorial.com/)
