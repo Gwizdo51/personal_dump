@@ -6,7 +6,6 @@
 - [ ] add linux + bash notes
 - [ ] make a "Restart-System" cmdlet
 - [ ] make a "Get-Size" cmdlet
-- [ ] add C notes
 
 ### *TODO*
 - [ ] make a "Recycle" cmdlet
@@ -73,6 +72,7 @@
 - [x] convert "Get-Type" into a cmdlet
 - [x] convert "GCC-Wrapper" into a cmdlet
 - [x] add markdown (+ markdown viewer) notes
+- [x] add C notes
 
 # Ideas
 

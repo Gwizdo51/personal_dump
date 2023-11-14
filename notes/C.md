@@ -440,6 +440,7 @@ format syntax: `%[flags][width][.precision][length]specifier`
 
 # Ressources
 
+- [Windows compiler (MinGW)](https://sourceforge.net/projects/mingw/)
 - https://www.koor.fr/
 - https://en.cppreference.com/
 - https://www.javatpoint.com/c-programming-language-tutorial
