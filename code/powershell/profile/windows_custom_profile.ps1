@@ -242,7 +242,7 @@ function Alias-CD {
     [CmdletBinding()]
     param([string] $DirPath)
     # set the new current directory
-    Set-Location $DirPath -ErrorAction 'Stop'
+    Set-Location $DirPath -ErrorAction Stop
     # update the git prompt when necessary
     if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
         # we are in a FileSystem drive, safe to look for git branches
