@@ -14,12 +14,15 @@ $esaip = "${code}\esaip_repo"
 # - Anaconda
 # comment this block if anaconda isn't installed
 # "$Env:_CONDA_ROOT" must point to the anaconda installation directory (anaconda3)
-$Env:_CONDA_ROOT = 'C:\ProgramData\anaconda3'
+$Env:_CONDA_ROOT = 'C:\Users\Arthur\anaconda3'
 # default conda venv (default: 'base')
 $default_conda_venv = 'workenv'
 # default root directory for jupyter lab (default: $HOME)
 $default_dir = $code
 #>
+
+# set the starting directory
+cd $code
 
 
 # run windows_custom_profile.ps1

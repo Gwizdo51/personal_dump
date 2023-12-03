@@ -199,40 +199,40 @@ function Git-FetchStatus {git fetch --all -p; git status}
 New-Item -Path Alias:gfs -Value Git-FetchStatus -Force | Out-Null
 
 ### gcc
-function GCC-Wrapper {
-    [CmdletBinding()]
-    param(
-        [string] $SourceFilePath,
-        [string] $OutputFileName = ''
-    )
-    if (-not (Test-Path -Path $SourceFilePath)) {
-        $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
-            [System.IO.FileNotFoundException] "'${SourceFilePath}' not found",
-            'SourceNotFound',
-            [System.Management.Automation.ErrorCategory]::ObjectNotFound,
-            $SourceFilePath
-        )
-        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-    }
-    # if not output file name is provided, use the source file name
-    if ($OutputFileName -eq '') {
-        $OutputFileName = Split-Path -Path $SourceFilePath -LeafBase
-    }
-    where.exe 'gcc.exe' *> $null
-    if ($?) { # gcc is in the path
-        gcc.exe $SourceFilePath -o $OutputFileName -Wall
-    }
-    else {
-        $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
-            [System.IO.FileNotFoundException] "compiler (gcc.exe) not found",
-            'CompilerNotFound',
-            [System.Management.Automation.ErrorCategory]::NotInstalled,
-            $null
-        )
-        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-    }
-}
-New-Item -Path Alias:gcc -Value GCC-Wrapper -Force | Out-Null
+# function GCC-Wrapper {
+#     [CmdletBinding()]
+#     param(
+#         [string] $SourceFilePath,
+#         [string] $OutputFileName = ''
+#     )
+#     if (-not (Test-Path -Path $SourceFilePath)) {
+#         $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+#             [System.IO.FileNotFoundException] "'${SourceFilePath}' not found",
+#             'SourceNotFound',
+#             [System.Management.Automation.ErrorCategory]::ObjectNotFound,
+#             $SourceFilePath
+#         )
+#         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+#     }
+#     # if not output file name is provided, use the source file name
+#     if ($OutputFileName -eq '') {
+#         $OutputFileName = Split-Path -Path $SourceFilePath -LeafBase
+#     }
+#     where.exe 'gcc.exe' *> $null
+#     if ($?) { # gcc is in the path
+#         gcc.exe $SourceFilePath -o $OutputFileName -Wall
+#     }
+#     else {
+#         $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+#             [System.IO.FileNotFoundException] "compiler (gcc.exe) not found",
+#             'CompilerNotFound',
+#             [System.Management.Automation.ErrorCategory]::NotInstalled,
+#             $null
+#         )
+#         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+#     }
+# }
+# New-Item -Path Alias:gcc -Value GCC-Wrapper -Force | Out-Null
 
 ### shell stuff
 # edit the profile file in VSCode
@@ -255,6 +255,8 @@ function Alias-CD {
 }
 # override "cd" alias with cd_alias
 New-Item -Path Alias:cd -Value Alias-CD -Force | Out-Null
+function Alias-CD.. {cd ..}
+New-Item -Path Alias:cd.. -Value Alias-CD.. -Force | Out-Null
 New-Item -Path Alias:read -Value Get-Content -Force | Out-Null
 # items listing:
 # mode:
@@ -388,14 +390,14 @@ function Update-Software {
             'Update-Software: Updating Windows Terminal',
             'Update-Software: Update Windows Terminal?',
             ''
-        )) {winget upgrade --name Terminal}
+        )) {winget upgrade --id Microsoft.WindowsTerminal -s winget -e -i}
     }
     if ($PS7) {
         if ($PSCmdlet.ShouldProcess(
             'Update-Software: Updating Powershell',
             'Update-Software: Update Powershell?',
             ''
-        )) {winget upgrade --id Microsoft.PowerShell}
+        )) {winget upgrade --id Microsoft.PowerShell -s winget -e -i}
     }
     if ($Git) {
         if ($PSCmdlet.ShouldProcess(
@@ -409,7 +411,7 @@ function Update-Software {
             'Update-Software: Updating Powertoys',
             'Update-Software: Update Powertoys?',
             ''
-        )) {winget upgrade --id Microsoft.PowerToys}
+        )) {winget upgrade --id Microsoft.PowerToys -s winget -e -i}
     }
     if ($Conda) {
         if ($PSCmdlet.ShouldProcess(

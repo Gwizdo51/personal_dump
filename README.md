@@ -4,12 +4,12 @@
 - [ ] add more verbose to profile
 - [ ] add notes on connecting PS4 controller on windows
 - [ ] add linux + bash notes
+- [ ] make a "Restart-System" cmdlet
+- [ ] make a "Get-Size" cmdlet
 
 ### *TODO*
 - [ ] make a "Recycle" cmdlet
 - [ ] override "del", "erase", "rm" and "rmdir" aliases (Remove-Item) to always ask for confirmation
-- [ ] make a "Restart-System" cmdlet
-- [ ] make a "Get-Size" cmdlet
 - [ ] add powershell docstrings to own cmdlets
 - [ ] add tkinter tests
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
@@ -72,6 +72,7 @@
 - [x] convert "Get-Type" into a cmdlet
 - [x] convert "GCC-Wrapper" into a cmdlet
 - [x] add markdown (+ markdown viewer) notes
+- [x] add C notes
 
 # Ideas
 
