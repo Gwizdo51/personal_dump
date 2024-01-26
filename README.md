@@ -6,6 +6,7 @@
 - [ ] add linux + bash notes
 - [ ] make a "Restart-System" cmdlet
 - [ ] make a "Get-Size" cmdlet
+- [ ] debug conda prompt when using folder venv
 
 ### *TODO*
 - [ ] make a "Recycle" cmdlet
