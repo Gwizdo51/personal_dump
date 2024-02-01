@@ -423,6 +423,55 @@ function Update-Software {
     }
 }
 New-Item -Path Alias:update -Value Update-Software -Force | Out-Null
+function Shutdown-Cmdlet {
+    # [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
+    [CmdletBinding()]
+    param(
+        [switch] $Restart,
+        [switch] $Force,
+        [switch] $Confirm,
+        [switch] $WhatIf
+    )
+    # shutdown by default, restart if -Restart
+    # always prompt for confirmation, except if -Force is passed
+    # ShouldConfirm of ShouldContinue ? -> ShouldProcess-Yes-No ?
+    # if (-not ($Shutdown -xor $Restart)) {
+    #     $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+    #         [System.ArgumentException] 'Either one of -Shutdown or -Restart flags must be specified',
+    #         'InvalidArguments',
+    #         [System.Management.Automation.ErrorCategory]::InvalidArgument,
+    #         $null
+    #     )
+    #     $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+    # }
+    # if ($Confirm) {Write-Host 'kekw'}
+    # elseif ($Force) {
+    if (-not $Confirm -and $Force) {
+        $PSCmdlet.WriteVerbose("Shutdown-Cmdlet: '-Force' flag set, bypassing confirmation")
+        $ConfirmPreference = 'None'
+    }
+    if ($Restart) {
+        if (
+            ShouldProcess-Yes-No -PSCmdlet $PSCmdlet -Confirm:$Confirm -ConfirmImpact 'High' `
+            -ConfirmQuestion 'Shutdown-Cmdlet: Restart the computer?' -WhatIf:$WhatIf `
+            -WhatIfMessage 'Shutdown-Cmdlet: Restarting the computer'
+        ) {
+            # Write-Host 'restarting'
+            shutdown.exe /r /t 0
+        }
+    }
+    else {
+        if (
+            ShouldProcess-Yes-No -PSCmdlet $PSCmdlet -Confirm:$Confirm -ConfirmImpact 'High' `
+            -ConfirmQuestion 'Shutdown-Cmdlet: Shut down the computer?' -WhatIf:$WhatIf `
+            -WhatIfMessage 'Shutdown-Cmdlet: Shuting down the computer'
+        ) {
+            # Write-Host 'shuting down'
+            shutdown.exe /s /t 0
+        }
+    }
+}
+New-Item -Path Alias:shutdown -Value Shutdown-Cmdlet -Force | Out-Null
 
 ### powershell stuff
 # function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
