@@ -6,7 +6,6 @@
 - [ ] add linux + bash notes
 - [ ] make a "Restart-System" cmdlet
 - [ ] make a "Get-Size" cmdlet
-- [ ] debug conda prompt when using folder venv
 
 ### *TODO*
 - [ ] make a "Recycle" cmdlet
@@ -74,6 +73,7 @@
 - [x] convert "GCC-Wrapper" into a cmdlet
 - [x] add markdown (+ markdown viewer) notes
 - [x] add C notes
+- [x] debug conda prompt when using folder venv
 
 # Ideas
 
