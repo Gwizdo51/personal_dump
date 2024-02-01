@@ -13,7 +13,7 @@ conda env create -f /path/to/environment.yml
 conda env create -f /path/to/environment.yml -n <alternative_name>
 
 create new venv in a directory :
-conda create --prefix /path/to/venv/directory
+conda create -p /path/to/venv/directory
 
 list all venv :
 conda env list

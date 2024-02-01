@@ -32,6 +32,7 @@ i.e. `1234` or `0.25`
 - **floats**: always typed `double` -> to get a `float`: add `f` at the end: `1.25f`
 - **octal**: `0104`
 - **hexadecimal**: `0xff`
+- **binary**: `0b10010`
 
 ## Strings
 
@@ -194,7 +195,7 @@ const unsigned int ARRAY_SIZE = 5;
 - `a += 5` : adds and assign
 - `a -= 5` : substract and assign
 - `a *= 5` : multiply and assign
-- `a  /= 5` : divide and assign
+- `a /= 5` : divide and assign
 - `a %= 5` : modulus and assign
 - `a &= 5` : bitwise AND and assign
 - `a |= 5` : bitwise OR and assign
@@ -429,6 +430,9 @@ format syntax: `%[flags][width][.precision][length]specifier`
         - for floats: argument interpreted as a long double
 
 # Macros
+
+- `extern` : extern variables (global variables) can be declared in .h files and initialized elsewhere
+- `static` : static variables are like extern variables, except that their initialisation is set only for the current file
 
 # GCC options
 

@@ -73,6 +73,7 @@
 - [x] convert "GCC-Wrapper" into a cmdlet
 - [x] add markdown (+ markdown viewer) notes
 - [x] add C notes
+- [x] debug conda prompt when using folder venv
 
 # Ideas
 

@@ -94,8 +94,9 @@ function Prompt {
     # if we want to keep the "turn red on error" feature (from PSReadLine)
     # => needs to receive state from "Env" drive, like conda
 
-    # check if a conda venv is activated, if so color only the venv name
-    if ($Env:CONDA_PROMPT_MODIFIER -match '\(([\w\- ]+)\)')
+    # check if a conda venv is activated, if so color only the venv name / path
+    # if ($Env:CONDA_PROMPT_MODIFIER -match '\(([\w\- ]+)\)')
+    if ($Env:CONDA_PROMPT_MODIFIER -match '\((.+)\)')
         {$conda_prompt = "($($colors_table.col_Cyan)$($Matches.1)$($colors_table.col_def))`n"}
     else
         {$conda_prompt = ''}
