@@ -987,7 +987,7 @@ function fake_python {
 fake_python one two three four lol haha kekw --help -Verbose
 #>
 
-# <# Get-Type as cmdlet
+<# Get-Type as cmdlet
 function get_type {
     [CmdletBinding()]
     param([Parameter(ValueFromPipeline)] [object[]] $Objects)
@@ -999,4 +999,8 @@ function get_type {
     }
 }
 23, '2abc' | get_type
+#>
+
+# <# test type of variable
+3 -is [System.Int32]
 #>

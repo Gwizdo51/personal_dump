@@ -79,4 +79,10 @@ function Recycle { # move items to trash on "rm" calls
     else {Write-Host "Moved '$($color_characters_dict.col_Red)$($absolute_path)$($color_characters_dict.col_def)' to the recycle bin"}
 }
 New-Item -Path Alias:rc -Value Recycle -Force > $null
+
 function Open-RecyleBin {start shell:RecycleBinFolder}
+
+# list all recycled items: (New-Object -ComObject shell.application).Namespace(10).Items()
+# access specific recycled item:
+# $recycled_items = (New-Object -ComObject shell.application).Namespace(10).Items()
+# @($recycled_items)[0]

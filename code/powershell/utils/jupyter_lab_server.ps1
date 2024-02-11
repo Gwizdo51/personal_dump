@@ -22,7 +22,7 @@ if (!$RootDir) {
     while ($RootDir_not_valid) {
         $RootDir = Read-Host 'Select a root directory'
         if ($RootDir -eq '') {$RootDir = $default_dir}
-        if ((Test-Path $RootDir) -and ((type (Get-Item $RootDir)) -eq 'System.IO.DirectoryInfo'))
+        if ((Test-Path $RootDir) -and ((Get-Item $RootDir) -is [System.IO.DirectoryInfo]))
             {$RootDir_not_valid = $false}
     }
 }

@@ -65,7 +65,7 @@ function Run-AsAdmin {
 
     $cmd_prompt_args = @()
     foreach ($arg in $args) {
-        if (((type $arg) -eq 'System.String') -and ($arg -match '[ ''"]')) {
+        if (($arg -is [System.String]) -and ($arg -match '[ ''"]')) {
             # if a string argument contains either spaces or quotes,
             # replace all '"' with '`\"', and add '\"' at both ends
             $cmd_prompt_args += '\"' + ($arg -replace '"', '`\"') + '\"'
