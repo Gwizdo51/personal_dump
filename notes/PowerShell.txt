@@ -175,6 +175,7 @@ function Do-Smth {[CmdletBinding()] param(...) ...}
 
 
 - Error reporting: https://learn.microsoft.com/en-us/powershell/scripting/developer/cmdlet/windows-powershell-error-reporting?view=powershell-7.3
+https://powershellexplained.com/2017-04-10-Powershell-exceptions-everything-you-ever-wanted-to-know/
 - $ErrorView:
     - 'ConciseView': minimal view, only shows line and error message
     - 'NormalView': basic view, all informations
@@ -182,7 +183,7 @@ function Do-Smth {[CmdletBinding()] param(...) ...}
 - ErrorRecord: https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.cmdlet.writeerror?view=powershellsdk-7.2.0
 While inside a Cmdlet, "Write-Error" doesn't actually raise an exception => gotta use $PSCmdlet.WriteError(ErrorRecord)
 create an ErrorRecord from scratch: ErrorRecord(Exception, String, ErrorCategory, Object)
-- exception (Exception)             -> Exception which describes the error https://learn.microsoft.com/en-us/dotnet/api/system.exception?view=net-7.0#choosing-standard-exceptions
+- exception (Exception)             -> Exception which describes the error https://learn.microsoft.com/en-us/dotnet/fundamentals/runtime-libraries/system-exception#choose-standard-exceptions
 - errorId (String)                  -> Global identifier of the error condition (fully qualified error id: "PathNotFound,Microsoft.PowerShell.Commands.RemoveItemCommand")
 - errorCategory (ErrorCategory)     -> This is the ErrorCategory which best describes the error https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.errorcategory?view=powershellsdk-7.3.0
 - targetObject (Object)             -> Object against which the cmdlet or provider was operating when the error occurred (optional)
