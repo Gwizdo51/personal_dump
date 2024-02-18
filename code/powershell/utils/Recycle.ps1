@@ -92,8 +92,8 @@ function Recycle-Item { # move items to trash on "rm" calls
 function Recycle-Item {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     Param(
-        [Parameter(Mandatory, ValueFromPipeline)] # check pipeline
-        [SupportsWildcards()] # check wildcards (https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_wildcards?view=powershell-7.3)
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [SupportsWildcards()] # https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_wildcards?view=powershell-7.3
         [string[]] $Path # should be able to take a list of paths
     )
     begin {
@@ -102,7 +102,6 @@ function Recycle-Item {
     }
     process {
         foreach ($path_item in $Path) {
-            # Write-Host "recycling '${path_item}'"
             if (!(Test-Path $path_item)) {
                 $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
                     [System.IO.FileNotFoundException] "Cannot find path '${path_item}' because it does not exist",
@@ -113,7 +112,6 @@ function Recycle-Item {
                 $PSCmdlet.WriteError($ErrorRecord)
                 continue
             }
-            # Write-Host "recycling '${path_item}'"
             # make a pipeline to delete all items pointed by $path_item
             $path_item | Get-Item -Force | ? {
                 # check if the item is a FileSystem item
@@ -142,14 +140,9 @@ function Recycle-Item {
                 }
                 else {$True}
             } | ? {$PSCmdlet.ShouldProcess($_, 'Recycle')} | % {
-                # $_
                 $parent_dir_path = Split-Path $_.FullName -Parent
-                # $item_name = Split-Path $_.FullName -Leaf
-                # $parent_dir_path, $item_name
-                # $shell = New-Object -ComObject 'Shell.Application'
                 $shell_dir = $shell.Namespace($parent_dir_path)
                 $shell_item = $shell_dir.ParseName($_.Name)
-                # $shell_item
                 $shell_item.InvokeVerb('Delete')
             }
         }
