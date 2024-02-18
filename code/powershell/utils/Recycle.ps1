@@ -5,7 +5,7 @@
 # }
 function Recycle { # move items to trash on "rm" calls
     # needs to check if recycle is used on an item from the FileSystem drive
-    [CmdletBinding(DefaultParameterSetName='Path', SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     Param(
         [Parameter(Mandatory, ValueFromPipeline)] # check pipeline
         [SupportsWildcards()] # check wildcards (https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_wildcards?view=powershell-7.3)
@@ -15,7 +15,16 @@ function Recycle { # move items to trash on "rm" calls
     # get the absolute path of the item + check if item exists
     # try - catch here
     $path_is_valid = Test-Path $Path
-    if (-not $path_is_valid) {Write-Error "$Path does not exist"; return $null}
+    if (-not $path_is_valid) {
+        # Write-Error "$Path does not exist"; return $null
+        $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
+            [System.InvalidOperationException] 'No jupyter server is currently running',
+            'NoRunningServer',
+            [System.Management.Automation.ErrorCategory]::InvalidOperation,
+            $null
+        )
+        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+    }
     $absolute_path = Resolve-Path $Path
     Write-Verbose "Recycling the item at the path $absolute_path"
     $item_to_recycle = Get-Item $absolute_path -Force
@@ -39,7 +48,7 @@ function Recycle { # move items to trash on "rm" calls
     $shell_item = $shell_dir.ParseName($item_name)
     # $shell_item | Get-Member
     # return
-    # request confirmation if the item is a folder (doesn't matter if it's a link)
+    # request confirmation if the item is a folder (doesn't matter if it's a link) -> maybe not ?
     if ($shell_item.IsFolder -and !($shell_item.IsLink) -and !$yes) {
         $original_confirmation_message = "Confirm recycling folder '$absolute_path' ([Y]es/No)"
         $confirmation_message = $original_confirmation_message
