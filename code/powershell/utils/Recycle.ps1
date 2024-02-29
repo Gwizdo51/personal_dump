@@ -102,6 +102,7 @@ function Recycle-Item {
     }
     process {
         foreach ($path_item in $Path) {
+            # check if the path exists
             if (!(Test-Path $path_item)) {
                 $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
                     [System.IO.FileNotFoundException] "Cannot find path '${path_item}' because it does not exist",

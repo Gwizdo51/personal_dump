@@ -4,7 +4,7 @@
 - [ ] add more verbose to profile
 - [ ] add notes on connecting PS4 controller on windows
 - [ ] add linux + bash notes
-- [ ] make a "Get-Size" cmdlet
+- [ ] make a "Get-Size" cmdlet (must work with folders)
 
 ### *TODO*
 - [ ] add powershell docstrings to own cmdlets

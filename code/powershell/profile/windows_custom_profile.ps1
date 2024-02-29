@@ -405,7 +405,8 @@ function Update-Software {
             'Update-Software: Updating Git',
             'Update-Software: Update Git?',
             ''
-        )) {git update-git-for-windows}
+        # )) {git update-git-for-windows}
+        )) {winget upgrade --id Git.Git -s winget -e -i}
     }
     if ($Powertoys) {
         if ($PSCmdlet.ShouldProcess(
