@@ -260,14 +260,14 @@ function Kill-Jupyter {
             $ConfirmPreference = 'None'
         }
         # Write-Host 'Kill-Jupyter $ConfirmPreference', $ConfirmPreference
-        $port_regex_pattern = 'http://localhost:(\d+)/\?token=\w+'
         if ($Env:CONDA_DEFAULT_ENV -eq $default_conda_venv) {$conda_deactivate = $false}
         else {
             $PSCmdlet.WriteVerbose("Kill-Jupyter: Activating ${default_conda_venv} for the command")
             $conda_deactivate = $true
             Conda-Activate
         }
-        $active_ports = Get-JupyterLabURL | ? {$_} | % {[regex]::matches($_, $port_regex_pattern).Groups} `
+        $port_regex_pattern = 'http://localhost:(\d+)/\?token=\w+'
+        $active_ports = Get-JupyterLabURL | % {[regex]::matches($_, $port_regex_pattern).Groups} `
             | ? {$_.Name -eq 1} | % {$_.Value}
         # Write-Host $active_ports
     }
