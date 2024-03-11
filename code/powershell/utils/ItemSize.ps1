@@ -1,13 +1,18 @@
 function Convert-Bytes2Human {
     param([int64] $ByteCount)
     # $human_size = $Bytes
-    switch ([math]::Truncate([math]::Log($ByteCount, 1024))) {
-        0 {$human_size = "${ByteCount} B"}
-        1 {$human_size = "{0:n1} KB" -f ($ByteCount / 1KB)}
-        2 {$human_size = "{0:n1} MB" -f ($ByteCount / 1MB)}
-        3 {$human_size = "{0:n1} GB" -f ($ByteCount / 1GB)}
-        4 {$human_size = "{0:n1} TB" -f ($ByteCount / 1TB)}
-        default {$human_size = "{0:n1} PB" -f ($ByteCount / 1PB)}
+    if ($ByteCount -eq 0) {
+        $human_size = "${ByteCount} B"
+    }
+    else {
+        switch ([math]::Truncate([math]::Log($ByteCount, 1024))) {
+            0 {$human_size = "${ByteCount} B"}
+            1 {$human_size = "{0:n1} KB" -f ($ByteCount / 1KB)}
+            2 {$human_size = "{0:n1} MB" -f ($ByteCount / 1MB)}
+            3 {$human_size = "{0:n1} GB" -f ($ByteCount / 1GB)}
+            4 {$human_size = "{0:n1} TB" -f ($ByteCount / 1TB)}
+            default {$human_size = "{0:n1} PB" -f ($ByteCount / 1PB)}
+        }
     }
     return $human_size
 }
@@ -33,7 +38,7 @@ function Get-ItemSize {
                 $PSCmdlet.WriteError($ErrorRecord)
                 continue
             }
-            $item = Get-Item -Force:$Force $path_item
+            $item = Get-Item -Force:$Force -LiteralPath $path_item
             # check if in a FileSystem drive
             if ($item.PSProvider.Name -ne 'FileSystem') {
                 $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
@@ -79,11 +84,14 @@ function Get-ChildItemSize {
     # la | Format-Table Mode, LastWriteTime, @{Label='Length'; Expression={3}}, Name
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory, ValueFromPipeline)] [string[]] $LiteralPath,
+        [Parameter(ValueFromPipeline)] [string[]] $LiteralPath,
         [switch] $Force,
         [switch] $HumanReadable
     )
     process {
+        if ($LiteralPath.Count -eq 0) {
+            $LiteralPath += $ExecutionContext.SessionState.Path.CurrentLocation
+        }
         foreach ($path_item in $LiteralPath) {
             # check if path_item exists
             if (-not (Test-Path -LiteralPath $path_item)) {
@@ -96,7 +104,7 @@ function Get-ChildItemSize {
                 $PSCmdlet.WriteError($ErrorRecord)
                 continue
             }
-            $item = Get-Item -Force:$Force $path_item
+            $item = Get-Item -Force:$Force -LiteralPath $path_item
             # check if in a FileSystem drive
             if ($item.PSProvider.Name -ne 'FileSystem') {
                 $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
@@ -119,12 +127,18 @@ function Get-ChildItemSize {
                 $PSCmdlet.WriteError($ErrorRecord)
                 continue
             }
-            Get-ChildItem -LiteralPath $item.FullName -Force:$Force | % {$PSCmdlet.WriteObject([PSCustomObject] @{
+            Get-ChildItem -LiteralPath $item.FullName -Force:$Force | % {[PSCustomObject] @{
                 Mode = $_.Mode
                 LastWriteTime = $_.LastWriteTime
                 Length = Get-ItemSize -LiteralPath $_.FullName -Force:$Force -HumanReadable:$HumanReadable
                 Name = $_.Name
-            })}
+            }} | % {$_.PSObject.TypeNames.Insert(0, 'DirectorySizeInfo'); $PSCmdlet.WriteObject($_)}
         }
     }
 }
+function Alias-LAS {Get-ChildItemSize -Force -HumanReadable $args}
+New-Item -Path Alias:las -Value Alias-LAS -Force > $null
+
+# format for displaying DirectorySizeInfo objects like DirectoryInfo objects
+# https://itblog.ldlnet.net/index.php/2020/04/22/powershell-how-to-create-a-custom-view-for-your-ps-output-objects/
+Update-FormatData -AppendPath "${_powershell_dir}\utils\ItemSize.Format.ps1xml"
