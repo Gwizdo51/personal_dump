@@ -2,31 +2,28 @@
 
 ### *WIP*
 - [ ] add more verbose to profile
-- [ ] add notes on connecting PS4 controller on windows
 - [ ] add linux + bash notes
-- [ ] make a "Get-Size" cmdlet
 
 ### *TODO*
 - [ ] add powershell docstrings to own cmdlets
+- [ ] mess with [PSReadLine](https://learn.microsoft.com/en-us/powershell/module/psreadline/?view=powershell-7.3)
 - [ ] add tkinter tests
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
-- [ ] mess with [PSReadLine](https://learn.microsoft.com/en-us/powershell/module/psreadline/?view=powershell-7.3)
 - [ ] make pretty_string_factory a module on its own
 - [ ] add a docstring to logger_factory.py and touch.py
 - [ ] add unit tests for dotdict.py
 - [ ] add django notes + test code
 - [ ] add ssh notes
 - [ ] add windows command prompt notes
-- [ ] add vscode JSON config files
 - [ ] add a RegEx UUID detector to tests.py
 - [ ] test python decorators
-- [ ] add windows notes about setting up coding environment (vs code, windows terminal, powershell, anaconda, git)
 - [ ] add windows notes about adding virtual memory
 - [ ] add git flow notes
 - [ ] add keyboard shortcut to start screensaver on demand on windows
 - [ ] create "Réussite" game
 - [ ] reinstall OS at some point (never update conda on base with conda-forge, btw)
+- [ ] add notes on connecting PS4 controller on windows
 
 ### *DONE*
 - [x] add .gitattribute file
@@ -73,6 +70,7 @@
 - [x] debug conda prompt when using folder venv
 - [x] make a "Restart-System" cmdlet
 - [x] make a "Recycle" cmdlet
+- [x] make a "Get-Size" cmdlet (must work with folders)
 
 # Ideas
 

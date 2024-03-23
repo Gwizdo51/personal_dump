@@ -45,6 +45,7 @@ replace with "Windows Balloon.wav":
 
 
 installed programs:
+    chrome
     discord
     quad-capture driver
     nvidia geforce
@@ -56,12 +57,12 @@ installed programs:
     parsec, hidhide, ds4windows
     windows terminal
     git
+    vscode
+    anaconda navigator
     7-zip
     stopupdates10
     logitech g hub
     eft
-    vscode
-    chrome
     lol
     powershell 7
     powertoys

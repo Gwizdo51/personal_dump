@@ -355,10 +355,10 @@ function Make-SymLink {
     New-Item -ItemType 'SymbolicLink' -Path $LinkPath -Target (Get-Item $TargetPath).ResolvedTarget
 }
 New-Item -Path Alias:mklink -Value Make-SymLink -Force | Out-Null
-function Open-Ise {
-    # opens a file in PowerShell ISE
-}
-New-Item -Path Alias:ise -Value Open-Ise -Force | Out-Null
+# function Open-Ise {
+#     # opens a file in PowerShell ISE
+# }
+# New-Item -Path Alias:ise -Value Open-Ise -Force | Out-Null
 function Windows-Terminal { # allows opening a windows terminal as admin with no confirmation
     $as_admin = $false
     foreach ($arg in $args) {if ($arg -match '^(--as-admin|-a)$') {$as_admin = $true}}
@@ -405,7 +405,8 @@ function Update-Software {
             'Update-Software: Updating Git',
             'Update-Software: Update Git?',
             ''
-        )) {git update-git-for-windows}
+        # )) {git update-git-for-windows}
+        )) {winget upgrade --id Git.Git -s winget -e -i}
     }
     if ($Powertoys) {
         if ($PSCmdlet.ShouldProcess(
@@ -423,7 +424,7 @@ function Update-Software {
     }
 }
 New-Item -Path Alias:update -Value Update-Software -Force | Out-Null
-function Shutdown-Cmdlet {
+function Shutdown-Computer {
     # [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     [CmdletBinding()]
     param(
@@ -433,28 +434,15 @@ function Shutdown-Cmdlet {
         [switch] $WhatIf
     )
     # shutdown by default, restart if -Restart
-    # always prompt for confirmation, except if -Force is passed
-    # ShouldConfirm of ShouldContinue ? -> ShouldProcess-Yes-No ?
-    # if (-not ($Shutdown -xor $Restart)) {
-    #     $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
-    #         [System.ArgumentException] 'Either one of -Shutdown or -Restart flags must be specified',
-    #         'InvalidArguments',
-    #         [System.Management.Automation.ErrorCategory]::InvalidArgument,
-    #         $null
-    #     )
-    #     $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-    # }
-    # if ($Confirm) {Write-Host 'kekw'}
-    # elseif ($Force) {
     if (-not $Confirm -and $Force) {
-        $PSCmdlet.WriteVerbose("Shutdown-Cmdlet: '-Force' flag set, bypassing confirmation")
+        $PSCmdlet.WriteVerbose("Shutdown-Computer: '-Force' flag set, bypassing confirmation")
         $ConfirmPreference = 'None'
     }
     if ($Restart) {
         if (
             ShouldProcess-Yes-No -PSCmdlet $PSCmdlet -Confirm:$Confirm -ConfirmImpact 'High' `
-            -ConfirmQuestion 'Shutdown-Cmdlet: Restart the computer?' -WhatIf:$WhatIf `
-            -WhatIfMessage 'Shutdown-Cmdlet: Restarting the computer'
+            -ConfirmQuestion 'Shutdown-Computer: Restart the computer?' -WhatIf:$WhatIf `
+            -WhatIfMessage 'Shutdown-Computer: Restarting the computer'
         ) {
             # Write-Host 'restarting'
             shutdown.exe /r /t 0
@@ -463,15 +451,15 @@ function Shutdown-Cmdlet {
     else {
         if (
             ShouldProcess-Yes-No -PSCmdlet $PSCmdlet -Confirm:$Confirm -ConfirmImpact 'High' `
-            -ConfirmQuestion 'Shutdown-Cmdlet: Shut down the computer?' -WhatIf:$WhatIf `
-            -WhatIfMessage 'Shutdown-Cmdlet: Shuting down the computer'
+            -ConfirmQuestion 'Shutdown-Computer: Shut down the computer?' -WhatIf:$WhatIf `
+            -WhatIfMessage 'Shutdown-Computer: Shuting down the computer'
         ) {
             # Write-Host 'shuting down'
             shutdown.exe /s /t 0
         }
     }
 }
-New-Item -Path Alias:shutdown -Value Shutdown-Cmdlet -Force | Out-Null
+New-Item -Path Alias:shutdown -Value Shutdown-Computer -Force | Out-Null
 
 ### powershell stuff
 # function Get-Type {foreach($arg in $args) {$arg.GetType().FullName}}
@@ -506,6 +494,8 @@ New-Item -Path Alias:color_test -Value Test-TextColors -Force | Out-Null
 . "${_powershell_dir}\utils\Recycle.ps1"
 # sudo
 . "${_powershell_dir}\utils\Sudo.ps1"
+# item sizes
+. "${_powershell_dir}\utils\ItemSize.ps1"
 
 
 $tock = Get-Date
