@@ -65,7 +65,7 @@ def is_iterable_not_string_like(obj: Any) -> bool:
 
 
 # best attempt at defining a Regular Expression for an attribute name
-CLASS_ATTRIBUTE_NAME_PATTERN = re.compile("^[a-zA-Z]\w*$")
+CLASS_ATTRIBUTE_NAME_PATTERN = re.compile(r"^[a-zA-Z]\w*$")
 # dict class method names
 DICT_METHOD_NAMES = [meth_name for meth_name in dir(dict) if not ("_" in meth_name)]
 
@@ -98,7 +98,7 @@ def check_key(key: Any):
         raise AttributeNameError(f"The key '{key}' is not valid as a class attribute name")
     # check whether the key would erase a dict method
     if key in DICT_METHOD_NAMES:
-        raise AttributeNameError(f"The key '{key}' would erase a dict method")
+        raise AttributeNameError(f"The key '{key}' would overwrite a dict method")
 
 
 def check_keys(dict_to_check: dict):
@@ -494,6 +494,7 @@ class DotDict(dict):
         """
         print("__init__ call") if _verbose else ...
         # create a temporary dict from the arguments
+        # -> this creates a shallow copy of the original dict
         dict_self = dict(*args, **kwargs)
         if _check:
             # if any values are mappings, convert them to dict, recursively
@@ -548,7 +549,7 @@ class DotDict(dict):
                 # add a reference to the root DotDict
                 root = self._root
                 # add the key to the _path_to_root attribute
-                path_to_root = self._path_to_root + [key]
+                path_to_root = self._path_to_root.append(key)
             # no need to check it, it's already cleared
             return DotDict(
                 value,

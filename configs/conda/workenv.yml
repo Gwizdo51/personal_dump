@@ -3,9 +3,9 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.12
-  - jupyterlab=4.0
-  - numpy=1.26
-  - matplotlib=3.8
-  - pandas=2.2
-  - pyarrow=15.0 # pandas dependency
+  - python
+  - jupyterlab
+  - numpy
+  - matplotlib
+  - pandas
+  - pyarrow # pandas dependency

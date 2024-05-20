@@ -185,7 +185,7 @@ While inside a Cmdlet, "Write-Error" doesn't actually raise an exception => gott
 create an ErrorRecord from scratch: ErrorRecord(Exception, String, ErrorCategory, Object)
 - exception (Exception)             -> Exception which describes the error https://learn.microsoft.com/en-us/dotnet/fundamentals/runtime-libraries/system-exception#choose-standard-exceptions
 - errorId (String)                  -> Global identifier of the error condition (fully qualified error id: "PathNotFound,Microsoft.PowerShell.Commands.RemoveItemCommand")
-- errorCategory (ErrorCategory)     -> This is the ErrorCategory which best describes the error https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.errorcategory?view=powershellsdk-7.3.0
+- errorCategory (ErrorCategory)     -> This is the ErrorCategory which best describes the error https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.errorcategory
 - targetObject (Object)             -> Object against which the cmdlet or provider was operating when the error occurred (optional)
 create an exception:
 <exception_type> 'Exception message'

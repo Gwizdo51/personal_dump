@@ -97,7 +97,7 @@ function Recycle-Item {
         [string[]] $Path # should be able to take a list of paths
     )
     begin {
-        $all_filesystem_roots = (Get-PSDrive | where {$_.provider.name -eq 'FileSystem'}).root
+        $all_filesystem_roots = (Get-PSDrive | ? {$_.provider.name -eq 'FileSystem'}).Root
         $shell = New-Object -ComObject 'Shell.Application'
     }
     process {
