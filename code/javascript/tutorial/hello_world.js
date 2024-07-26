@@ -275,7 +275,7 @@ do {
 }
 while (index);
 // for loop
-// for(begin; condition; step)
+// for (begin; condition; step)
 for (index = -5; index < 10; index++) {
     console.log(index);
 }
@@ -646,6 +646,8 @@ accumulator.show();
 function User(name) {
     this.name = name;
     this.isAdmin = false;
+    // self reference
+    this.selfRef = this;
     this.sayHi = function () {
         let message = `Hi! my name is ${this.name}.`;
         if (this.isAdmin) {
@@ -657,8 +659,10 @@ function User(name) {
     }
 }
 let user = new User("joe");
+console.log(user);
 console.log(user.name);
 console.log(user.isAdmin);
+console.log(user.selfRef.selfRef.selfRef.selfRef.name)
 user.isAdmin = true;
 user.sayHi();
 // create an object without storing the constructor
@@ -687,7 +691,7 @@ for (let key in user) {
 }
 // */
 
-// /*
+/*
 // object conversion to primitive
 // use Symbol.toPrimitive to define a general conversion method
 function User() {
@@ -725,4 +729,90 @@ const car = new Car();
 console.log(car);
 console.log(String(car));
 console.log(Number(car));
+// */
+
+/*
+// primitive methods
+// numbers
+let n = 1.23456;
+console.log(n.toFixed(2));
+// can define numbers with "_" for readability
+n = 1_000_000_000;
+console.log(n);
+// powers of 10
+n = 1e9;
+console.log(n);
+n = 7.3e9;
+console.log(n);
+n = 1e-6;
+console.log(n);
+n = -3e4;
+console.log(n);
+// hexadecimal notation
+n = 0xFF;
+console.log(n);
+n = 0xff;
+console.log(n);
+// binary notation
+n = 0b100000000;
+console.log(n);
+// octal notation
+n = 0o10;
+console.log(n);
+// convert to a string in the base provided
+n = 255;
+console.log(n.toString(16));
+console.log(n.toString(2));
+console.log(123456..toString(36)); // 2 dots to access the method from a litteral
+// roundings
+console.log(Math.ceil(3.5));
+console.log(Math.floor(3.5));
+console.log(Math.round(3.5));
+// round to the nearest 10th
+console.log(Math.round(6.35 * 10) / 10);
+console.log(3.66666.toFixed(3)); // returns a string
+console.log(3..toFixed(3)); // adds zeros
+// upper boundary: Infinity
+console.log(1e500);
+// solve .1 + .2 === .3: round to the nearest 100th
+let sum = .1 + .2;
+console.log(Number(sum.toFixed(2)) === .3);
+// check if finite or NaN
+console.log(isFinite(4));
+console.log(isFinite(-Infinity));
+console.log(isFinite(NaN)); // NaN is not finite
+console.log(isNaN(-3.2));
+console.log(isNaN(NaN));
+console.log(isNaN("str")); // converted to number
+// Number.isFinite and Number.isNaN check for type as well
+console.log(Number.isFinite("0"));
+console.log(Number.isNaN("str"));
+// parse a number from a string
+console.log(parseInt("100px"));
+console.log(parseFloat("12.5em"));
+console.log(parseInt("a150")); // NaN
+// parseInt can be used to read a  number from a different base
+console.log(parseInt("0xff", 16));
+console.log(parseInt("ff", 16));
+console.log(parseInt("100000000", 2));
+console.log(parseInt("2n9c", 36));
+// max and min
+console.log(Math.max(1.6, -2.3, 5, 15, 4, -10));
+console.log(Math.min(1.6, -2.3, 5, 15, 4, -10));
+// */
+
+// /*
+// randomRange function
+function randomRange(lowerBound, upperBound) {
+    // Math.random returns a number between 0 included and 1 excluded
+    // console.log(Math.random());
+    // // between 0 included and 5 excluded
+    // console.log(Math.random() * 5);
+    // // int between 0 and 4 included
+    // console.log(Math.floor(Math.random() * 5));
+    return Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound
+}
+console.log(randomRange(5, 10));
+console.log(randomRange(-5, 0));
+console.log((randomRange(3, 3)));
 // */
