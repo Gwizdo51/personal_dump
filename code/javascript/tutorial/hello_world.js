@@ -153,6 +153,8 @@ console.log("Hello world" + "!");
 console.log(+true);
 console.log(+"");
 console.log(+undefined);
+// affectations return the value assigned
+console.log((a = 5) === 5);
 // chain affectations
 a = b = 6;
 console.log(a);
@@ -732,8 +734,7 @@ console.log(Number(car));
 // */
 
 /*
-// primitive methods
-// numbers
+// primitive methods: numbers
 let n = 1.23456;
 console.log(n.toFixed(2));
 // can define numbers with "_" for readability
@@ -801,7 +802,7 @@ console.log(Math.max(1.6, -2.3, 5, 15, 4, -10));
 console.log(Math.min(1.6, -2.3, 5, 15, 4, -10));
 // */
 
-// /*
+/*
 // randomRange function
 function randomRange(lowerBound, upperBound) {
     // Math.random returns a number between 0 included and 1 excluded
@@ -815,4 +816,428 @@ function randomRange(lowerBound, upperBound) {
 console.log(randomRange(5, 10));
 console.log(randomRange(-5, 0));
 console.log((randomRange(3, 3)));
+// */
+
+/*
+// primitive methods: strings
+// new line
+console.log("1st line\n2nd line");
+console.log("backslash: \\");
+console.log("tab\t\ttab");
+// number of characters
+let str = "abcde";
+console.log(str.length);
+// access individual characters
+console.log(str[0]);
+console.log(str[10]); // undefined
+console.log(str.charAt(1));
+console.log(typeof str.charAt(1));
+console.log(str.charAt(15));
+console.log(typeof str.charAt(15));
+// "at" accepts negative inputs
+console.log(str.at(-1));
+// strings are immutable
+// str[0] = "f"; // error
+// change the case
+console.log(str.toUpperCase());
+str = "ABCDE";
+console.log(str.toLowerCase());
+// look for a substring
+console.log(str.indexOf("BCD"));
+console.log(str.indexOf("not there")); // -1
+// start searching from index
+console.log(str.indexOf("ABC", 2));
+str = "as sly as fox, as strong as an ox";
+let substringIndex = -1;
+while ((substringIndex = str.indexOf("as", substringIndex + 1)) !== -1) {
+    console.log(substringIndex);
+}
+// includes
+str = "Widget with id";
+console.log(str.includes("id"));
+console.log(str.includes("bye"));
+// start looking from index
+console.log(str.includes("with", 10));
+// startsWith, endsWith
+console.log(str.startsWith("Widget"));
+console.log(str.endsWith("id"));
+// get a substring: [start, end[
+// slice method
+console.log(str.slice(0, 6));
+console.log(str.slice(0, 6).length);
+console.log(str.slice(12)); // end = Infinity by default
+// supports negative indices
+console.log(str.slice(-7, -1)); // -> not great
+// substring mmethod
+console.log(str.substring(7, 11));
+console.log(str.substring(11, 7)); // can swap numbers
+// substr method (deprecated)
+// str.substr(start[, length])
+console.log(str.substr(7, 4));
+// */
+
+/*
+// capitalize function
+function capitalize(str) {
+    // str is a single word (no white spaces or punctuations)
+    // let result = str.toLowerCase();
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+console.log(capitalize("HAHA"));
+console.log(capitalize("b"));
+console.log(capitalize(""));
+console.log(capitalize("john"));
+// */
+
+/*
+// arrays
+// constructor
+let arr;
+arr = new Array();
+arr = [];
+console.log(arr);
+console.log(typeof arr); // "object"
+// basic definition
+let fruits = ["apple", "apricot", "banana"];
+console.log(fruits);
+// length of array
+console.log(fruits.length);
+// access elements
+console.log(fruits[0]);
+console.log(fruits[1]);
+console.log(fruits[2]);
+console.log(fruits[5]); // undefined
+console.log(fruits[-1]); // undefined
+// replace and add
+fruits[1] = "cherry";
+fruits[fruits.length] = "pear";
+console.log(fruits);
+// can store any types (not recommended)
+arr = ["a", 3, true, function () {}, {name: "Robert"}];
+console.log(arr);
+// "at" supports negative indices
+console.log(fruits.at(-1));
+// remove from end
+let fruit;
+fruit = fruits.pop();
+console.log(fruit);
+console.log(fruits);
+// add to end
+fruits.push("grape");
+console.log(fruits);
+// remove from beginning
+fruit = fruits.shift();
+console.log(fruit);
+console.log(fruits);
+// add to beginning
+fruits.unshift("peach");
+console.log(fruits);
+// loops
+// classic method
+for (let index = 0; index < fruits.length; index++) {
+    console.log(fruits[index]);
+}
+// "for of" method
+for (fruit of fruits) {
+    console.log(fruit);
+}
+// "for in" loops through all properties (not recommended)
+for (let index in fruits) {
+    console.log(fruits[index]);
+}
+// can mess indices up
+arr = [];
+arr[124] = "haha";
+console.log(arr.length); // 125
+// can truncate arrays
+arr = [1,2,3,4,5];
+arr.length = 2;
+console.log(arr);
+// clear an array
+arr.length = 0;
+console.log(arr);
+// matrices
+let mat = [
+    [1,2,3],
+    [4,5,6],
+    [7,8,9]
+];
+console.log(mat);
+console.log(mat[1][1]);
+// toString
+arr = [1,2,3];
+console.log(String(arr)); // "1,2,3"
+// */
+
+/*
+// array methods
+let arr = [10, 20, 30];
+let removed;
+console.log(arr);
+// Array.splice synthax: arr.splice(startIndex, numberElements, ...newElements)
+// remove elements
+removed = arr.splice(1, 1); // remove the second element (1 element starting from the second one)
+console.log(arr); // [10, 30]
+console.log(removed);
+// insert elements
+removed = arr.splice(1, 0, 20, 21, 22);
+console.log(arr); // [10, 20, 21, 22, 30]
+console.log(removed);
+// remove the first 2 elements and replace them
+removed = arr.splice(0, 2, 15, 16);
+console.log(arr); // [15, 16, 21, 22, 30]
+console.log(removed);
+// subarrays
+let subArr;
+subArr = arr.slice(2, 4);
+console.log(subArr); // [21, 22]
+subArr = arr.slice(2);
+console.log(subArr); // [21, 22, 30]
+// concatenations
+let concatArr;
+concatArr = arr.concat([40, 50]);
+console.log(concatArr);
+concatArr = arr.concat([40, 50], [60, 70]);
+console.log(concatArr);
+concatArr = arr.concat([40, 50], 60, 70);
+console.log(concatArr);
+// iterate through arrays
+arr.forEach(function (item, index, array) {
+    console.log(`${index}: ${item}`);
+    console.log(array); // reference to arr
+    // console.log(this); // undefined
+});
+// search for element
+// arr.indexOf returns the index of the element if found
+console.log(arr.indexOf(30));
+console.log(arr.indexOf(35)); // -1
+console.log(arr.indexOf(30, 5)); // not found after index 5
+// return the last index of found item
+console.log(["apple", "cherry", "apple"].lastIndexOf("apple")); // 2
+// arr.includes returns "true" if the element is found
+console.log(arr.includes(30));
+console.log(arr.includes(35)); // false
+console.log(arr.includes(30, 5)); // not found after index 5
+// check for NaN only works for "includes"
+console.log([NaN].indexOf(NaN)); // -1
+console.log([NaN].includes(NaN)); // true
+// find an element using a callback
+let userArray = [
+    {id: 1, name: "John"},
+    {id: 2, name: "Fred"},
+    {id: 3, name: "Bob"},
+    {id: 4, name: "John"}
+];
+let foundUser = userArray.find(function (item, index, array) {
+    return item.id === 2;
+});
+console.log(foundUser);
+console.log(foundUser.name);
+// returns "undefined" if the search failed
+foundUser = userArray.find(user => user.id === 5);
+console.log(foundUser);
+// get the index of the item found
+let indexUser = userArray.findIndex(user => user.id === 2);
+console.log(indexUser); // 1
+indexUser = userArray.findIndex(user => user.id === 5);
+console.log(indexUser); // -1
+// search from the end
+indexUser = userArray.findLastIndex(user => user.name === "John");
+console.log(indexUser); // 3
+// filter the array with a callback
+let filteredArray = userArray.filter(function (item, index, array) {
+    return item.id > 2;
+});
+console.log(filteredArray);
+// map an array with a callback
+let mappedArray = userArray.map(function (item, index, array) {
+    return item.name.length;
+});
+console.log(mappedArray);
+// sort with a callback (in place)
+// 0 if equal, 1 if greater, -1 if less
+let numArr = [1, 6, 2, 6];
+// numArr.sort(function (a, b) {
+//     let result;
+//     if (a > b) result = 1;
+//     else if (a === b) result = 0;
+//     else result = -1;
+//     return result;
+// });
+numArr.sort(function (a, b) {return a - b;});
+console.log(numArr);
+// inverse sort
+numArr.reverse((a, b) => a - b);
+console.log(numArr);
+// split a string
+let str = "Bilbo, Pippin, Merry";
+arr = str.split(", ");
+console.log(arr);
+// join strings
+str = arr.join(";");
+console.log(str);
+// reduce array (sum, max, min, ...)
+numArr = [1,2,3,4,5];
+// sum
+console.log(numArr.reduce((accumulator, item, index, array) => item + accumulator, 0));
+// min
+function min(a, b) {
+    return a <= b ? a : b;
+}
+console.log(numArr.reduce(min, numArr[0]));
+// max
+function max(a, b) {
+    return a >= b ? a : b;
+}
+console.log(numArr.reduce(max, numArr[0]));
+// check if object is an array
+console.log(Array.isArray({}));
+console.log(Array.isArray([]));
+// make a real array from an array-like
+let arrayLike = {
+    0: "haha",
+    1: "lol",
+    length: 2
+};
+console.log(Array.isArray(arrayLike));
+arr = Array.from(arrayLike);
+console.log(Array.isArray(arr));
+// */
+
+/*
+// calculator
+function Calculator() {
+    this.operators = {};
+    this.calculate = function (formula) {
+        let operatorNames = Object.keys(this.operators);
+        // console.log(operatorNames);
+        // console.log(Array.isArray(operatorNames));
+        // console.log(formula);
+        let formulaElements = formula.split(" ");
+        // console.log(formulaElements);
+        // let indexOperator = operatorNames.findIndex(key => key === formulaElements[1]);
+        // console.log(indexOperator);
+        // if (indexOperator === -1) {
+        if (!operatorNames.includes(formulaElements[1])) {
+            console.log("operator not implemented");
+            return NaN;
+        }
+        // return this.operators[formulaElements[1]](Number(formulaElements[0]), Number(formulaElements[2]));
+        return this.operators[formulaElements[1]](+formulaElements[0], +formulaElements[2]);
+    };
+    this.addOperator = function (symbol, operation) {
+        this.operators[symbol] = operation;
+    };
+}
+const calculator = new Calculator();
+calculator.addOperator("+", (a, b) => a + b);
+console.log(calculator);
+console.log(calculator.calculate("7 + 3"));
+console.log(calculator.calculate("7 * 3"));
+calculator.addOperator("*", (a, b) => a * b);
+console.log(calculator.calculate("7 * 3"));
+// */
+
+/*
+// iterables
+let range = {
+    from: 1,
+    to: 5
+};
+// to make "range" an iterator:
+range[Symbol.iterator] = function () {
+    // returns an object that will be used in the loop
+    return {
+        current: this.from,
+        last: this.to,
+        // this object must have a method "next" that will return the value
+        next() {
+            let result = {
+                done: false,
+                value: this.current
+            };
+            if (this.current > this.last) {
+                result.done = true;
+            }
+            else {
+                this.current++;
+            }
+            return result;
+        }
+    };
+};
+for (let num of range) {
+    console.log(num);
+}
+// we can make the "range" object the iterator itself
+// -> downside: can't make 2 separate iterables
+range = {
+    from: 1,
+    to: 5,
+    [Symbol.iterator]() {
+        this.current = this.from;
+        return this;
+    },
+    next() {
+        let result = {
+            done: false,
+            value: this.current
+        };
+        if (this.current > this.to) {
+            result.done = true;
+        }
+        else {
+            this.current++;
+        }
+        return result;
+    }
+};
+for (let num of range) {
+    console.log(num);
+}
+// strings are iterables
+for (let char of "abcde") {
+    console.log(char);
+}
+// make an array from an iterable
+let numArray = Array.from(range);
+console.log(numArray);
+console.log(Array.isArray(numArray));
+let charArray = Array.from("abcde");
+console.log(charArray);
+console.log(Array.isArray(charArray));
+// */
+
+/*
+// make a function that returns a python-style "range" iterable
+function range(start, stop, step=1) {
+    return {
+        start,
+        stop,
+        step,
+        [Symbol.iterator]() {
+            this.current = this.start;
+            return this;
+        },
+        next() {
+            const nextObject = {
+                done: false,
+                value: this.current
+            };
+            if (this.current >= this.stop) {
+                nextObject.done = true;
+            }
+            else {
+                this.current += this.step;
+            }
+            return nextObject;
+        }
+    };
+}
+for (let index_line of range(0, 10)) {
+    for (let index_column of range(0, 10)) {
+        console.log(`${index_line} ${index_column}`);
+    }
+}
+console.log(Array.from(range(0, 5)));
 // */
