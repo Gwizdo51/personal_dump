@@ -1241,3 +1241,106 @@ for (let index_line of range(0, 10)) {
 }
 console.log(Array.from(range(0, 5)));
 // */
+
+/*
+// map type: object that accepts keys of any types
+let map = new Map();
+console.log(map);
+console.log(typeof map);
+// add key/value pairs
+// map.set(true, "bool");
+// map.set("1", "str");
+// map.set(1, "num");
+// map.set returns the map
+map.set(true, "bool").set("1", "str").set(1, "num");
+console.log(map);
+// get stored values
+console.log(map.get(true));
+console.log(map.get("1"));
+console.log(map.get(1));
+// get size
+console.log(map.size);
+// check if a key exists
+console.log(map.has(true));
+console.log(map.has(false));
+// remove a key/value pair
+map.delete(true);
+console.log(map);
+// clear the map
+map.clear();
+console.log(map);
+// looping over the map
+// -> Map preserves entry order
+map = new Map([
+    ["boys", 3],
+    ["girls", 50]
+]);
+for (let key of map.keys()) {
+    console.log(key);
+}
+for (let value of map.values()) {
+    console.log(value);
+}
+for (let entry of map.entries()) {
+    // returns [key, value] arrays
+    console.log(entry);
+    console.log(Array.isArray(entry));
+}
+map.forEach(function (value, key, mapRef) {
+    console.log(key);
+    console.log(value);
+    console.log(mapRef); // self reference
+});
+// make a map from an object
+let user = {
+    name: "John",
+    age: 30
+};
+console.log(user);
+console.log(Object.entries(user));
+let userMap = new Map(Object.entries(user));
+console.log(userMap);
+// make an object from a map
+user = Object.fromEntries(userMap.entries());
+console.log(user);
+// */
+
+// /*
+// set type: array where every value can appear only once
+let set = new Set();
+console.log(set);
+console.log(typeof set);
+// add values
+// set.add("apple");
+// set.add("banana");
+// set.add("orange");
+// "add" returns the set itself
+set.add("apple").add("banana").add("orange");
+// cannot add the same value twice
+set.add("apple");
+console.log(set);
+// get size
+console.log(set.size);
+// delete values
+set.delete("apple");
+console.log(set);
+// can delete values that don't exist
+set.delete("blbl");
+// empty the set
+set.clear();
+console.log(set);
+// iterate over a set
+set.add("apple").add("banana").add("orange");
+for (let item of set) {
+    console.log(item);
+}
+set.forEach(function (value, valueAgain, setRef) {
+    console.log(value);
+    console.log(valueAgain); // for compatibility with Map
+    console.log(setRef);
+});
+// make a set from an array
+console.log(new Set([1,2,3]));
+// make a set from an array
+console.log(Array.from((new Set([1,2,3])).values()));
+// */
