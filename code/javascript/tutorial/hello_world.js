@@ -967,6 +967,13 @@ console.log(mat[1][1]);
 // toString
 arr = [1,2,3];
 console.log(String(arr)); // "1,2,3"
+// make an object from an array
+let objArray = [
+    ["name", "John"],
+    ["age", 30]
+];
+let userObj = Object.fromEntries(objArray);
+console.log(userObj);
 // */
 
 /*
@@ -1305,7 +1312,7 @@ user = Object.fromEntries(userMap.entries());
 console.log(user);
 // */
 
-// /*
+/*
 // set type: array where every value can appear only once
 let set = new Set();
 console.log(set);
@@ -1343,4 +1350,114 @@ set.forEach(function (value, valueAgain, setRef) {
 console.log(new Set([1,2,3]));
 // make a set from an array
 console.log(Array.from((new Set([1,2,3])).values()));
+// */
+
+/*
+// WeakMap -> doesn't prevent garbage collection
+let weakmap = new WeakMap();
+console.log(weakmap);
+// keys must be object
+// weakmap.set("John", "ok");
+let user = {name: "John"};
+weakmap.set(user, "OK");
+console.log(weakmap);
+console.log(weakmap.get(user));
+user = null;
+// user will not be accessible from the weakmap, and will be deleted from memory
+// useful when we want to add data to an object without modifying it
+// the added data will be deleted with the object
+// WeakSet works the same but for sets
+// */
+
+/*
+// store "unread" flags
+let messages = [
+    {text: "message 1", from: "John"},
+    {text: "message 2", from: "Eric"},
+    {text: "blbl", from: "Jane"}
+];
+console.log(messages);
+let unreadFlagsMap = new WeakMap();
+messages.forEach(function(user) {
+    unreadFlagsMap.set(user, true);
+});
+console.log(unreadFlagsMap);
+messages.splice(0, 1);
+console.log(messages);
+// */
+
+/*
+// sum the properties
+let animals = {
+    giraffe: 30,
+    elephant: 50,
+    goat: 2
+};
+function sumAnimals (animalsObj) {
+    // console.log(Object.values(animalsObj));
+    let sum = 0;
+    Object.values(animalsObj).values().forEach(function (numAnimals) {
+        // console.log(element);
+        sum += numAnimals;
+    });
+    return sum;
+}
+console.log(sumAnimals(animals));
+// */
+
+// /*
+// destructuring assignment
+// destructuring arrays
+let arr = ["John", "Doe"];
+let [firstName, lastName] = arr;
+console.log(firstName);
+console.log(lastName);
+[firstName, lastName] = "Jane Smith".split(" ");
+console.log(firstName);
+console.log(lastName);
+// ignore entries
+arr = ["Julius", "Ceasar", "Emperor", "Veni, vedi, vici"];
+let title;
+[firstName, , title] = arr;
+console.log(firstName);
+console.log(title);
+// can be used in a loop
+let userObj = {
+    name: "John",
+    age: 30
+};
+for (let [key, value] of Object.entries(userObj)) {
+    console.log(`${key}: ${value}`);
+}
+// can get the rest of the array with "..."
+let rest;
+[firstName, lastName, ...rest] = arr
+console.log(firstName);
+console.log(lastName);
+console.log(rest);
+// default values
+[firstName = "Guest", lastName = "Anonymous"] = ["Julius"];
+console.log(firstName);
+console.log(lastName);
+// destructuring objects (only works when matching keys, and with "let")
+let options = {
+    windowTitle: "My window",
+    width: 150,
+    height: 100
+};
+console.log(options);
+let {windowTitle, width, height} = options;
+console.log(windowTitle, width, height);
+// can rename keys
+let {windowTitle: t, width: w, height: h} = options;
+console.log(t, w, h);
+// default values
+// let missingKey;
+let {windowTitle: wt, missingKey = "lost"} = options;
+console.log(wt, missingKey);
+// can use parentheses to use previously declared variables
+({windowTitle} = options);
+console.log(windowTitle);
+// can group unsused key/value pairs in a new object with "..."
+({windowTitle, ...rest} = options);
 // */
