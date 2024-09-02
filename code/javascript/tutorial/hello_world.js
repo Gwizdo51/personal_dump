@@ -1405,7 +1405,7 @@ function sumAnimals (animalsObj) {
 console.log(sumAnimals(animals));
 // */
 
-// /*
+/*
 // destructuring assignment
 // destructuring arrays
 let arr = ["John", "Doe"];
@@ -1452,7 +1452,6 @@ console.log(windowTitle, width, height);
 let {windowTitle: t, width: w, height: h} = options;
 console.log(t, w, h);
 // default values
-// let missingKey;
 let {windowTitle: wt, missingKey = "lost"} = options;
 console.log(wt, missingKey);
 // can use parentheses to use previously declared variables
@@ -1460,4 +1459,149 @@ console.log(wt, missingKey);
 console.log(windowTitle);
 // can group unsused key/value pairs in a new object with "..."
 ({windowTitle, ...rest} = options);
+// smart function parameters
+// destructuring can be used to easily call functions with optional parameters
+options = {
+    title: "My title",
+    items: ["item1", "item2"]
+};
+function showMenu({
+    title = "Untitled",
+    width = 200,
+    height = 100,
+    items = []
+} = {}) {
+    console.log(`${title}: ${width}x${height}`);
+    console.log(items.length);
+    items.forEach(function (value) {
+        console.log(value);
+    })
+}
+showMenu();
+showMenu(options);
+// */
+
+/*
+// destructuring exercises
+// ex 1
+let user = {userName: "John", years: 30};
+let {userName, years: age, isAdmin = false} = user;
+console.log(userName, age, isAdmin);
+// ex 2
+function topSalary(salariesObj) {
+    let result = {
+        name: null,
+        salary: -Infinity
+    };
+    for (let [name, salary] of Object.entries(salariesObj)) {
+        if (salary > result.salary) {
+            result.name = name;
+            result.salary = salary;
+        }
+    }
+    return result.name;
+}
+let salaries = {
+    John: 100,
+    Henry: 200,
+    Jack: 150
+};
+console.log(topSalary(salaries));
+console.log(topSalary({}));
+// */
+
+/*
+// date and time
+let now = new Date();
+console.log(now);
+// date from milliseconds (timestamp) since epoch
+let jan_01_1970 = new Date(0);
+console.log(jan_01_1970);
+let jan_02_1970 = new Date(24 * 3600 * 1000);
+console.log(jan_02_1970);
+// get timestamp from date
+console.log(jan_01_1970.getTime());
+console.log(Number(jan_01_1970));
+// negative timestamps
+let dec_31_1969 = new Date(-24 * 3600 * 1000);
+console.log(dec_31_1969);
+// new Date(datestring)
+console.log(new Date("03-10-1994"));
+// new Date(year, month, date, hours, minutes, seconds, ms)
+// months start from 0
+console.log(new Date(1990, 0, 10));
+// maximal precision is 1ms
+let randomDate = new Date(2011, 0, 1, 2, 3, 4, 567);
+console.log(randomDate);
+// get date components
+console.log(
+    randomDate.getFullYear(),
+    randomDate.getMonth(),
+    randomDate.getDate(),
+    randomDate.getHours(),
+    randomDate.getMinutes(),
+    randomDate.getSeconds(),
+    randomDate.getMilliseconds()
+);
+// day of week (0-sunday to 6-saturday)
+console.log(randomDate.getDay());
+// set date components
+randomDate.setFullYear(2008);
+randomDate.setMonth(4);
+randomDate.setDate(25);
+randomDate.setHours(10);
+randomDate.setMinutes(30);
+randomDate.setSeconds(55);
+randomDate.setMilliseconds(321);
+console.log(randomDate);
+// set date from timestamp
+randomDate.setTime(0);
+console.log(randomDate);
+// dates are autocorrected
+console.log(new Date(2013, 0, 32)); // -> becomes feb 1st
+// get current timestamp
+console.log(Date.now());
+// measure time
+let start = Date.now();
+for (let i = 0; i <= 10000000; i++) {
+    let something = i * i * i;
+}
+let end = Date.now();
+console.log(`time spent: ${end - start}ms`);
+// */
+
+/*
+// benchmarking
+function diffSubtract(date1, date2) {
+    return date2 - date1;
+}
+function diffGetTime(date1, date2) {
+    return date2.getTime() - date1.getTime();
+}
+function bench(f) {
+    let date1 = new Date(0);
+    let date2 = new Date();
+    let start = Date.now();
+    for (let i = 0; i < 100000; i++) {
+        f(date1, date2);
+    }
+    let end = Date.now();
+    return end - start;
+}
+console.log(`benchmark of diffSubtract: ${bench(diffSubtract)}ms`);
+console.log(`benchmark of diffGetTime: ${bench(diffGetTime)}ms`);
+// */
+
+// /*
+// JSON
+let student = {
+    name: 'John',
+    age: 30,
+    isAdmin: false,
+    courses: ['html', 'css', 'js'],
+    spouse: null
+};
+let studentJSON = JSON.stringify(student);
+console.log(typeof studentJSON);
+console.log(studentJSON);
 // */
