@@ -1592,7 +1592,7 @@ console.log(`benchmark of diffSubtract: ${bench(diffSubtract)}ms`);
 console.log(`benchmark of diffGetTime: ${bench(diffGetTime)}ms`);
 // */
 
-// /*
+/*
 // JSON
 let student = {
     name: 'John',
@@ -1604,4 +1604,64 @@ let student = {
 let studentJSON = JSON.stringify(student);
 console.log(typeof studentJSON);
 console.log(studentJSON);
+// can stringify to JSON many types
+console.log(JSON.stringify(true));
+console.log(JSON.stringify(null));
+console.log(JSON.stringify([1,2,3]));
+// replacer function
+JSON.stringify(student, function (key, value) {
+    console.log(`${key} (${typeof key}): ${value} (${typeof value})`);
+    // "this" is the containing object (recursively)
+    console.log(`this: ${this}`);
+    return value;
+});
+// "space" is used to output a pretty string (indentation)
+console.log(JSON.stringify(student, null, 2));
+// implement a method "toJSON" to customize JSON.stringify
+let room = {
+    number: 23,
+    toJSON() {
+        return this.number;
+    }
+};
+let meetup = {
+    title : "Conference",
+    room
+};
+let meetupJSON = JSON.stringify(meetup, null, 2);
+console.log(meetupJSON);
+// parse an object from a JSON
+console.log(JSON.parse(meetupJSON));
+// */
+
+// /*
+// recursive function
+// direct "pow" with "for" loop
+function powDirect(x, n) {
+    let result = 1;
+    for (let i = 0; i < n; i++) {
+        result *= x;
+    }
+    return result;
+}
+console.log(powDirect(2, 4));
+console.log(powDirect(2, 0));
+console.log(powDirect(3, 3));
+// recursive "pow"
+function powRecursive(x, n) {
+    let result;
+    if (n == 0) {
+        result = 1;
+    }
+    else if (n == 1) {
+        result = x;
+    }
+    else {
+        result = x * powRecursive(x, n - 1);
+    }
+    return result;
+}
+console.log(powRecursive(2, 4));
+console.log(powRecursive(2, 0));
+console.log(powRecursive(3, 3));
 // */
