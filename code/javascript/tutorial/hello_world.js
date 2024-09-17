@@ -1634,7 +1634,7 @@ console.log(meetupJSON);
 console.log(JSON.parse(meetupJSON));
 // */
 
-// /*
+/*
 // recursive function
 // direct "pow" with "for" loop
 function powDirect(x, n) {
@@ -1664,4 +1664,21 @@ function powRecursive(x, n) {
 console.log(powRecursive(2, 4));
 console.log(powRecursive(2, 0));
 console.log(powRecursive(3, 3));
+// */
+
+// /*
+// linked list
+let linkedListTest = {
+    value: 0,
+    next: {
+        value: 1,
+        next: {
+            value: 2,
+            next: null
+        }
+    }
+};
+linkedListTest.next.next.next = {value: 3, next: null};
+console.log(linkedListTest);
+// 2 classes: LinkedList + LinkedListNode
 // */
