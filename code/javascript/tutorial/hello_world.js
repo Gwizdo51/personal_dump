@@ -213,7 +213,7 @@ console.log(typeof user_answer);
 //     user_answer < 18 ? "young man" :
 //     "old dude";
 // alert(alertText);
-// ?? operator: itself if defined (not "null" nor "undefined"), else provided value
+// ?? (nullish coalescing) operator: itself if defined (not "null" nor "undefined"), else provided value
 let message = user_answer ?? Infinity;
 console.log(message);
 // */
@@ -325,7 +325,7 @@ let anonymousFunction = function () {};
 console.log(anonymousFunction.name); // anonymousFunction
 // console.log((function() {}).name)
 console.log((new Function()).name); // anonymous
-// global variable
+// global variable, default parameters
 let sum = 0;
 displayHelloWorld();
 function add(a, b = 0) {
@@ -658,7 +658,7 @@ function User(name) {
             message += " I am not an admin.";
         }
         console.log(message);
-    }
+    };
 }
 let user = new User("joe");
 console.log(user);
@@ -1679,6 +1679,218 @@ let linkedListTest = {
     }
 };
 linkedListTest.next.next.next = {value: 3, next: null};
-console.log(linkedListTest);
+// console.log(linkedListTest);
 // 2 classes: LinkedList + LinkedListNode
+// function User(name) {
+//     this.name = name;
+//     this.isAdmin = false;
+//     // self reference
+//     this.selfRef = this;
+//     this.sayHi = function () {
+//         let message = `Hi! my name is ${this.name}.`;
+//         if (this.isAdmin) {
+//             message += " I am an admin.";
+//         } else {
+//             message += " I am not an admin.";
+//         }
+//         console.log(message);
+//     }
+// }
+// // let user = new User("joe");
+function isRequired(parameterName) {
+    throw new Error(`parameter "${parameterName}" is required`);
+}
+function LinkedListNode(value=isRequired("value"), next=null) {
+    this.value = value;
+    this.next = next;
+}
+function LinkedList() {
+    this.firstNode = null;
+    // methods:
+    // - fromArray
+    this.fromArray = function (array=[]) {
+        // clear the list
+        this.clear();
+        // console.log(array);
+        // make a local copy of the array
+        let arrayCopy = Array.from(array)
+        // console.log(arrayCopy);
+        // console.log(array === array);
+        // console.log(array === arrayCopy);
+        // add each element of the array to the list
+        for (let element of arrayCopy.reverse()) {
+            this.appendFirst(element);
+        }
+    };
+    // - toArray
+    this.toArray = function () {
+        let array = [];
+        // add each element of the list to the array
+        let currentNode = this.firstNode;
+        while (currentNode) {
+            array.push(currentNode.value);
+            currentNode = currentNode.next;
+        }
+        return array;
+    };
+    // - getLength
+    this.getLength = function () {
+        let length = 0;
+        let currentNode = this.firstNode;
+        while (currentNode) {
+            currentNode = currentNode.next;
+            length++;
+        }
+        return length;
+    };
+    // - appendFirst
+    this.appendFirst = function (value) {
+        // create a new node with the provided data
+        let newNode = new LinkedListNode(value, this.firstNode);
+        // add the new node at the start of the list
+        this.firstNode = newNode;
+    };
+    // - appendLast
+    this.appendLast = function (value) {
+        // create a new node with the provided data
+        let newNode = new LinkedListNode(value);
+        // if the list is empty, set the node as the first node
+        if (!this.firstNode) {
+            this.firstNode = newNode;
+        }
+        else {
+            // look for the last node of the list
+            let lastNode = this.firstNode;
+            while (lastNode.next) {
+                lastNode = lastNode.next;
+            }
+            // add the new node at the end of the list
+            lastNode.next = newNode;
+        }
+    };
+    // - insert
+    this.insert = function (value, index=isRequired("index")) {
+        // create a new node with the provided data
+        let newNode = new LinkedListNode(value);
+        // if the index is 0 or the list is empty ...
+        if (index === 0 || !this.firstNode) {
+            // set the new node as the first node
+            newNode.next = this.firstNode;
+            this.firstNode = newNode;
+        }
+        else {
+            // look for the node before the one at the given index, or the last node
+            let currentNode = this.firstNode;
+            let currentIndex = 0;
+            while (currentNode.next) {
+                if (currentIndex === index - 1) {
+                    break;
+                }
+                currentIndex++;
+                currentNode = currentNode.next;
+            }
+            // insert the new node after the current node
+            newNode.next = currentNode.next;
+            currentNode.next = newNode;
+        }
+    };
+    // - getValue
+    this.getValue = function (index=isRequired("index")) {
+        let currentNode = this.firstNode;
+        let currentIndex = 0;
+        let value;
+        while (currentNode) {
+            if (currentIndex == index) {
+                value = currentNode.value;
+                break;
+            }
+            currentIndex++;
+            currentNode = currentNode.next;
+        }
+        return value;
+    };
+    // - replace
+    this.setValue = function (value, index=isRequired("index")) {
+        // look for the node at the specified index
+        let currentNode = this.firstNode;
+        let currentIndex = 0;
+        while (currentNode) {
+            if (currentIndex === index) {
+                currentNode.value = value;
+                break;
+            }
+            currentIndex++;
+            currentNode = currentNode.next;
+        }
+    };
+    // - copy
+    this.copy = function () {
+        // create a new empty list
+        let listCopy = new LinkedList();
+        // copy each element
+        let currentNode = this.firstNode;
+        while (currentNode) {
+            listCopy.appendLast(currentNode.value);
+            currentNode = currentNode.next;
+        }
+        return listCopy;
+    };
+    // - popFirst
+    // - popLast
+    // - pop
+    // - clear
+    this.clear = function () {
+        this.firstNode = null;
+    };
+}
+let linkedList = new LinkedList();
+console.log(linkedList);
+// getLength
+console.log(linkedList.getLength());
+// appendFirst
+linkedList.appendFirst(2);
+linkedList.appendFirst(1);
+linkedList.appendFirst(0);
+linkedList.appendFirst(null);
+console.log(linkedList);
+console.log(linkedList.getLength());
+// linkedList.appendFirst(); // error raised
+// getValue
+console.log(linkedList.getValue(0));
+console.log(linkedList.getValue(1));
+console.log(linkedList.getValue(2));
+console.log(linkedList.getValue(3));
+console.log(linkedList.getValue(10)); // undefined
+// appendLast, clear
+// linkedList = new LinkedList();
+linkedList.clear();
+linkedList.appendLast(3);
+linkedList.appendLast(4);
+linkedList.appendLast(5);
+linkedList.appendFirst(2);
+linkedList.appendFirst(1);
+console.log(linkedList);
+console.log(linkedList.getLength());
+// insert
+linkedList.insert(4.5, 4);
+linkedList.insert(2.5, 2);
+linkedList.insert(10, 18);
+linkedList.insert(-5, 0);
+console.log(linkedList);
+console.log(linkedList.getLength());
+// fromArray
+linkedList = new LinkedList();
+linkedList.fromArray([1,2,3]);
+console.log(linkedList);
+// toArray
+let array = linkedList.toArray();
+console.log(array);
+// setValue
+linkedList.setValue("a", 6);
+linkedList.setValue("b", 2);
+linkedList.setValue("c", 0);
+console.log(linkedList);
+// copy
+let linkedListCopy = linkedList.copy();
+console.log(linkedListCopy);
 // */
