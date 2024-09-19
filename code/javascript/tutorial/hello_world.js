@@ -1769,6 +1769,7 @@ function LinkedList() {
         }
     };
     // - insert
+    // doesn't do anything if the index is out of range
     this.insert = function (value, index=isRequired("index")) {
         // create a new node with the provided data
         let newNode = new LinkedListNode(value);
@@ -1836,8 +1837,61 @@ function LinkedList() {
         return listCopy;
     };
     // - popFirst
+    this.popFirst = function () {
+        let poppedValue;
+        if (this.firstNode) {
+            poppedValue = this.firstNode.value;
+            this.firstNode = this.firstNode.next;
+        }
+        return poppedValue;
+    };
     // - popLast
+    this.popLast = function () {
+        // if the list is empty, don't do anything
+        // if the list has a single node, return its value and empty the list
+        // if the list has at least 2 nodes, look for the node before the last one,
+        // return its value and drop it
+        let poppedValue;
+        const listLength = this.getLength();
+        if (listLength === 1) {
+            poppedValue = this.firstNode.value;
+            this.firstNode = null;
+        }
+        else if (listLength > 1) {
+            let currentNode = this.firstNode;
+            while (currentNode.next.next) {
+                currentNode = currentNode.next;
+            }
+            poppedValue = currentNode.next.value;
+            currentNode.next = null;
+        }
+        return poppedValue;
+    };
     // - pop
+    // doesn't do anything if the index is out of range
+    this.pop = function (index=isRequired("index")) {
+        let poppedValue;
+        // if the list is not empty ...
+        if (this.firstNode) {
+            if (index === 0) {
+                // pop the first node
+                poppedValue = this.firstNode.value;
+                this.firstNode = this.firstNode.next;
+            }
+            else {
+                // find the node before the one at the provided index
+                let currentNode = this.firstNode;
+                let currentIndex = 0;
+                while (currentNode) {
+                    if (currentIndex === index - 1) {
+                        currentIndex++;
+                        currentNode = currentNode.next;
+                    }
+                }
+            }
+        }
+        return poppedValue;
+    };
     // - clear
     this.clear = function () {
         this.firstNode = null;
@@ -1893,4 +1947,18 @@ console.log(linkedList);
 // copy
 let linkedListCopy = linkedList.copy();
 console.log(linkedListCopy);
+// popLast
+console.log(linkedList.popLast());
+console.log(linkedList);
+console.log(linkedList.getLength());
+console.log(linkedList.popLast());
+console.log(linkedList.popLast());
+console.log(linkedList.popLast());
+// popFirst
+linkedList.fromArray([1,2,3]);
+console.log(linkedList);
+console.log(linkedList.popFirst());
+console.log(linkedList.popFirst());
+console.log(linkedList.popFirst());
+console.log(linkedList.popFirst());
 // */
