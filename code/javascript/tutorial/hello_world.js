@@ -1717,10 +1717,11 @@ function LinkedList() {
         // console.log(arrayCopy);
         // console.log(array === array);
         // console.log(array === arrayCopy);
-        // add each element of the array to the list
+        // add each element from the array to the list
         for (let element of arrayCopy.reverse()) {
             this.appendFirst(element);
         }
+        return this;
     };
     // - toArray
     this.toArray = function () {
@@ -1749,6 +1750,7 @@ function LinkedList() {
         let newNode = new LinkedListNode(value, this.firstNode);
         // add the new node at the start of the list
         this.firstNode = newNode;
+        return this;
     };
     // - appendLast
     this.appendLast = function (value) {
@@ -1767,9 +1769,9 @@ function LinkedList() {
             // add the new node at the end of the list
             lastNode.next = newNode;
         }
+        return this;
     };
     // - insert
-    // doesn't do anything if the index is out of range
     this.insert = function (value, index=isRequired("index")) {
         // create a new node with the provided data
         let newNode = new LinkedListNode(value);
@@ -1787,13 +1789,14 @@ function LinkedList() {
                 if (currentIndex === index - 1) {
                     break;
                 }
-                currentIndex++;
                 currentNode = currentNode.next;
+                currentIndex++;
             }
             // insert the new node after the current node
             newNode.next = currentNode.next;
             currentNode.next = newNode;
         }
+        return this;
     };
     // - getValue
     this.getValue = function (index=isRequired("index")) {
@@ -1805,8 +1808,8 @@ function LinkedList() {
                 value = currentNode.value;
                 break;
             }
-            currentIndex++;
             currentNode = currentNode.next;
+            currentIndex++;
         }
         return value;
     };
@@ -1820,9 +1823,10 @@ function LinkedList() {
                 currentNode.value = value;
                 break;
             }
-            currentIndex++;
             currentNode = currentNode.next;
+            currentIndex++;
         }
+        return this;
     };
     // - copy
     this.copy = function () {
@@ -1839,6 +1843,7 @@ function LinkedList() {
     // - popFirst
     this.popFirst = function () {
         let poppedValue;
+        // can only pop a value if the list is not empty
         if (this.firstNode) {
             poppedValue = this.firstNode.value;
             this.firstNode = this.firstNode.next;
@@ -1871,8 +1876,8 @@ function LinkedList() {
     // doesn't do anything if the index is out of range
     this.pop = function (index=isRequired("index")) {
         let poppedValue;
-        // if the list is not empty ...
-        if (this.firstNode) {
+        // if the index is not out of range ...
+        if (index < this.getLength()) {
             if (index === 0) {
                 // pop the first node
                 poppedValue = this.firstNode.value;
@@ -1882,12 +1887,13 @@ function LinkedList() {
                 // find the node before the one at the provided index
                 let currentNode = this.firstNode;
                 let currentIndex = 0;
-                while (currentNode) {
-                    if (currentIndex === index - 1) {
-                        currentIndex++;
-                        currentNode = currentNode.next;
-                    }
+                while (currentIndex !== index - 1) {
+                    currentNode = currentNode.next;
+                    currentIndex++;
                 }
+                // pop the next node
+                poppedValue = currentNode.next.value;
+                currentNode.next = currentNode.next.next;
             }
         }
         return poppedValue;
@@ -1895,10 +1901,39 @@ function LinkedList() {
     // - clear
     this.clear = function () {
         this.firstNode = null;
+        return this;
+    };
+    // conversion to primitive
+    this[Symbol.toPrimitive] = function (hint) {
+        // console.log(hint);
+        // "hint" can be "string", "number" or "default"
+        let result;
+        if (hint === "string" || hint === "default") {
+            // starts with a "["
+            result = "[";
+            let isFirstElement = true;
+            let currentNode = this.firstNode;
+            while (currentNode) {
+                if (isFirstElement) {
+                    result += `${currentNode.value}`;
+                    isFirstElement = false;
+                }
+                else {
+                    result += `, ${currentNode.value}`;
+                }
+                currentNode = currentNode.next;
+            }
+            // ends with a "]"
+            result += "]";
+        }
+        else {
+            result = NaN;
+        }
+        return result;
     };
 }
 let linkedList = new LinkedList();
-console.log(linkedList);
+console.log(String(linkedList));
 // getLength
 console.log(linkedList.getLength());
 // appendFirst
@@ -1906,7 +1941,7 @@ linkedList.appendFirst(2);
 linkedList.appendFirst(1);
 linkedList.appendFirst(0);
 linkedList.appendFirst(null);
-console.log(linkedList);
+console.log(String(linkedList));
 console.log(linkedList.getLength());
 // linkedList.appendFirst(); // error raised
 // getValue
@@ -1921,21 +1956,20 @@ linkedList.clear();
 linkedList.appendLast(3);
 linkedList.appendLast(4);
 linkedList.appendLast(5);
-linkedList.appendFirst(2);
-linkedList.appendFirst(1);
-console.log(linkedList);
+linkedList.appendFirst(2).appendFirst(1);
+console.log(String(linkedList));
 console.log(linkedList.getLength());
 // insert
 linkedList.insert(4.5, 4);
 linkedList.insert(2.5, 2);
 linkedList.insert(10, 18);
 linkedList.insert(-5, 0);
-console.log(linkedList);
+console.log(String(linkedList));
 console.log(linkedList.getLength());
 // fromArray
 linkedList = new LinkedList();
 linkedList.fromArray([1,2,3]);
-console.log(linkedList);
+console.log(String(linkedList));
 // toArray
 let array = linkedList.toArray();
 console.log(array);
@@ -1943,22 +1977,32 @@ console.log(array);
 linkedList.setValue("a", 6);
 linkedList.setValue("b", 2);
 linkedList.setValue("c", 0);
-console.log(linkedList);
+console.log(String(linkedList));
 // copy
 let linkedListCopy = linkedList.copy();
-console.log(linkedListCopy);
+console.log(String(linkedListCopy));
 // popLast
 console.log(linkedList.popLast());
-console.log(linkedList);
+console.log(String(linkedList));
 console.log(linkedList.getLength());
 console.log(linkedList.popLast());
 console.log(linkedList.popLast());
 console.log(linkedList.popLast());
 // popFirst
 linkedList.fromArray([1,2,3]);
+console.log(String(linkedList));
+console.log(linkedList.popFirst());
+console.log(linkedList.popFirst());
+console.log(linkedList.popFirst());
+console.log(linkedList.popFirst());
+// pop
+linkedList.fromArray([1,2,3,4,5]);
+console.log(linkedList.pop(2));
+console.log(linkedList.pop(0));
+console.log(linkedList.pop(6));
+console.log(linkedList.pop(1));
+// to primitive
 console.log(linkedList);
-console.log(linkedList.popFirst());
-console.log(linkedList.popFirst());
-console.log(linkedList.popFirst());
-console.log(linkedList.popFirst());
+console.log(String(linkedList));
+console.log(Number(linkedList));
 // */
