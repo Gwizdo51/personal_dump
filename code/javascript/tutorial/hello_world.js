@@ -1666,7 +1666,7 @@ console.log(powRecursive(2, 0));
 console.log(powRecursive(3, 3));
 // */
 
-// /*
+/*
 // linked list
 let linkedListTest = {
     value: 0,
@@ -1908,7 +1908,11 @@ function LinkedList() {
         // console.log(hint);
         // "hint" can be "string", "number" or "default"
         let result;
-        if (hint === "string" || hint === "default") {
+        // if (hint === "string" || hint === "default") {
+        if (hint === "number") {
+            result = NaN;
+        }
+        else {
             // starts with a "["
             result = "[";
             let isFirstElement = true;
@@ -1925,9 +1929,6 @@ function LinkedList() {
             }
             // ends with a "]"
             result += "]";
-        }
-        else {
-            result = NaN;
         }
         return result;
     };
@@ -2005,4 +2006,185 @@ console.log(linkedList.pop(1));
 console.log(linkedList);
 console.log(String(linkedList));
 console.log(Number(linkedList));
+// */
+
+/*
+// rest parameters
+function sumWrong(a, b) {
+    return a + b;
+}
+console.log(sumWrong(1,2,3,4,5)); // no errors because of excessive args
+// can get rest of args with "..." (must be at the end)
+function sumRight(...args) {
+    let sum = 0;
+    for (let arg of args) {
+        sum += arg;
+    }
+    return sum;
+}
+console.log(sumRight(1,2,3,4,5));
+function showName(firstName, lastName, ...titles) {
+    let resultString = `${firstName} ${lastName}, `;
+    let firstTitle = true;
+    for (let title of titles) {
+        if (firstTitle) {
+            resultString += title;
+            firstTitle = false;
+        }
+        else {
+            resultString += `, ${title}`;
+        }
+    }
+    return resultString + ".";
+}
+console.log(showName("Julius", "Caesar", "Consul", "Imperator", "Human", "Male"));
+// functions have a special variable "arguments" that contains every parameters passed to the function
+function showArgs() {
+    console.log(arguments.length);
+    return arguments;
+}
+console.log(showArgs(1, 2, 3, "a", "b"));
+// "unpack"/"spread" an array as the parameters of a function
+let argsArray = [1,2,3,4,5];
+console.log(Math.max(...argsArray));
+// can use multiple arrays
+let argsArray2 = [6,7,8,9,10];
+console.log(Math.max(...argsArray, ...argsArray2));
+// can be used with other values
+console.log(Math.max(...argsArray, ...argsArray2, 15))
+// syntax can be used to merge arrays
+let mergedArray = [...argsArray, 5.5, ...argsArray2, 11];
+console.log(mergedArray);
+// works on any iterable
+let myName = "Arthur";
+console.log([...myName]);
+// can be used to make a copy of an array
+let argsArrayCopy = [...argsArray];
+console.log(JSON.stringify(argsArray) === JSON.stringify(argsArrayCopy)); // same content
+console.log(argsArray === argsArrayCopy); // different arrays
+// also a copy of an object
+let myObj = {
+    a: 1,
+    b: 2,
+    c: 3
+};
+let myObjCopy = {...myObj};
+console.log(JSON.stringify(myObj) === JSON.stringify(myObjCopy)); // same content
+console.log(myObj === myObjCopy); // different obj
+// */
+
+/*
+// variable scope
+// code blocks can declare local variables
+{
+    let myVar = "Hello";
+    console.log(myVar);
+}
+// console.log(myVar); // error: myVar is not defined
+// can redefine variables locally
+let message = "Hello";
+console.log(message);
+{
+    let message = "Goodbye";
+    console.log(message);
+}
+console.log(message);
+// also true for if, else, for and while blocks
+if (true) {
+    let phrase = "I exist.";
+    console.log(phrase);
+}
+// console.log(phrase); // error: phrase is not defined
+// nested functions
+function sayHiBye(firstName, lastName) {
+    function getName() {
+        return `${firstName} ${lastName}`;
+    }
+    console.log(`Hi, ${getName()}!`);
+    console.log(`Bye, ${getName()}.`);
+}
+sayHiBye("Arthur", "Clement");
+// nested functions can be returned, and will always have access to the same outer variables
+function makeCounter() {
+    let count = 0;
+    return function () {
+        count++;
+        return count;
+
+    };
+}
+let counter1 = makeCounter();
+let counter2 = makeCounter();
+console.log(counter1());
+console.log(counter1());
+console.log(counter1());
+console.log(counter2());
+console.log(counter2());
+console.log(counter1());
+console.log(counter2());
+function randomNumber() {
+    let value = Math.random();
+    return function() { return value; };
+}
+let function1 = randomNumber();
+let function2 = randomNumber();
+console.log(function1(), function2());
+// */
+
+/*
+let personName = "John";
+function sayHi() {
+    return `Hi ${personName}!`;
+}
+personName = "Hilbert";
+console.log(sayHi());
+// make filter functions for arr.filter(f)
+// let filteredArray = userArray.filter(function (item, index, array) {
+//     return item.id > 2;
+// });
+// inBetween needs to return a function
+function inBetween(a, b) {
+    return function (item, index, array) {
+        return item >= a && item <= b;
+    };
+}
+function inArray(arr) {
+    return function (item, index, array) {
+        return arr.includes(item);
+    };
+}
+let array = [1,2,3,4,5,6,7];
+console.log(array.filter(inBetween(3,6)));
+console.log(array.filter(inArray([1,2,10])));
+// sort user by name or by age
+let users = [
+    {name: "John", age: 30, job: "bouncer"},
+    {name: "Bob", age: 72, job: "pimp"},
+    {name: "Phil", age: 12, job: "stripteaser"}
+];
+// 0 if equal, 1 if greater, -1 if less
+// let numArr = [1, 6, 2, 6];
+// numArr.sort(function (a, b) {
+//     let result;
+//     if (a > b) result = 1;
+//     else if (a === b) result = 0;
+//     else result = -1;
+//     return result;
+// });
+function byField(field) {
+    return function (a, b) {
+        return a[field] > b[field] ? 1 : -1;
+    };
+}
+// console.log(users.sort(byField("name")));
+console.log(users.sort(byField("age")));
+// */
+
+// /*
+// global object
+console.log(globalThis);
+console.log(window === globalThis);
+// can be used to make an object available globally
+globalThis.currentUser = {name: "John"};
+console.log(currentUser.name, globalThis.currentUser.name);
 // */
