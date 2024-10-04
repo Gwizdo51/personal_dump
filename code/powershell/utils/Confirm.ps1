@@ -49,7 +49,7 @@ function ShouldProcess-Yes-No {
         'Medium' {$ConfirmImpact_int = 1}
         'High' {$ConfirmImpact_int = 2}
     }
-    $should_confirm = $($ConfirmImpact_int -ge $ConfirmPreference_int)
+    $should_confirm = ($ConfirmImpact_int -ge $ConfirmPreference_int)
     # Write-Host $should_confirm
     if ($WhatIf) {
         $user_answer = $false

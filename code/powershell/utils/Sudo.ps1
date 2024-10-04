@@ -110,9 +110,9 @@ function Run-AsAdmin {
     $index_last_line_printed = -1
     while (-not $sudo_process.HasExited) {
         $seconds_since_epoch = (New-TimeSpan -Start (Get-Date "01/01/1970") -End (Get-Date)).TotalSeconds
-        if ($seconds_since_epoch -ge $($last_read_time + 1)) {
+        if ($seconds_since_epoch -ge ($last_read_time + 1)) {
             $index_line = 0
-            foreach ($line in $(read $_ps_buffer)) {
+            foreach ($line in (read $_ps_buffer)) {
                 if ($index_line -gt $index_last_line_printed) {
                     # strip ending whitespaces before printing the line
                     Write-Host $sudo_output_prefix ($line -replace ' *$', '')
@@ -134,7 +134,7 @@ function Run-AsAdmin {
     }
     # scan $_ps_buffer one last time before exiting
     $index_line = 0
-    foreach ($line in $(read $_ps_buffer)) {
+    foreach ($line in (read $_ps_buffer)) {
         if ($index_line -gt $index_last_line_printed) {
             # strip ending whitespaces before printing the line
             Write-Host $sudo_output_prefix ($line -replace ' *$', '')

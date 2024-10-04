@@ -86,6 +86,8 @@ ii <item>
 open explorer in current dir:
 ii .
 
+to delete PSReadLine history, clear the content of the file at (Get-PSReadLineOption).HistorySavePath
+
 
 Erroraction options:
 - Break: enters the debugger (special nested prompt)

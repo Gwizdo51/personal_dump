@@ -59,7 +59,7 @@ function _gen_colors_hashtable {
         $bri_col_var_name = "bcol_${color_name}"
         $bri_col_var_value = gen_color_char $($i + 60)
         $colors_table["${bri_col_var_name}"] = $bri_col_var_value
-        ++$i
+        $i++
     }
     return $colors_table
 }
@@ -245,7 +245,7 @@ function Alias-CD {
     # set the new current directory
     Set-Location $DirPath -ErrorAction Stop
     # update the git prompt when necessary
-    if ($(Get-Location).drive.provider.name -eq 'FileSystem') {
+    if ((Get-Location).drive.provider.name -eq 'FileSystem') {
         # we are in a FileSystem drive, safe to look for git branches
         $Env:_GIT_PROMPT_MODIFIER = _gen_git_prompt
     }
@@ -287,7 +287,7 @@ function List-Items {
             $whatif_msg = "Listing all ${NoHidden_msg}items in ${path_item}${Recurse_msg}"
             $confirm_msg = "List all ${NoHidden_msg}items in ${path_item}${Recurse_msg}?"
             if ($PSCmdlet.ShouldProcess($whatif_msg, $confirm_msg, '')) {
-                Get-ChildItem -Force:$(!$NoHidden) -Recurse:$Recurse -Path $path_item
+                Get-ChildItem -Force:(!$NoHidden) -Recurse:$Recurse -Path $path_item
             }
         }
     }
