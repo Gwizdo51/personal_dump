@@ -1,5 +1,11 @@
 "use strict";
 
+/* to check:
+- jquery
+- bootstrap
+- vue.js
+*/
+
 // alert("hello world!");
 
 // this is a single line comment
@@ -2180,11 +2186,66 @@ function byField(field) {
 console.log(users.sort(byField("age")));
 // */
 
-// /*
+/*
 // global object
 console.log(globalThis);
 console.log(window === globalThis);
 // can be used to make an object available globally
 globalThis.currentUser = {name: "John"};
 console.log(currentUser.name, globalThis.currentUser.name);
+// */
+
+// /* function objects
+// function name
+function sayHi(name) {
+    console.log(`Hi ${name}!`);
+}
+sayHi("Henri");
+console.log(sayHi.name);
+let sayHi2 = function (name) {
+    console.log(`Hi ${name}!`);
+};
+sayHi2("John");
+console.log(sayHi2.name);
+// works as default value
+function fTest(sayHi = (function () {})) {
+    console.log(sayHi.name);
+}
+fTest();
+// it may be impossible to figure out the name
+let fArr = [function () {}];
+console.log(fArr[0].name === "");
+// function length: minimum snumber of parameters
+function f1(a) {}
+function f2(a, b) {}
+function fMany(a, b, ...args) {}
+console.log(f1.length);
+console.log(f2.length);
+console.log(fMany.length);
+// can add properties to functions
+function sayHiWithCounter() {
+    sayHiWithCounter.counter++;
+    return "Hi";
+}
+sayHiWithCounter.counter = 0;
+console.log(sayHiWithCounter());
+console.log(sayHiWithCounter());
+console.log(sayHiWithCounter.counter);
+// we can rewrite the counter function with a function property
+// only difference here is the counter itself is accessible
+function makeCounter() {
+    function counter() {
+        counter.count++;
+        return counter.count;
+    }
+    counter.count = 0;
+    return counter;
+}
+let counter1 = makeCounter();
+let counter2 = makeCounter();
+console.log(counter1());
+console.log(counter1());
+console.log(counter2());
+console.log(counter1());
+// console.log(counter1.counter);
 // */
