@@ -2195,7 +2195,7 @@ globalThis.currentUser = {name: "John"};
 console.log(currentUser.name, globalThis.currentUser.name);
 // */
 
-// /* function objects
+/* function objects
 // function name
 function sayHi(name) {
     console.log(`Hi ${name}!`);
@@ -2247,5 +2247,76 @@ console.log(counter1());
 console.log(counter1());
 console.log(counter2());
 console.log(counter1());
-// console.log(counter1.counter);
+// we can access and change the count
+console.log(counter1.count);
+counter1.count = 10;
+console.log(counter1());
+// we can add a name to a function expression so that it can call itself
+let sayHi3 = function func(name) {
+    let result;
+    if (name) {
+        result = `Hi, ${name}!`;
+    }
+    else {
+        result = func("Guest");
+    }
+    return result;
+};
+console.log(sayHi3());
+// console.log(func()); // error: "func" is undefined
+// */
+
+/*
+// better makeCounter
+function makeCounter() {
+    function counter() {
+        counter.count++;
+        return counter.count;
+    }
+    counter.count = 0;
+    counter.set = function (newCount) {
+        counter.count = newCount;
+    };
+    counter.decrease = function() {
+        counter.count--;
+    };
+    return counter;
+}
+let counter = makeCounter();
+console.log(counter());
+counter.set(10);
+console.log(counter());
+counter.decrease();
+counter.decrease();
+console.log(counter());
+// */
+
+/*
+// "new Function": create a function from a string
+let sum = new Function("a", "b", "return a+b;");
+console.log(sum(1, 2));
+// */
+
+// /*
+// scheduling function calls
+// run only once
+function sayHi() {
+    console.log("Hello!");
+}
+let timerId = setTimeout(sayHi, 1000);
+// cancel scheduled function
+clearTimeout(timerId);
+// run at interval
+function makeCounter() {
+    function counter() {
+        counter.count++;
+        // return counter.count;
+        console.log(`call #${counter.count}`);
+    }
+    counter.count = 0;
+    return counter;
+}
+timerId = setInterval(makeCounter(), 1000);
+// clearInterval(timerId);
+setTimeout(() => clearInterval(timerId), 5000);
 // */
