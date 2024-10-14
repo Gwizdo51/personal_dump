@@ -2297,7 +2297,7 @@ let sum = new Function("a", "b", "return a+b;");
 console.log(sum(1, 2));
 // */
 
-// /*
+/*
 // scheduling function calls
 // run only once
 function sayHi() {
@@ -2316,7 +2316,234 @@ function makeCounter() {
     counter.count = 0;
     return counter;
 }
-timerId = setInterval(makeCounter(), 1000);
-// clearInterval(timerId);
-setTimeout(() => clearInterval(timerId), 5000);
+// timerId = setInterval(makeCounter(), 1000);
+// setTimeout(() => clearInterval(timerId), 5000);
+// nested setTimeout to run regularly
+function tick() {
+    tick.counter++;
+    console.log(`tick #${tick.counter}`);
+    timerId = setTimeout(tick, 1000);
+}
+tick.counter = 0;
+// timerId = setTimeout(tick, 1000);
+// setTimeout(() => clearInterval(timerId), 5000);
+// any setTimeout call starts at the end of the current script
+// zero delay timeout calls the function at the end of the current script
+function zeroDelay() {
+    setTimeout(() => console.log("world!"));
+    console.log("hello");
+}
+// zeroDelay();
+// */
+
+/*
+// function that outputs a number every second
+function printNumbersInterval(from, to) {
+    // let startTime = Date.now();
+    let current = from;
+    let timerId = setInterval(() => {
+        console.log(current);
+        if (current === to) {
+            clearInterval(timerId);
+        }
+        current++;
+    }, 1000);
+    // return timerId;
+}
+// printNumbersInterval(-2, 6);
+function printNumbersTimeout(from, to) {
+    let current = from;
+    function f() {
+        console.log(current);
+        current++;
+        if (current <= to) {
+            // timerId = setTimeout(f, 1000);
+            setTimeout(f, 1000);
+        }
+    }
+    // let timerId = setTimeout(f, 1000);
+    f();
+}
+printNumbersTimeout(-5, 1);
+// */
+
+/*
+// function decorator: return a wrapper around a function
+function cachingDecorator(func) {
+    let cache = new Map();
+    return function (x) {
+        let result;
+        if (cache.has(x)) {
+            result = cache.get(x);
+        }
+        else {
+            result = func(x);
+            cache.set(x, result);
+        }
+        return result;
+    }
+}
+function slow(x) {
+    for (let i=0; i<1000000000; i++)  {
+        let smth = i*i*i;
+    }
+    return x;
+}
+let slowCached = cachingDecorator(slow);
+// console.log(slow(5));
+// console.log(slow(5));
+// console.log(slowCached(5));
+// console.log(slowCached(5));
+// console.log(slowCached(5));
+// console.log(slowCached(8));
+// console.log(slowCached(8));
+// console.log(slowCached(5));
+// console.log(slowCached(8));
+// explicitly setting "this" for function context
+function sayHi() {
+    return `Hi, ${this.name}!`;
+}
+let user = {
+    name: "Henry"
+};
+let admin = {
+    name: "Bob"
+};
+// console.log(sayHi()); // error: this is undefined
+console.log(sayHi.call(user));
+console.log(sayHi.call(admin));
+// we can use this to decorate object methods
+let worker = {
+    someMethod() {
+        return 1;
+    },
+    slow(x) {
+        for (let i=0; i<3000000000; i++)  {
+            let smth = i*i*i * this.someMethod();
+        }
+        return x;
+    }
+};
+function cachingDecoratorContext(func) {
+    let cache = new Map();
+    return function (x) {
+        let result;
+        if (cache.has(x)) {
+            result = cache.get(x);
+        }
+        else {
+            result = func.call(this, x);
+            cache.set(x, result);
+        }
+        return result;
+    }
+}
+worker.slowCached = cachingDecoratorContext(worker.slow);
+// console.log(worker.slow(10));
+// console.log(worker.slow(10));
+// console.log(worker.slowCached(10));
+// console.log(worker.slowCached(10));
+// console.log(worker.slowCached(-5));
+// console.log(worker.slowCached(10));
+// console.log(worker.slowCached(-5));
+// console.log(worker.slowCached(10));
+// we can decorate functions with an unknown number of arguments
+function slow2(x, y) {
+    for (let i=0; i<3000000000; i++)  {
+        let smth = i*i*i;
+    }
+    return x + y;
+}
+function hash(args) {
+    return `${args[0]},${args[1]}`;
+}
+function cachingDecoratorMultipleArgs(func) {
+    let cache = new Map();
+    return function () {
+        let result;
+        let key = hash(arguments);
+        if (cache.has(key)) {
+            result = cache.get(key);
+        }
+        else {
+            // result = func.call(this, ...arguments);
+            result = func.apply(this, arguments);
+            cache.set(key, result);
+        }
+        return result;
+    }
+}
+let slow2Cached = cachingDecoratorMultipleArgs(slow2);
+console.log(slow2(1, 2));
+console.log(slow2(1, 2));
+console.log(slow2Cached(1, 2));
+console.log(slow2Cached(1, 2));
+console.log(slow2Cached(4, 6));
+console.log(slow2Cached(1, 2));
+console.log(slow2Cached(4, 6));
+console.log(slow2Cached(1, 2));
+// */
+
+/*
+// spy decorator
+function work(x, y) {
+    // return arguments;
+    return x + y;
+}
+// console.log(work(1,2));
+function spy(func) {
+    function wrappedFunc(...args) {
+        wrappedFunc.calls.push(args);
+        // let result = func.apply(this, args);
+        // return result;
+        return func.apply(this, args);
+    }
+    wrappedFunc.calls = [];
+    return wrappedFunc;
+}
+let workSpy = spy(work);
+// console.log(workSpy(1, 2));
+// console.log(workSpy(1, 2));
+// console.log(workSpy(4, 5));
+// console.log(workSpy.calls);
+// throttling function calls
+function f(a) {
+    console.log(a);
+}
+function throttle(func, ms) {
+    let cooldown;
+}
+let f1000 = throttle(f, 1000);
+// */
+
+// /*
+// bind a function to its context
+let user = {
+    name: "John",
+    sayHi() {
+        console.log(`Hello, ${this.name}!`);
+    }
+};
+// setTimeout(user.sayHi, 1000); // "this" is lost
+// solution #1: a wrapper
+// setTimeout(() => user.sayHi(), 1000);
+// but if "user" changes during the timeout, "sayHi" will be called on the wrong object
+// solution #2: bind "this" to the method
+user.sayHi = user.sayHi.bind(user);
+// setTimeout(user.sayHi, 1000)
+// modifying the "user" variable doesn't change the call
+// user = null;
+// works with regular arguments
+user.say = function (word) {
+    console.log(`${word}, ${this.name}!`);
+}
+let say = user.say.bind(user);
+say("Hello");
+say("Goodbye");
+// we can use "bind" to fix arguments too
+function mul(a, b) {
+    return a * b;
+}
+let double = mul.bind(null, 2);
+console.log(double(2));
 // */
