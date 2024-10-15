@@ -1631,7 +1631,7 @@ let room = {
     }
 };
 let meetup = {
-    title : "Conference",
+    title: "Conference",
     room
 };
 let meetupJSON = JSON.stringify(meetup, null, 2);
@@ -2516,7 +2516,7 @@ function throttle(func, ms) {
 let f1000 = throttle(f, 1000);
 // */
 
-// /*
+/*
 // bind a function to its context
 let user = {
     name: "John",
@@ -2546,4 +2546,97 @@ function mul(a, b) {
 }
 let double = mul.bind(null, 2);
 console.log(double(2));
+// */
+
+// /* object properties flag and descriptors
+// 3 flags:
+// - writable -> its value can change
+// - enumerable -> is listed in loops
+// - configurable -> flags can be set and property can be deleted
+// get the flags of a property
+let user = {
+    name: "John"
+};
+console.log(Object.getOwnPropertyDescriptor(user, "name"));
+// change the flags of a property
+Object.defineProperty(user, "name", {
+    value: "Henry",
+    writable: false
+});
+console.log(Object.getOwnPropertyDescriptor(user, "name"));
+// non-writable: any attempt to modify will throw an error
+// user.name = "Jack";
+// non-enumerable: doesn't show up when looping through properties (also exculded from Object.keys)
+user.toString = function () {
+    return this.name;
+}
+// console.log(String(user));
+console.log("before setting enumerable to false");
+for (let key in user) {
+    console.log(key);
+}
+Object.defineProperty(user, "toString", {
+    enumerable: false
+});
+console.log("after setting enumerable to false");
+for (let key in user) {
+    console.log(key);
+}
+// non-configurable: can't change flags, can't delete the property
+Object.defineProperty(user, "name", {
+    writable: true,
+    configurable: false
+});
+// delete user.name; // error
+// Object.defineProperty(user, "name", {
+//     configurable: true
+// }); // error
+// can still change the value
+user.name = "Bob";
+console.log(String(user));
+// set many properties flags at once
+user = {
+    name: "John",
+    age: 36
+}
+Object.defineProperties(user, {
+    name: {value: "Bob", writable: false, configurable: false},
+    age: {writeable: false, configurable: false}
+});
+console.log(user);
+// get all property descriptors
+console.log(Object.getOwnPropertyDescriptors(user));
+// can be used to make a better copy of an object
+let userCopy = Object.defineProperties({}, Object.getOwnPropertyDescriptors(user));
+console.log(Object.getOwnPropertyDescriptors(userCopy));
+// */
+
+// /* getters and setters
+// 2 types of properties:
+// data properties (usual ones)
+// accessor properties
+user = {
+    firstName: "John",
+    lastName: "Wayne",
+    get fullName() {
+        return `${this.firstName} ${this.lastName}`;
+    },
+    set fullName(value) {
+        [this.firstName, this.lastName] = value.split(" ");
+    }
+};
+console.log(user.fullName);
+user.fullName = "Bob Harris";
+console.log(user);
+console.log(user.fullName);
+Object.defineProperty(user, 'intials', {
+    get() {
+        return this.firstName[0] + this.lastName[0];
+    },
+    // set(value) {
+
+    // },
+    enumerable: true
+});
+console.log(user.intials);
 // */
