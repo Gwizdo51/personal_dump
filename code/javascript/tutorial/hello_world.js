@@ -2548,7 +2548,7 @@ let double = mul.bind(null, 2);
 console.log(double(2));
 // */
 
-// /* object properties flag and descriptors
+/* object properties flag and descriptors
 // 3 flags:
 // - writable -> its value can change
 // - enumerable -> is listed in loops
@@ -2611,7 +2611,7 @@ let userCopy = Object.defineProperties({}, Object.getOwnPropertyDescriptors(user
 console.log(Object.getOwnPropertyDescriptors(userCopy));
 // */
 
-// /* getters and setters
+/* getters and setters
 // 2 types of properties:
 // data properties (usual ones)
 // accessor properties
@@ -2639,4 +2639,66 @@ Object.defineProperty(user, 'intials', {
     enumerable: true
 });
 console.log(user.intials);
+// */
+
+// /* prototypal inheritance
+// set prototype
+let animal = {
+    eats: true
+};
+let rabbit = {
+    jumps: true
+};
+rabbit.__proto__ = animal; // "rabbit" extends "animal" / "animal" is the prototype of "rabbit"
+console.log(rabbit);
+// can inherit methods
+animal.walk = function () {
+    console.log("is walking");
+};
+rabbit.walk();
+// inheritance is recursive
+let longEar = {
+    earLength: 10,
+    __proto__: rabbit
+};
+console.log(longEar.jumps);
+longEar.walk();
+// methods are applied to the child object
+let user = {
+    firstName: "John",
+    lastName: "Smith",
+    get fullName() {
+        return `${this.firstName} ${this.lastName}`;
+    },
+    set fullName(value) {
+        [this.firstName, this.lastName] = value.split(" ");
+    }
+};
+let admin = {
+    isAdmin: true,
+    __proto__: user
+};
+admin.fullName = "Alice Cooper";
+console.log(user.fullName);
+console.log(admin.fullName);
+// "this" is always the object before the dot
+// here, "animal" is a method storage, and "rabbit" applies them
+animal = {
+    walk() {
+        if (!this.isSleeping) {
+            console.log("I walk");
+        }
+    },
+    sleep() {
+        this.isSleeping = true;
+    }
+};
+rabbit = {
+    name: "Roger",
+    __proto__: animal
+};
+rabbit.sleep();
+rabbit.walk();
+console.log(rabbit.isSleeping); // true
+console.log(animal.isSleeping); // undefined
 // */
