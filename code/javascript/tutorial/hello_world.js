@@ -2697,8 +2697,8 @@ rabbit = {
     name: "Roger",
     __proto__: animal
 };
-rabbit.sleep();
 rabbit.walk();
+rabbit.sleep();
 console.log(rabbit.isSleeping); // true
 console.log(animal.isSleeping); // undefined
 // */
