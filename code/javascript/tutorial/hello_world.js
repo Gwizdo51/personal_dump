@@ -2381,7 +2381,7 @@ function cachingDecorator(func) {
             cache.set(x, result);
         }
         return result;
-    }
+    };
 }
 function slow(x) {
     for (let i=0; i<1000000000; i++)  {
@@ -2436,7 +2436,7 @@ function cachingDecoratorContext(func) {
             cache.set(x, result);
         }
         return result;
-    }
+    };
 }
 worker.slowCached = cachingDecoratorContext(worker.slow);
 // console.log(worker.slow(10));
@@ -2471,7 +2471,7 @@ function cachingDecoratorMultipleArgs(func) {
             cache.set(key, result);
         }
         return result;
-    }
+    };
 }
 let slow2Cached = cachingDecoratorMultipleArgs(slow2);
 console.log(slow2(1, 2));
@@ -2641,8 +2641,8 @@ Object.defineProperty(user, 'intials', {
 console.log(user.intials);
 // */
 
-// /* prototypal inheritance
-// set prototype
+/* prototypal inheritance
+console.log("--- set prototype");
 let animal = {
     eats: true
 };
@@ -2651,19 +2651,31 @@ let rabbit = {
 };
 rabbit.__proto__ = animal; // "rabbit" extends "animal" / "animal" is the prototype of "rabbit"
 console.log(rabbit);
-// can inherit methods
+console.log("--- can inherit methods");
 animal.walk = function () {
     console.log("is walking");
 };
 rabbit.walk();
-// inheritance is recursive
+console.log("--- inheritance is recursive");
 let longEar = {
     earLength: 10,
     __proto__: rabbit
 };
 console.log(longEar.jumps);
 longEar.walk();
-// methods are applied to the child object
+console.log("--- the prototype is only used for reading, writing/deleting applies to the child object");
+animal = {
+    walkingMethod: "mixed"
+};
+let human = {
+    __proto__: animal
+};
+console.log(animal.walkingMethod);
+console.log(human.walkingMethod);
+human.walkingMethod = "bipedal";
+console.log(animal.walkingMethod);
+console.log(human.walkingMethod);
+console.log("--- methods are applied to the child object");
 let user = {
     firstName: "John",
     lastName: "Smith",
@@ -2681,7 +2693,7 @@ let admin = {
 admin.fullName = "Alice Cooper";
 console.log(user.fullName);
 console.log(admin.fullName);
-// "this" is always the object before the dot
+console.log('--- "this" is always the object before the dot');
 // here, "animal" is a method storage, and "rabbit" applies them
 animal = {
     walk() {
@@ -2701,4 +2713,126 @@ rabbit.walk();
 rabbit.sleep();
 console.log(rabbit.isSleeping); // true
 console.log(animal.isSleeping); // undefined
+console.log('--- "for...in" loops loop through inherited properties as well');
+animal = {
+    eats: true
+};
+rabbit = {
+    jumps: true,
+    __proto__: animal
+};
+for (let prop in rabbit) {
+    console.log(prop);
+}
+console.log('--- obj.hasOwnProperty(key) returns wether a property is inherited');
+for (let prop in rabbit) {
+    if (rabbit.hasOwnProperty(prop)) {
+        console.log(`own: ${prop}`);
+    }
+    else {
+        console.log(`inherited: ${prop}`);
+    }
+}
+// */
+
+/* prototype exercises
+let head = {
+    glasses: 1
+};
+let table = {
+    pen: 3
+};
+let bed = {
+    sheet: 1,
+    pillow: 2
+};
+let pockets = {
+    money: 2000
+};
+pockets.__proto__ = bed;
+bed.__proto__ = table;
+table.__proto__ = head;
+console.log(pockets.pen, bed.glasses);
+// */
+
+/* F.prototype
+console.log('--- we can use constructor functions "prototype" property to set the prototype of created objects');
+let animal = {
+    eats: true
+};
+function Rabbit(name) {
+    this.name = name;
+}
+Rabbit.prototype = animal;
+let myRabbit = new Rabbit("White rabbit");
+console.log(myRabbit.eats);
+console.log('--- default F.prototype: object with a "constructor" property that references F');
+function F() {}
+console.log(F.prototype);
+console.log(F.prototype.constructor === F);
+console.log('--- all objects created with "new F()" have access to the constructor through the prototype');
+let obj = new F();
+console.log(obj.constructor === F);
+// */
+
+/* native prototypes
+console.log('--- standard objects all have a default prototype, accessible through their constructor function (new Object())');
+let obj = {};
+console.log(obj.constructor === Object);
+console.log(obj.__proto__ === Object.prototype);
+console.log(obj.__proto__);
+console.log('--- the "toString" default method is taken from the prototype');
+console.log(obj.toString === obj.__proto__.toString);
+console.log('--- no more prototypes above Object.prototype');
+console.log(Object.prototype.__proto__);
+console.log('--- every object inherit from Object.prototype');
+let arr = [1, 2, 3];
+console.log(arr.__proto__ === Array.prototype);
+console.log(arr.__proto__.__proto__ === Object.prototype);
+console.log(arr.__proto__.__proto__.__proto__ === null);
+console.log('--- prototypes may overwrite methods');
+console.log(arr.toString());
+console.log('--- we can add methods to native prototypes, and they become available for all objects of this type');
+String.prototype.show = function () {
+    console.log(this);
+};
+"LOL".show();
+console.log(String.prototype);
+// */
+
+// /* native prototypes exercises
+Function.prototype.defer = function (timeout) {
+    setTimeout(this, timeout);
+};
+function f() {
+    console.log("it works");
+}
+// f.defer(5000);
+// function cachingDecoratorMultipleArgs(func) {
+//     let cache = new Map();
+//     return function () {
+//         let result;
+//         let key = hash(arguments);
+//         if (cache.has(key)) {
+//             result = cache.get(key);
+//         }
+//         else {
+//             // result = func.call(this, ...arguments);
+//             result = func.apply(this, arguments);
+//             cache.set(key, result);
+//         }
+//         return result;
+//     };
+// }
+// let slow2Cached = cachingDecoratorMultipleArgs(slow2);
+Function.prototype.deferDecorator = function (timeout) {
+    let savedThis = this;
+    return function () {
+        setTimeout(() => savedThis.apply(this, arguments), timeout);
+    };
+};
+function f2(a, b) {
+    console.log(a + b);
+}
+f2.deferDecorator(1000)(1, 2);
 // */
