@@ -2800,7 +2800,7 @@ String.prototype.show = function () {
 console.log(String.prototype);
 // */
 
-// /* native prototypes exercises
+/* native prototypes exercises
 Function.prototype.defer = function (timeout) {
     setTimeout(this, timeout);
 };
@@ -2835,4 +2835,19 @@ function f2(a, b) {
     console.log(a + b);
 }
 f2.deferDecorator(1000)(1, 2);
+// */
+
+// /* protoype methods
+// "__proto__" is somewhat outdated
+// modern way to get set prototype:
+// - Object.getPrototype(obj)
+// - Object.setPrototype(obj, proto)
+console.log("--- we can use Object.create(prototype) to create an object and set its prototype");
+let animal = {
+    eats: true
+};
+let rabbit = Object.create(animal);
+console.log(rabbit.eats);
+console.log("--- get the prototype of an object");
+console.log(Object.getPrototypeOf(rabbit) === animal);
 // */
