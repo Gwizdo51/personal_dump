@@ -2837,7 +2837,7 @@ function f2(a, b) {
 f2.deferDecorator(1000)(1, 2);
 // */
 
-// /* protoype methods
+/* protoype methods
 // "__proto__" is somewhat outdated
 // modern way to get set prototype:
 // - Object.getPrototype(obj)
@@ -2850,4 +2850,106 @@ let rabbit = Object.create(animal);
 console.log(rabbit.eats);
 console.log("--- get the prototype of an object");
 console.log(Object.getPrototypeOf(rabbit) === animal);
+console.log("--- we can clone an object with its property descriptors");
+let rabbitClone = Object.create(Object.getPrototypeOf(rabbit), Object.getOwnPropertyDescriptors(rabbit));
+console.log("--- we can use an object as a simple associative array (ignore the __proto__ key)");
+let objMap = Object.create(null); // pure dictionary object
+let key = "__proto__";
+objMap[key] = "some value";
+console.log(objMap)
+console.log(objMap.__proto__); // "some value"
+// because objMap does not have a prototype, there is not getter/setter for it, so "__proto__" doesn't have special meaning
+for (let key in objMap) {
+    console.log(`${key}: ${objMap[key]}`);
+}
+console.log('--- we can still use Object methods available through "Object.keys"');
+let chineseDictionary = Object.create(null);
+chineseDictionary.hello = "你好";
+chineseDictionary.bye = "再见";
+for (let key of Object.keys(chineseDictionary)) {
+    console.log(key);
+}
+// */
+
+/* exercises protoype methods
+// exercise 1
+let dictionary = Object.create(null);
+dictionary.apple = "Apple";
+dictionary.__proto__ = "test";
+// Object.defineProperty(dictionary, "toString", {
+//     value: function (separator=",") {
+//         let resultString = "";
+//         let isFirstItem = true;
+//         for (let key in this) {
+//             if (isFirstItem) {
+//                 resultString += key;
+//                 isFirstItem = false;
+//             }
+//             else {
+//                 resultString += separator + key;
+//             }
+//         }
+//         return resultString;
+//     },
+//     enumerable: false
+// });
+dictionary.toString = function (separator=",") {
+    let resultString = "";
+    let isFirstItem = true;
+    for (let key in this) {
+        if (isFirstItem) {
+            resultString += key;
+            isFirstItem = false;
+        }
+        else {
+            resultString += separator + key;
+        }
+    }
+    return resultString;
+};
+Object.defineProperty(dictionary, "toString", {
+    enumerable: false
+});
+console.log(String(dictionary));
+console.log(Object.getOwnPropertyDescriptor(dictionary, "toString"));
+// exercise 2
+function Rabbit(name) {
+    this.name = name;
+}
+Rabbit.prototype.sayHi = function () {
+    // console.log(`Hi, ${this.name}!`);
+    console.log(String(this.name));
+};
+let rabbit = new Rabbit("Rabbit");
+console.log(Rabbit.prototype);
+console.log(rabbit.sayHi());
+console.log(Rabbit.prototype.sayHi());
+console.log(Object.getPrototypeOf(rabbit).sayHi());
+console.log(rabbit.__proto__.sayHi());
+// */
+
+// /* classes
+class User {
+    constructor(firstName, lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+    get fullName() {
+        return `${this.firstName} ${this.lastName}`;
+    }
+    set fullName(fullName) {
+        [this.firstName, this.lastName] = fullName.split(" ");
+    }
+    sayHi() {
+        console.log(`Hi, ${this.fullName}!`);
+    }
+}
+let user = new User("Bob", "Odenkirk"); // "constructor" called on object creation
+console.log(user.fullName);
+user.fullName = "John Kelvin";
+console.log(user.firstName);
+console.log(user.lastName);
+user.sayHi();
+console.log("--- classes are a type of function");
+console.log(typeof User);
 // */
