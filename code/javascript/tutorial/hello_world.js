@@ -2839,10 +2839,10 @@ f2.deferDecorator(1000)(1, 2);
 
 /* protoype methods
 // "__proto__" is somewhat outdated
-// modern way to get set prototype:
+// modern way to get/set prototype:
 // - Object.getPrototype(obj)
 // - Object.setPrototype(obj, proto)
-console.log("--- we can use Object.create(prototype) to create an object and set its prototype");
+console.log("--- we can use Object.create(prototype) to create an object from a prototype");
 let animal = {
     eats: true
 };
@@ -2928,7 +2928,7 @@ console.log(Object.getPrototypeOf(rabbit).sayHi());
 console.log(rabbit.__proto__.sayHi());
 // */
 
-// /* classes
+/* classes
 class User {
     constructor(firstName, lastName) {
         this.firstName = firstName;
@@ -2943,6 +2943,10 @@ class User {
     sayHi() {
         console.log(`Hi, ${this.fullName}!`);
     }
+    // methods have access to the class
+    copy() {
+        return new User(this.firstName, this.lastName);
+    }
 }
 let user = new User("Bob", "Odenkirk"); // "constructor" called on object creation
 console.log(user.fullName);
@@ -2952,4 +2956,299 @@ console.log(user.lastName);
 user.sayHi();
 console.log("--- classes are a type of function");
 console.log(typeof User);
+console.log("--- User.prototype contains all the class methods");
+console.log(User.prototype);
+console.log(Object.getOwnPropertyNames(User.prototype));
+console.log("--- user object has access to the User class");
+console.log(user.constructor === User);
+console.log('--- classes constructor function cannot be called without "new"');
+// User(); // error
+console.log('--- String(User) returns the code of the class');
+console.log(String(User));
+console.log("--- class methods are not enumerable");
+for (let prop in user) {
+    console.log(prop);
+}
+console.log("--- methods have access to the class");
+let userCopy = user.copy();
+console.log(userCopy.fullName);
+console.log("--- class expressions");
+let User2 = class {
+    constructor(firstName, lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+    get fullName() {
+        return `${this.firstName} ${this.lastName}`;
+    }
+    set fullName(fullName) {
+        [this.firstName, this.lastName] = fullName.split(" ");
+    }
+    sayHi() {
+        console.log(`Hi, ${this.fullName}!`);
+    }
+};
+let user2 = new User2("Philippe", "Katerine");
+user2.sayHi();
+console.log("--- we can make classes on the fly");
+function makeClass(thing) {
+    return class {
+        sayThing() {
+            console.log(thing);
+        }
+    };
+}
+let myClass = makeClass("kekw");
+let myObj = new myClass();
+myObj.sayThing();
+console.log("--- bind method to objects using class fields");
+class Button {
+    constructor(value) {
+        this.value = value;
+    }
+    click = () => {
+        // here, "this" will always be the object
+        console.log(this.value);
+    }
+}
+let button = new Button("Hey!");
+// setTimeout(button.click, 1000);
+// let button2 = new Button("Yo!");
+// console.log(button.__proto__ == button2.__proto__);
+let buttonClick = button.click;
+buttonClick();
+console.log("--- class fields belong to the object (just like regular properties), not its prototype");
+console.log(Object.getOwnPropertyNames(button));
+// */
+
+/* rewrite Clock to class syntax
+function Clock(template) {
+    let timer;
+
+    function render() {
+        let date = new Date();
+        let hours = date.getHours();
+        if (hours < 10) hours = '0' + hours;
+        let mins = date.getMinutes();
+        if (mins < 10) mins = '0' + mins;
+        let secs = date.getSeconds();
+        if (secs < 10) secs = '0' + secs;
+        let output = template
+            .replace('h', hours)
+            .replace('m', mins)
+            .replace('s', secs);
+        console.log(output);
+    }
+
+    this.stop = function() {
+        clearInterval(timer);
+    };
+
+    this.start = function() {
+        render();
+        timer = setInterval(render, 1000);
+    };
+}
+// let clock = new Clock('h:m:s');
+// clock.start();
+class Clock2 {
+    constructor(template) {
+        this.template = template;
+        // this._timer = null;
+    }
+
+    get timerID() {
+        return this._timerID
+    }
+    set timerID(newTimerID) {}
+
+    render = () => {
+        let date = new Date();
+        let hours = date.getHours();
+        if (hours < 10) hours = '0' + hours;
+        let mins = date.getMinutes();
+        if (mins < 10) mins = '0' + mins;
+        let secs = date.getSeconds();
+        if (secs < 10) secs = '0' + secs;
+        let output = this.template
+            .replace('h', hours)
+            .replace('m', mins)
+            .replace('s', secs);
+        console.log(output);
+    }
+
+    start = () => {
+        this.render();
+        this._timerID = setInterval(this.render, 1000);
+    }
+
+    stop = () => {
+        clearInterval(this.timerID);
+    }
+}
+let clock2 = new Clock2('h:m:s');
+// console.log(clock2.timerID);
+// clock2.stop();
+// clock2.start();
+// */
+
+/* class inheritance
+console.log('--- keyword "extends" allows class inheritance')
+class Animal {
+    constructor(name) {
+        this.name = name;
+        this.speed = 0;
+    }
+    run(speed) {
+        this.speed = speed;
+        console.log(`${this.name} runs at ${this.speed}!`);
+    }
+    stop() {
+        this.speed = 0;
+        console.log(`${this.name} stops running.`);
+    }
+}
+class Rabbit extends Animal {
+    constructor(name) {
+        // call Animal.constructor
+        // !!! "this" only exists after "super" is called
+        // this.isHiding = true; // error
+        super(name);
+        this.isHiding = true;
+    }
+    hide() {
+        if (this.isHiding) {
+            return;
+        }
+        this.isHiding = true;
+        console.log(`${this.name} hides!`);
+    }
+    stopHiding() {
+        if (!this.isHiding) {
+            return;
+        }
+        this.isHiding = false;
+        console.log(`${this.name} came out of hiding...`);
+    }
+    stop() {
+        // call Animal.stop
+        super.stop();
+        this.hide();
+    }
+    run(speed) {
+        this.stopHiding();
+        super.run(speed);
+    }
+}
+let rabbit = new Rabbit("Thumper");
+console.log(rabbit.name);
+rabbit.run(100);
+rabbit.stop();
+rabbit.run(200);
+rabbit.run(300);
+rabbit.stop();
+rabbit.stopHiding();
+// */
+
+/* extend Clock class
+class Clock {
+    constructor(template) {
+        this.template = template;
+    }
+
+    get timerID() {
+        return this._timerID
+    }
+    set timerID(newTimerID) {}
+
+    render() {
+        let date = new Date();
+        let hours = date.getHours();
+        if (hours < 10) hours = '0' + hours;
+        let mins = date.getMinutes();
+        if (mins < 10) mins = '0' + mins;
+        let secs = date.getSeconds();
+        if (secs < 10) secs = '0' + secs;
+        let output = this.template
+            .replace('h', hours)
+            .replace('m', mins)
+            .replace('s', secs);
+        console.log(output);
+    }
+
+    start() {
+        this.render();
+        this._timerID = setInterval(this.render, 1000);
+    }
+
+    stop() {
+        clearInterval(this.timerID);
+    }
+}
+
+class ExtendedClock extends Clock {
+    constructor(template, delay = 1000) {
+        super(template);
+        this.delay = delay;
+    }
+
+    start() {
+        this.render();
+        this._timerID = setInterval(() => this.render(), this.delay);
+    }
+}
+let clock = new ExtendedClock('h:m:s', 5000);
+// let clock = new ExtendedClock('h:m:s');
+clock.start();
+// console.log(clock.template);
+// */
+
+/* static properties and methods
+console.log("--- static method are not related to objects, but the class itself");
+class User {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+    static staticMethod() {
+        console.log(this === User);
+    }
+    static compare(userA, userB) {
+        return userA.age - userB.age;
+    }
+    // factory method
+    static createBaby(name) {
+        return new this(name, 0);
+    }
+}
+User.staticMethod();
+let usersList = [
+    new User("John", 15),
+    new User("Jack", 30),
+    new User("Bob", 23)
+];
+usersList.sort(User.compare);
+console.log(usersList);
+console.log("--- create users with different methods");
+let baby = User.createBaby("Joe");
+console.log(baby);
+// */
+
+// /* using an object as function parameter
+function myFunction(specifiedArgs) {
+    // let {arg1 = "default"} = argsObj;
+    const defaultArgs = {arg1: "default"};
+    const args = Object.assign(Object.create(null), defaultArgs, specifiedArgs);
+    console.log(args);
+    console.log(args.arg1);
+    // console.log(Object.keys(args));
+    // if (Object.keys(args).includes("arg2")) {
+    if ("arg2" in args) {
+        console.log(args.arg2);
+    }
+}
+// myFunction({});
+// myFunction({arg1: "changed"});
+myFunction({arg2: "new"});
+// myFunction({arg2: undefined});
 // */
