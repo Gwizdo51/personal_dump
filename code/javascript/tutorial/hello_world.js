@@ -3210,6 +3210,7 @@ class User {
         this.name = name;
         this.age = age;
     }
+    // same as "User.staticMethod = function () {...};"
     static staticMethod() {
         console.log(this === User);
     }
@@ -3232,9 +3233,50 @@ console.log(usersList);
 console.log("--- create users with different methods");
 let baby = User.createBaby("Joe");
 console.log(baby);
+console.log("--- objects can access static method through their prototype");
+baby.constructor.staticMethod();
+console.log("--- static properties");
+class Article {
+    static publisher = "John Doe";
+}
+console.log(Article.publisher);
+console.log("--- static methods and properties are inherited");
+class Animal {
+    static planet = "Earth";
+    constructor(name, speed) {
+        this.name = name;
+        this.speed = speed;
+    }
+    run(speed) {
+        this.speed = speed;
+        console.log(`${this.name} runs at ${this.speed}!`);
+    }
+    stop() {
+        this.speed = 0;
+        console.log(`${this.name} stopped running.`);
+    }
+    static compareSpeed(animal1, animal2) {
+        return animal1.speed - animal2.speed;
+    }
+}
+class Rabbit extends Animal {
+    fart() {
+        console.log(`${this.name} just let out a silent but deadly one`);
+    }
+}
+let rabbits = [
+    new Rabbit("Thumper", 50),
+    new Rabbit("Daisy", 25)
+];
+rabbits.sort(Rabbit.compareSpeed);
+console.log(Rabbit.planet);
+// for statics
+console.log(Rabbit.__proto__ === Animal);
+// for regular methods
+console.log(Rabbit.prototype.__proto__ === Animal.prototype);
 // */
 
-// /* using an object as function parameter
+/* using an object as a function function parameter
 function myFunction(specifiedArgs) {
     // let {arg1 = "default"} = argsObj;
     const defaultArgs = {arg1: "default"};
@@ -3252,3 +3294,310 @@ function myFunction(specifiedArgs) {
 myFunction({arg2: "new"});
 // myFunction({arg2: undefined});
 // */
+
+/* private, protected properties and methods
+// 2 groups of properties and methods: internal and external
+// in JS, 2 types of object fields: private and public
+// convention to protect fields: add "_" before their names
+console.log("--- protected object fields");
+class CoffeeMachine {
+    // protected property (convention, not enforced)
+    _waterAmount = 0;
+    // private property
+    #waterLimit = 200;
+    // public getter/setter for private property (inherited)
+    get waterLimit() {
+        return this.#waterLimit;
+    }
+    set waterLimit(value) {
+        if (value < 0) {
+            value = 0;
+        }
+        // bracket accessor don't work for private properties
+        // this["#waterLimit"] = value; // adds a public "#waterLimit" property
+        this.#waterLimit = value;
+    }
+    // private method
+    #fixWaterAmount(value) {
+        if (value < 0) {
+            return 0;
+        }
+        if (value > this.#waterLimit) {
+            return this.#waterLimit;
+        }
+        return value;
+    }
+    get waterAmount() {
+        return this._waterAmount;
+    }
+    set waterAmount(value) {
+        // if (value < 0) {
+        //     value = 0;
+        // }
+        // this._waterAmount = value;
+        this._waterAmount = this.#fixWaterAmount(value);
+    }
+    // read-only property
+    get power() {
+        return this._power;
+    }
+    constructor(power) {
+        this._power = power;
+    }
+    makeCoffee() {
+        console.log(`Made ${this.waterAmount} mL of coffee!`);
+        this.waterAmount = 0;
+    }
+}
+let myCoffeeMachine = new CoffeeMachine(100);
+myCoffeeMachine.waterAmount = -10;
+console.log(myCoffeeMachine);
+myCoffeeMachine.makeCoffee();
+myCoffeeMachine.waterAmount = 100;
+console.log(myCoffeeMachine);
+myCoffeeMachine.makeCoffee();
+console.log(myCoffeeMachine);
+console.log("--- read-only fields");
+console.log(myCoffeeMachine.power);
+// myCoffeeMachine.power = 200; // error: "power" has only a getter
+console.log("--- private fields");
+myCoffeeMachine.waterAmount = 500;
+console.log(myCoffeeMachine);
+// console.log(myCoffeeMachine.#waterLimit); // error
+console.log("--- we can change a private property with a public setter");
+myCoffeeMachine.waterLimit = 500;
+myCoffeeMachine.waterAmount = 500;
+console.log(myCoffeeMachine);
+// */
+
+/* extending built-in classes
+console.log("--- extending the Array class");
+class PowerArray extends Array {
+    isEmpty() {
+        return this.length == 0;
+    }
+    // built-in methods will use this as the constructor
+    static get [Symbol.species]() {
+        return PowerArray;
+        // return Array;
+    }
+}
+let arr = new PowerArray(1,2,3,4,5);
+console.log(arr);
+console.log(arr.isEmpty());
+let filteredArr = arr.filter((item) => {return item >= 3});
+console.log(filteredArr);
+console.log("--- native Array methods return a PowerArray");
+console.log(filteredArr.constructor === PowerArray);
+// */
+
+/* "instanceof" operator
+class Rabbit {
+    // to get "[object Rabbit]"
+    [Symbol.toStringTag] = "Rabbit";
+}
+let rabbit = new Rabbit();
+console.log('--- "instanceof" checks the prototype chain');
+console.log(rabbit instanceof Rabbit);
+console.log(rabbit instanceof Object);
+console.log('--- we can implement a custom implementation of "instanceof"');
+class Animal {
+    static [Symbol.hasInstance](obj) {
+        return "canEat" in obj;
+    }
+
+}
+let snake = {
+    canEat: true
+};
+console.log(snake instanceof Animal);
+console.log('--- we can use "{}.toString.call(obj)" as an alternative to "typeof"');
+console.log({}.toString.call(rabbit));
+// */
+
+/* mixins
+// mixins allow objects to use the methods of multiple classes
+console.log('--- the easiest way to implement mixins is to add useful methods to a class prototype');
+let speakMixin = {
+    say(phrase) {
+        console.log(phrase);
+    }
+};
+let commMixin = {
+    sayHi() {
+        // console.log(`Hello, ${this.name}!`);
+        super.say(`Hello, ${this.name}!`);
+    },
+    sayBye() {
+        // console.log(`bye, ${this.name}!`);
+        super.say(`bye, ${this.name}!`);
+    }
+};
+// Mixins can have inherited methods
+Object.setPrototypeOf(commMixin, speakMixin);
+class User {
+    constructor(name) {
+        this.name = name;
+    }
+}
+// adding "commMixin" methods to User.prototype
+Object.assign(User.prototype, commMixin);
+let user = new User("John");
+// the user can communicate
+user.sayHi();
+user.sayBye();
+// application: event mixin
+let eventMixin = {
+    // subscribe an handler to an event
+    // menu.on('select', handlerFunction);
+    on(eventName, handler) {
+        // create the _eventHandlers object if it doesn't exist
+        if (!("_eventHandlers" in this)) {
+            this._eventHandlers = Object.create(null);
+        }
+        // create the array of handlers for the event if it doesn't exist
+        if (!(eventName in this._eventHandlers)) {
+            this._eventHandlers[eventName] = [];
+        }
+        // add the handler to the event
+        this._eventHandlers[eventName].push(handler);
+    },
+    // cancel the subscription of a specific handler
+    // menu.off('select', handlerFunction)
+    off(eventName, handler) {
+        let handlers = this._eventHandlers?.[eventName];
+        // if there are no handlers, stop the execution
+        if (!handlers) {
+            return;
+        }
+        // remove all occurences of "handler" in "handlers"
+        for (let i = 0; i < handlers.length; i++) {
+            if (handlers[i] === handler) {
+                handlers.splice(i-1, 1);
+                i--;
+            }
+        }
+    },
+    // trigger an event
+    // menu.trigger('select', item);
+    trigger(eventName, ...args) {
+        // if there are no handlers for that event, stop the execution
+        if (!this._eventHandlers?.[eventName]) {
+            return;
+        }
+        // call the handlers
+        this._eventHandlers[eventName].forEach(handler => {handler.apply(this, args)});
+    }
+};
+class Menu {
+    choose(value) {
+        this.trigger("select", value);
+    }
+}
+Object.assign(Menu.prototype, eventMixin);
+let menu = new Menu();
+menu.on("select", (value) => {console.log(`value selected: ${value}`);});
+menu.choose("fries");
+// */
+
+/* error handling
+console.log("--- try catch");
+try {
+    console.log("start try block");
+    hahablbl; // error: hahablbl is not defined
+    console.log("end try block");
+}
+catch (err) {
+    console.log("catch block");
+    console.log(err);
+    console.log(err.name);
+    console.log(err.message);
+    console.log(err.stack);
+}
+console.log("--- try catch without error object");
+try {
+    console.log("try block");
+}
+catch {
+    console.log("catch block");
+}
+console.log("--- thowing our own errors");
+let json = '{"age": 30}';
+let user;
+try {
+    user = JSON.parse(json);
+    if (!("name" in user)) {
+        throw new SyntaxError("Incomplete data: no name");
+    }
+}
+catch (err) {
+    // can rethrow error if we don't expect them
+    if (err instanceof SyntaxError) {
+        console.log("JSON error: " + err.message);
+    }
+    else {
+        throw err;
+    }
+}
+finally {
+    console.log('"finally" block executes in all cases');
+}
+console.log(user);
+// */
+
+// /* custom errors
+console.log("--- custom errors should inherit from Error");
+class ValidationError extends Error {
+    constructor(message) {
+        super(message);
+        // this.name = "ValidationError";
+        this.name = this.constructor.name;
+    }
+}
+function validateUserJSON(json) {
+    let user = JSON.parse(json);
+    if (!("name" in user) || !("age" in user)) {
+        throw new ValidationError('missing data for user JSON ("age" or "name")');
+    }
+    return user;
+}
+let userJSON = '{"name": "John", "age": 30}';
+let user = validateUserJSON(userJSON);
+let wrongUserJSON = '{"name": "Alfred"}';
+try {
+    validateUserJSON(wrongUserJSON);
+}
+catch (err) {
+    console.log(err instanceof ValidationError);
+    console.log(err instanceof Error);
+}
+console.log("--- further inheritance");
+class PropertyRequiredError extends ValidationError {
+    constructor(propertyName) {
+        super(`missing property: ${propertyName}`);
+        // this.name = "PropertyRequiredError";
+        // can add custom properties to the error object
+        this.propertyName = propertyName;
+    }
+}
+function validateUserJSON2(json) {
+    let user = JSON.parse(json);
+    if (!("name" in user)) {
+        throw new PropertyRequiredError("name");
+    }
+    if (!("age" in user)) {
+        throw new PropertyRequiredError("age");
+    }
+    return user;
+}
+try {
+    validateUserJSON2(wrongUserJSON);
+}
+catch (err) {
+    console.log(err.name);
+    console.log(err instanceof PropertyRequiredError);
+    console.log(err instanceof ValidationError);
+    console.log(err instanceof Error);
+    console.log(err.propertyName);
+}
+//  */
