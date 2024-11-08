@@ -3545,7 +3545,7 @@ finally {
 console.log(user);
 // */
 
-// /* custom errors
+/* custom errors
 console.log("--- custom errors should inherit from Error");
 class ValidationError extends Error {
     constructor(message) {
@@ -3601,3 +3601,121 @@ catch (err) {
     console.log(err.propertyName);
 }
 //  */
+
+/* Promise
+console.log('--- producing code, promise objects');
+let promise = new Promise(function (resolve, reject) {
+    // this function is the executor, it is run immediatly and should eventually produce a result
+    // -> if the exectuor job finished successfully, it should call "resolve(value)", with "value" as the result
+    // -> if an error has occured, is should call "reject(error)", with "error" as the error object
+    setTimeout(() => {
+        console.log("job finished");
+        resolve(true);
+        // reject(new Error("it crashed"));
+    }, 2000);
+});
+// the promise object has 2 internal properties:
+// - "state": "pending" while job is not finished, "fulfilled" when "resolve" is called or "rejected" when "reject" is called
+// - "result": "undefined" while job is not finished, "value" when "resolve" is called or "error" when "reject" is called
+console.log('--- consuming code, .then, .catch and .finally');
+// "promise.then" can be used to register consuming functions
+promise.then(
+    // "onfulfilled"
+    function (result) {
+        console.log("the promise fulfilled");
+        console.log(`result: ${result}`);
+    },
+    // "onrejected"
+    function (error) {
+        console.log("the promise rejected");
+        console.log(String(error));
+    }
+);
+// if we're only handling errors, we can use "promise.then(null, onrejected)" or "promise.catch(onrejected)"
+// "promise.finally" runs a function regardless of the outcome
+promise.finally(() => console.log("the job is indeed done"));
+// the functions execute in the order of subscription (here, .then, then .finally)
+console.log('--- .then, .catch and .finally can be called multiple times');
+promise.then(function (result) {
+    console.log("another handler");
+});
+// */
+
+/* Promise exercises
+// delay as promise
+function delay(timeout) {
+    return new Promise(function (resolve, reject) {
+        setTimeout(resolve, timeout);
+    });
+}
+delay(1000).then(() => {
+    console.log("this should run after a second");
+});
+function showCircle(cx, cy, radius, callback) {
+    let div = document.createElement('div');
+    div.style.width = 0;
+    div.style.height = 0;
+    div.style.left = cx + 'px';
+    div.style.top = cy + 'px';
+    div.className = 'circle';
+    document.body.append(div);
+
+    setTimeout(() => {
+        div.style.width = radius * 2 + 'px';
+        div.style.height = radius * 2 + 'px';
+
+        div.addEventListener('transitionned', function handler() {
+            div.removeEventListener('transitionned', handler);
+            callback(div);
+        });
+    }, 0);
+}
+// old use
+// showCircle(150, 150, 100, div => {
+//     div.classList.add('message-ball');
+//     div.append("Hello, world!");
+// });
+function showCirclePromise(cx, cy, radius) {
+    return new Promise(function (resolve, reject) {
+        let div = document.createElement('div');
+        div.style.width = 0;
+        div.style.height = 0;
+        div.style.left = cx + 'px';
+        div.style.top = cy + 'px';
+        div.className = 'circle';
+        document.body.append(div);
+
+        setTimeout(() => {
+            div.style.width = radius * 2 + 'px';
+            div.style.height = radius * 2 + 'px';
+
+            // transition end
+            div.addEventListener('transitionend', function handler() {
+                div.removeEventListener('transitionend', handler);
+                resolve(div);
+            });
+        }, 0);
+    });
+}
+// new use
+// showCircle(150, 150, 100).then(div => {
+//     div.classList.add('message-ball');
+//     div.append("Hello, world!");
+// });
+// */
+
+// /* Promise chaining
+console.log('--- each subscriptor function receives the result of the preceding function in a chain');
+let promise = new Promise(function(resolve, reject) {
+    setTimeout(() => resolve(1), 1000);
+}).then(function(result) {
+    console.log(result); // 1
+    return result * 2;
+}).then(function(result) {
+    console.log(result); // 2
+    return result * 2;
+}).then(function(result) {
+    console.log(result); // 4
+    return result * 2;
+});
+// */
