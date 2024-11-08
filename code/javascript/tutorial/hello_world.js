@@ -3704,7 +3704,7 @@ function showCirclePromise(cx, cy, radius) {
 // });
 // */
 
-// /* Promise chaining
+/* Promise chaining
 console.log('--- each subscriptor function receives the result of the preceding function in a chain');
 let promise = new Promise(function(resolve, reject) {
     setTimeout(() => resolve(1), 1000);
@@ -3718,4 +3718,12 @@ let promise = new Promise(function(resolve, reject) {
     console.log(result); // 4
     return result * 2;
 });
+// */
+
+// /* microtasks
+console.log('--- the code below a promise always executes first, no matter how fast the promise settles');
+let promise = Promise.resolve();
+promise.then(() => console.log("promise resolved!"));
+console.log("executes first");
+// according to the spec, a queued task only runs when nothing else runs
 // */
