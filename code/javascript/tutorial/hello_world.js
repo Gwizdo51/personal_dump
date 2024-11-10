@@ -2949,6 +2949,7 @@ class User {
     }
 }
 let user = new User("Bob", "Odenkirk"); // "constructor" called on object creation
+console.log(user);
 console.log(user.fullName);
 user.fullName = "John Kelvin";
 console.log(user.firstName);
@@ -3017,8 +3018,14 @@ let button = new Button("Hey!");
 // console.log(button.__proto__ == button2.__proto__);
 let buttonClick = button.click;
 buttonClick();
+// console.log(button);
+// console.log(Button.prototype);
 console.log("--- class fields belong to the object (just like regular properties), not its prototype");
 console.log(Object.getOwnPropertyNames(button));
+// console.log('--- are class fields inherited?');
+// class RedButton extends Button {
+
+// }
 // */
 
 /* rewrite Clock to class syntax
@@ -3107,6 +3114,10 @@ class Animal {
         this.speed = 0;
         console.log(`${this.name} stops running.`);
     }
+    // are class field inherited?
+    die = () => {
+        console.log(`${this.name} just died ...`);
+    };
 }
 class Rabbit extends Animal {
     constructor(name) {
@@ -3141,6 +3152,7 @@ class Rabbit extends Animal {
     }
 }
 let rabbit = new Rabbit("Thumper");
+console.log(rabbit);
 console.log(rabbit.name);
 rabbit.run(100);
 rabbit.stop();
@@ -3148,6 +3160,10 @@ rabbit.run(200);
 rabbit.run(300);
 rabbit.stop();
 rabbit.stopHiding();
+// class fields are inherited
+rabbit.die();
+// arrow function class field are bound to the object
+setTimeout(rabbit.die, 1000);
 // */
 
 /* extend Clock class
@@ -3276,7 +3292,7 @@ console.log(Rabbit.__proto__ === Animal);
 console.log(Rabbit.prototype.__proto__ === Animal.prototype);
 // */
 
-/* using an object as a function function parameter
+/* using an object as a function parameter
 function myFunction(specifiedArgs) {
     // let {arg1 = "default"} = argsObj;
     const defaultArgs = {arg1: "default"};
@@ -3347,6 +3363,13 @@ class CoffeeMachine {
     makeCoffee() {
         console.log(`Made ${this.waterAmount} mL of coffee!`);
         this.waterAmount = 0;
+    }
+}
+// are private properties and methods inherited? -> no
+class MegaCoffeeMachine extends CoffeeMachine {
+    constructor(power) {
+        super(power);
+        // console.log(this.#waterLimit) // error
     }
 }
 let myCoffeeMachine = new CoffeeMachine(100);
@@ -3720,10 +3743,14 @@ let promise = new Promise(function(resolve, reject) {
 });
 // */
 
-// /* microtasks
+/* microtasks
 console.log('--- the code below a promise always executes first, no matter how fast the promise settles');
 let promise = Promise.resolve();
 promise.then(() => console.log("promise resolved!"));
 console.log("executes first");
 // according to the spec, a queued task only runs when nothing else runs
+// */
+
+// /* async/await
+
 // */
