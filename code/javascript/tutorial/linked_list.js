@@ -1,6 +1,5 @@
 "use strict";
 
-// /*
 function isRequired(parameterName) {
     throw new Error(`parameter "${parameterName}" is required`);
 }
@@ -67,9 +66,10 @@ class DLinkedListNode {
 
 class DLinkedList {
 
-    // protect "firstNode" property and set to null on instance creation
+    // protect "firstNode", "lastNode" and "length" properties and set to null on instance creation
     #firstNode = null;
     #lastNode = null;
+    #length = 0
 
     constructor(...args) {
         // this.firstNode = null;
@@ -89,11 +89,11 @@ class DLinkedList {
         return this;
     }
 
-    get firstNode() {
+    get _firstNode() {
         return this.#firstNode;
     }
 
-    set firstNode(firstNode) {
+    set _firstNode(firstNode) {
         // "firstNode" must either be "null" or an instance of "DLinkedListNode"
         if (firstNode !== null && !(firstNode instanceof DLinkedListNode)) {
             throw new Error(`"firstNode" must be either "null" or an instance of "${DLinkedListNode}"`);
@@ -101,11 +101,11 @@ class DLinkedList {
         this.#firstNode = firstNode;
     }
 
-    get lastNode() {
+    get _lastNode() {
         return this.#lastNode;
     }
 
-    set lastNode(lastNode) {
+    set _lastNode(lastNode) {
         // "lastNode" must either be "null" or an instance of "DLinkedListNode"
         if (lastNode !== null && !(lastNode instanceof DLinkedListNode)) {
             throw new Error(`"lastNode" must be either "null" or an instance of "${DLinkedListNode}"`);
@@ -113,8 +113,9 @@ class DLinkedList {
         this.#lastNode = lastNode;
     }
 
-    // can be done with "concat"
-    // static fromArray(array=isRequired()) {}
+    get length() {
+        return this.#length;
+    }
 
     [Symbol.toPrimitive] = (hint) => {
         // console.log(hint);
@@ -128,7 +129,7 @@ class DLinkedList {
             // starts with a "["
             result = "[";
             let isFirstElement = true;
-            let currentNode = this.firstNode;
+            let currentNode = this._firstNode;
             while (currentNode) {
                 if (isFirstElement) {
                     result += `${currentNode.value}`;
@@ -145,124 +146,70 @@ class DLinkedList {
         return result;
     };
 
-    get length() {
-        let length = 0;
-        let currentNode = this.firstNode;
-        while (currentNode) {
-            length++;
-            currentNode = currentNode.next;
-        }
-        return length;
-    }
-
-    // testIsInstance() {
-    //     console.log(this instanceof this.constructor);
-    // }
-
     appendFirst = (value) => {
         // create a new node with the provided data
         const newNode = new DLinkedListNode(value);
         // if the list is empty, set the new node as the first and last node
-        if (!this.firstNode) {
-            this.firstNode = newNode;
-            this.lastNode = newNode;
+        if (!this.length) {
+            this._firstNode = newNode;
+            this._lastNode = newNode;
         }
         else {
             // set the first node previous node to the new node
-            this.firstNode.previous = newNode;
+            this._firstNode.previous = newNode;
             // set the new node next node to the original first node
-            newNode.next = this.firstNode;
+            newNode.next = this._firstNode;
             // set the first node as the new node
-            this.firstNode = newNode;
+            this._firstNode = newNode;
         }
+        // increment this.#length
+        this.#length++;
         return this;
     };
 
-    // appendLast = (value) => {
-    //     // create a new node with the provided data
-    //     const newNode = new DLinkedListNode(value);
-    //     // if the list is empty, set the node as the first node
-    //     if (!this.firstNode) {
-    //         this.firstNode = newNode;
-    //     }
-    //     else {
-    //         // look for the last node of the list
-    //         let lastNode = this.firstNode;
-    //         while (lastNode.next) {
-    //             lastNode = lastNode.next;
-    //         }
-    //         // add the new node at the end of the list
-    //         lastNode.next = newNode;
-    //     }
-    //     return this;
-    // };
     appendLast = (value) => {
         // create a new node with the provided data
         const newNode = new DLinkedListNode(value);
         // if the list is empty, set the new node as the first and last node
-        if (!this.firstNode) {
-            this.firstNode = newNode;
-            this.lastNode = newNode;
+        if (!this.length) {
+            this._firstNode = newNode;
+            this._lastNode = newNode;
         }
         else {
             // set the last node next node to the new node
-            this.lastNode.next = newNode;
+            this._lastNode.next = newNode;
             // set the new node previous node to the original last node
-            newNode.previous = this.lastNode;
+            newNode.previous = this._lastNode;
             // set the last node as the new node
-            this.lastNode = newNode;
+            this._lastNode = newNode;
         }
+        // increment this.#length
+        this.#length++;
         return this;
     };
 
-    // insert = (value, index=isRequired("index")) => {
-    //     // create a new node with the provided data
-    //     const newNode = new DLinkedListNode(value);
-    //     // if the index is 0 or the list is empty ...
-    //     if (index === 0 || !this.firstNode) {
-    //         // set the new node as the first node
-    //         newNode.next = this.firstNode;
-    //         this.firstNode = newNode;
-    //     }
-    //     else {
-    //         // look for the node before the one at the given index, or the last node
-    //         let currentNode = this.firstNode;
-    //         let currentIndex = 0;
-    //         while (currentNode.next) {
-    //             if (currentIndex === index - 1) {
-    //                 break;
-    //             }
-    //             currentNode = currentNode.next;
-    //             currentIndex++;
-    //         }
-    //         // insert the new node after the current node
-    //         newNode.next = currentNode.next;
-    //         currentNode.next = newNode;
-    //     }
-    //     return this;
-    // };
     insert = (value, index=isRequired("index")) => {
         // create a new node with the provided data
         const newNode = new DLinkedListNode(value);
         // if the list is empty, set the new node as the first and last node
-        if (!this.firstNode) {
-            this.firstNode = newNode;
-            this.lastNode = newNode;
+        if (!this.length) {
+            this._firstNode = newNode;
+            this._lastNode = newNode;
         }
         else {
             if (index === 0) {
                 // set the first node previous node to the new node
-                this.firstNode.previous = newNode;
+                this._firstNode.previous = newNode;
                 // set the new node next node to the original first node
-                newNode.next = this.firstNode;
+                newNode.next = this._firstNode;
                 // set the first node as the new node
-                this.firstNode = newNode;
+                this._firstNode = newNode;
             }
             else if (index > 0) {
                 // look for the node before the one at the given index
                 // if the index is out of range, pick the last node
                 let currentIndex = 0;
-                let currentNode = this.firstNode;
+                let currentNode = this._firstNode;
                 while (currentNode.next) {
                     if (currentIndex === index - 1) {
                         break;
@@ -270,14 +217,14 @@ class DLinkedList {
                     currentNode = currentNode.next;
                     currentIndex++;
                 }
-                if (currentNode === this.lastNode) {
+                if (currentNode === this._lastNode) {
                     // if the current node is the last one,
                     // set the last node next node to the new node
-                    this.lastNode.next = newNode;
+                    this._lastNode.next = newNode;
                     // set the new node previous node to the original last node
-                    newNode.previous = this.lastNode;
+                    newNode.previous = this._lastNode;
                     // set the last node as the new node
-                    this.lastNode = newNode;
+                    this._lastNode = newNode;
                 }
                 else {
                     // otherwise, we're in the middle of the chain
@@ -292,17 +239,17 @@ class DLinkedList {
             }
             else if (index === -1) {
                 // set the last node next node to the new node
-                this.lastNode.next = newNode;
+                this._lastNode.next = newNode;
                 // set the new node previous node to the original last node
-                newNode.previous = this.lastNode;
+                newNode.previous = this._lastNode;
                 // set the last node as the new node
-                this.lastNode = newNode;
+                this._lastNode = newNode;
             }
             else {
                 // look for the node after the one at the given index
                 // if the index is out of range, pick the first node
                 let currentIndex = -1;
-                let currentNode = this.lastNode;
+                let currentNode = this._lastNode;
                 while (currentNode.previous) {
                     if (currentIndex === index + 1) {
                         break;
@@ -310,14 +257,14 @@ class DLinkedList {
                     currentNode = currentNode.previous;
                     currentIndex--;
                 }
-                if (currentNode === this.firstNode) {
+                if (currentNode === this._firstNode) {
                     // if the current node is the first one,
                     // set the first node previous node to the new node
-                    this.firstNode.previous = newNode;
+                    this._firstNode.previous = newNode;
                     // set the new node next node to the original first node
-                    newNode.next = this.firstNode;
+                    newNode.next = this._firstNode;
                     // set the first node as the new node
-                    this.firstNode = newNode;
+                    this._firstNode = newNode;
                 }
                 else {
                     // otherwise, we're in the middle of the chain
@@ -331,183 +278,131 @@ class DLinkedList {
                 }
             }
         }
+        // increment this.#length
+        this.#length++;
         return this;
+    };
+
+    _getNode = (index=isRequired("index")) => {
+        // return the node at the given index (positive or negative)
+        // if the index is out of range, return "null"
+        let node = null;
+        if (index >= 0) {
+            let currentNode = this._firstNode;
+            let currentIndex = 0;
+            while (currentNode) {
+                if (currentIndex === index) {
+                    node = currentNode;
+                    break;
+                }
+                currentNode = currentNode.next;
+                currentIndex++;
+            }
+        }
+        else {
+            let currentNode = this._lastNode;
+            let currentIndex = -1;
+            while (currentNode) {
+                if (currentIndex === index) {
+                    node = currentNode;
+                    break;
+                }
+                currentNode = currentNode.previous;
+                currentIndex--;
+            }
+        }
+        return node;
     };
 
     getValue = (index=isRequired("index")) => {
         // return the value at the given index (positive or negative)
         // if the index is out range, return "undefined"
-        let value;
-        if (index >= 0) {
-            let currentNode = this.firstNode;
-            let currentIndex = 0;
-            while (currentNode) {
-                if (currentIndex === index) {
-                    value = currentNode.value;
-                    break;
-                }
-                currentNode = currentNode.next;
-                currentIndex++;
-            }
-        }
-        else {
-            let currentNode = this.lastNode;
-            let currentIndex = -1;
-            while (currentNode) {
-                if (currentIndex === index) {
-                    value = currentNode.value;
-                    break;
-                }
-                currentNode = currentNode.previous;
-                currentIndex--;
-            }
-        }
-        return value;
+        return this._getNode(index)?.value;
     };
 
     setValue = (value, index=isRequired("index")) => {
         // set the value at the given index (positive or negative)
-        // if the index is out range, don't do anthing
-        if (index >= 0) {
-            // look for the node at the specified index
-            let currentNode = this.firstNode;
-            let currentIndex = 0;
-            while (currentNode) {
-                if (currentIndex === index) {
-                    currentNode.value = value;
-                    break;
-                }
-                currentNode = currentNode.next;
-                currentIndex++;
-            }
-        }
-        else {
-            let currentNode = this.lastNode;
-            let currentIndex = -1;
-            while (currentNode) {
-                if (currentIndex === index) {
-                    currentNode.value = value;
-                    break;
-                }
-                currentNode = currentNode.previous;
-                currentIndex--;
-            }
+        // if the index is out range, don't do anything
+        const node = this._getNode(index);
+        if (node) {
+            node.value = value;
         }
         return this;
     };
 
     clear = () => {
-        this.firstNode = null;
-        this.lastNode = null;
+        this._firstNode = null;
+        this._lastNode = null;
+        this.#length = 0;
         return this;
     };
 
     popFirst = () => {
         let poppedValue;
         // can only pop a value if the list is not empty
-        if (this.firstNode) {
-            poppedValue = this.firstNode.value;
-            // this.firstNode = this.firstNode.next;
-            if (this.firstNode === this.lastNode) {
+        if (this.length) {
+            poppedValue = this._firstNode.value;
+            // this._firstNode = this._firstNode.next;
+            if (this.length === 1) {
                 // if the list only has 1 item, clear the list
                 this.clear();
             }
             else {
                 // set the first node as the 2nd node
-                this.firstNode = this.firstNode.next;
+                this._firstNode = this._firstNode.next;
                 // set the first node previous node to "null"
-                this.firstNode.previous = null;
+                this._firstNode.previous = null;
+                // decrement this.#length
+                this.#length--;
             }
         }
         return poppedValue;
     };
 
-    // popLast = () => {
-    //     // if the list is empty, don't do anything
-    //     // if the list has a single node, return its value and empty the list
-    //     // if the list has at least 2 nodes, look for the node before the last one, return the last nodes's value and drop it
-    //     let poppedValue;
-    //     const listLength = this.length;
-    //     if (listLength === 1) {
-    //         poppedValue = this.firstNode.value;
-    //         this.firstNode = null;
-    //     }
-    //     else if (listLength > 1) {
-    //         let currentNode = this.firstNode;
-    //         while (currentNode.next.next) {
-    //             currentNode = currentNode.next;
-    //         }
-    //         poppedValue = currentNode.next.value;
-    //         currentNode.next = null;
-    //     }
-    //     return poppedValue;
-    // };
     popLast = () => {
         let poppedValue;
         // can only pop a value if the list is not empty
-        if (this.lastNode) {
-            poppedValue = this.lastNode.value;
-            if (this.lastNode === this.firstNode) {
+        if (this.length) {
+            poppedValue = this._lastNode.value;
+            if (this.length === 1) {
                 // if the list only has 1 item, clear the list
                 this.clear();
             }
             else {
                 // set the last node as the second to last node
-                this.lastNode = this.lastNode.previous;
+                this._lastNode = this._lastNode.previous;
                 // set the last node next node to "null"
-                this.lastNode.next = null;
+                this._lastNode.next = null;
+                // decrement this.#length
+                this.#length--;
             }
         }
         return poppedValue;
     };
 
-    // pop = (index=isRequired("index")) => {
-    //     let poppedValue;
-    //     // if the index is not out of range ...
-    //     if (index < this.length) {
-    //         if (index === 0) {
-    //             // pop the first node
-    //             poppedValue = this.firstNode.value;
-    //             this.firstNode = this.firstNode.next;
-    //         }
-    //         else {
-    //             // find the node before the one at the provided index
-    //             let currentNode = this.firstNode;
-    //             let currentIndex = 0;
-    //             while (currentIndex !== index - 1) {
-    //                 currentNode = currentNode.next;
-    //                 currentIndex++;
-    //             }
-    //             // pop the next node
-    //             poppedValue = currentNode.next.value;
-    //             currentNode.next = currentNode.next.next;
-    //         }
-    //     }
-    //     return poppedValue;
-    // };
     pop = (index=isRequired("index")) => {
         // if the index is out of range, doesn't do anything and returns "undefined"
         let poppedValue;
         // can only pop a value if the list is not empty
-        if (this.firstNode) {
+        if (this.length) {
             if (index === 0) {
                 poppedValue = this.popFirst();
             }
             else if (index > 0) {
                 // find the node before the one at the given index
                 let currentIndex = 0;
-                let currentNode = this.firstNode;
+                let currentNode = this._firstNode;
                 // while the current node is not the last one ...
                 while (currentNode.next) {
                     if (currentIndex === index - 1) {
                         // set poppedValue as the value of the next node
                         poppedValue = currentNode.next.value;
-                        if (currentNode.next === this.lastNode) {
+                        if (currentNode.next === this._lastNode) {
                             // if the next node is the last node,
                             // set the last node as the current node
-                            this.lastNode = currentNode;
+                            this._lastNode = currentNode;
                             // set the last node next node as "null"
-                            this.lastNode.next = null;
+                            this._lastNode.next = null;
                         }
                         else {
                             // otherwise,
@@ -515,6 +410,8 @@ class DLinkedList {
                             currentNode.next = currentNode.next.next;
                             currentNode.next.previous = currentNode;
                         }
+                        // decrement this.#length
+                        this.#length--;
                         break;
                     }
                     currentNode = currentNode.next;
@@ -527,18 +424,18 @@ class DLinkedList {
             else {
                 // find the node after the one at the given index
                 let currentIndex = -1;
-                let currentNode = this.lastNode;
+                let currentNode = this._lastNode;
                 // while the current node is not the first one ...
                 while (currentNode.previous) {
                     if (currentIndex === index + 1) {
                         // set poppedValue as the value of the previous node
                         poppedValue = currentNode.previous.value;
-                        if (currentNode.previous === this.firstNode) {
+                        if (currentNode.previous === this._firstNode) {
                             // if the previous node is the first node,
                             // set the first node as the current node
-                            this.firstNode = currentNode;
+                            this._firstNode = currentNode;
                             // set the first node previous node as "null"
-                            this.firstNode.previous = null;
+                            this._firstNode.previous = null;
                         }
                         else {
                             // otherwise,
@@ -546,6 +443,8 @@ class DLinkedList {
                             currentNode.previous = currentNode.previous.previous;
                             currentNode.previous.next = currentNode;
                         }
+                        // decrement this.#length
+                        this.#length--;
                         break;
                     }
                     currentNode = currentNode.previous;
@@ -563,7 +462,7 @@ class DLinkedList {
     // });
     forEach = (callback=isRequired("callback")) => {
         let currentIndex = 0;
-        let currentNode = this.firstNode;
+        let currentNode = this._firstNode;
         // while (currentIndex < this.length) {
         while (currentNode) {
             // callback(this.getValue(currentIndex), currentIndex, this);
@@ -574,6 +473,7 @@ class DLinkedList {
     };
 
     static fromArray(array) {
+        // /!\ cannot make a list from an array that contains any "undefined"
         // create an empty list
         // we use "this[Symbol.species]()" here to create an object of the right species
         // const newLinkedList = new this();
@@ -632,9 +532,8 @@ class DLinkedList {
     slice = (startIndex=0, lastIndex=Infinity) => {
         // returns a new linked list with a copy of every node from startIndex included to lastIndex excluded
         // if startIndex or lastIndex is negative, add this.length to it
-        const listLength = this.length;
-        startIndex = startIndex >= 0 ? startIndex : startIndex + listLength;
-        lastIndex = lastIndex >= 0 ? lastIndex : lastIndex + listLength;
+        startIndex = startIndex >= 0 ? startIndex : startIndex + this.length;
+        lastIndex = lastIndex >= 0 ? lastIndex : lastIndex + this.length;
         // if either is still negative, set it to 0
         startIndex = startIndex >= 0 ? startIndex : 0;
         lastIndex = lastIndex >= 0 ? lastIndex : 0;
@@ -642,7 +541,7 @@ class DLinkedList {
         const subList = new this.constructor[Symbol.species]();
         // add each item to it
         let currentIndex = 0;
-        let currentNode = this.firstNode;
+        let currentNode = this._firstNode;
         while (currentNode && currentIndex < lastIndex) {
             if (currentIndex >= startIndex) {
                 subList.appendLast(currentNode.value);
@@ -655,25 +554,46 @@ class DLinkedList {
 
     indexOf = (value=isRequired("value"), fromIndex=0) => {
         // [].indexOf();
-        // return the index of first occurence of "value" in the list, starting from "fromIndex"
+        // return the index of first occurence of "value" in the list, starting from "fromIndex" (only positive)
         // if not found, return -1
         let foundAt = -1;
         let currentIndex = 0;
-        let currentNode = this.firstNode;
+        let currentNode = this._firstNode;
+        // while the end of the list has not been reached ...
         while (currentNode) {
+            // if the value has been found after "fromIndex" ...
             if (currentIndex >= fromIndex && currentNode.value === value) {
+                // return the index the value was found at
                 foundAt = currentIndex;
                 break;
             }
+            // keep looking
             currentIndex++;
             currentNode = currentNode.next;
         }
         return foundAt;
     };
 
-    lastIndexOf = (value=isRequired("value"), fromIndex=null) => {
-        // [].lastIndexOf();
+    lastIndexOf = (value=isRequired("value"), fromIndex=Infinity) => {
+        // Array.prototype.lastIndexOf();
         // same as "indexOf", but start looking from the end
+        // "fromIndex" is the highest index the value can be found at
+        let foundAt = -1;
+        let currentIndex = this.length - 1;
+        let currentNode = this._lastNode;
+        // while the start of the list has not been reached ...
+        while (currentNode) {
+            // if the value has been found before "fromIndex" ...
+            if (currentIndex <= fromIndex && currentNode.value === value) {
+                // return the index the value was found at
+                foundAt = currentIndex;
+                break;
+            }
+            // keep looking
+            currentIndex--;
+            currentNode = currentNode.previous;
+        }
+        return foundAt;
     };
 
     includes = () => {};
@@ -684,6 +604,7 @@ class DLinkedList {
     reduce = () => {};
 }
 
+// /*
 // tests
 console.log('--- create new linked list');
 let linkedList = new DLinkedList();
@@ -701,16 +622,13 @@ console.log({}.toString.call(linkedList));
 // linkedList.testIsInstance();
 console.log('--- appendFirst');
 linkedList.appendFirst(3).appendFirst(2).appendFirst(1);
-console.log(`${linkedList}`);
-console.log(linkedList.length);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log('--- appendLast');
 linkedList.appendLast(4).appendLast(5);
-console.log(`${linkedList}`);
-console.log(linkedList.length);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log('--- insert');
 linkedList.insert(0, 0).insert(6, 10000).insert(4.5, 5).insert(7, -1).insert(6.5, -2).insert(-1, -10000);
-console.log(`${linkedList}`);
-console.log(linkedList.length);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log('--- getValue');
 console.log(linkedList.getValue(3));
 console.log(linkedList.getValue(100));
@@ -719,20 +637,20 @@ console.log(linkedList.getValue(-3));
 console.log(linkedList.getValue(-1000));
 console.log('--- setValue');
 linkedList.setValue(-5, 0).setValue("abc", 5000).setValue(4.8, 6).setValue(10, -1).setValue(5.5, -4).setValue("kekw", -10000);
-console.log(`${linkedList}`);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log('--- popFirst');
-console.log(linkedList);
+// console.log(linkedList);
 console.log(linkedList.popFirst());
-console.log(`${linkedList}`);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log((new DLinkedList()).popFirst());
 let testLinkedList = new DLinkedList("test");
 console.log(testLinkedList.popFirst());
-console.log(`${testLinkedList}`);
+console.log(`${testLinkedList} (${testLinkedList.length})`);
 console.log(testLinkedList.popFirst());
-console.log(`${testLinkedList}`);
+console.log(`${testLinkedList} (${testLinkedList.length})`);
 console.log('--- popLast');
 console.log(linkedList.popLast());
-console.log(`${linkedList}`);
+console.log(`${linkedList} (${linkedList.length})`);
 testLinkedList = new DLinkedList("test");
 console.log(testLinkedList.popLast());
 console.log(`${testLinkedList}`);
@@ -740,23 +658,22 @@ console.log(testLinkedList.popLast());
 console.log(`${testLinkedList}`);
 console.log('--- pop');
 console.log(linkedList.pop(2));
-console.log(`${linkedList}`);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log(linkedList.pop(1000));
-console.log(`${linkedList}`);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log(linkedList.pop(0));
-console.log(`${linkedList}`);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log(linkedList.pop(3));
-console.log(`${linkedList}`);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log(linkedList.pop(-1));
-console.log(`${linkedList}`);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log(linkedList.pop(-3));
-console.log(`${linkedList}`);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log(linkedList.pop(-1000));
-console.log(`${linkedList}`);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log('--- clear');
 linkedList.clear();
-console.log(`${linkedList}`);
-console.log(linkedList.length);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log('--- test Symbol.species')
 console.log(DLinkedList[Symbol.species]);
 class PowerDLinkedList extends DLinkedList {
@@ -776,16 +693,14 @@ console.log(`${concatPowerLinkedList}`);
 console.log('--- constructor');
 linkedList = new DLinkedList(1,2,3,4,5);
 // linkedList = new DLinkedList(1,[2,3,4],5);
-console.log(`${linkedList}`);
-console.log(linkedList.length);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log('--- forEach');
 linkedList.forEach((value, index, list) => {
     console.log(`${index}: ${value}`);
 });
 console.log('--- fromArray');
 linkedList = DLinkedList.fromArray([1,2,3,4,5]);
-console.log(`${linkedList}`);
-console.log(linkedList.length);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log('--- toArray');
 let array = linkedList.toArray();
 console.log(array);
@@ -798,20 +713,38 @@ console.log('--- concat');
 let newLinkedList = linkedList.concat(new DLinkedList(7,8,9), 10);
 console.log(`${newLinkedList}`);
 console.log('--- slice');
-console.log(`${linkedList.slice(1, 3)}`);
-console.log(`${linkedList.slice(1, 1888)}`); // till the end
-console.log(`${linkedList.slice(-2)}`); // till the end
-console.log(`${linkedList.slice(-2, 5)}`);
-console.log(`${linkedList.slice(2, -1)}`);
-console.log(`${linkedList.slice(-2000)}`); // entire array
-console.log(`${linkedList.slice(-2000, 1)}`);
-console.log(`${linkedList.slice(10000)}`); // empty array
-console.log(`${linkedList.slice(1, -4000)}`); // empty array
+let tempLinkedList;
+tempLinkedList = linkedList.slice(1, 3);
+console.log(`${tempLinkedList} (${tempLinkedList.length})`);
+tempLinkedList = linkedList.slice(1, 1888);
+console.log(`${tempLinkedList} (${tempLinkedList.length})`); // till the end
+tempLinkedList = linkedList.slice(-2);
+console.log(`${tempLinkedList} (${tempLinkedList.length})`); // till the end
+tempLinkedList = linkedList.slice(-2, 5);
+console.log(`${tempLinkedList} (${tempLinkedList.length})`);
+tempLinkedList = linkedList.slice(2, -1);
+console.log(`${tempLinkedList} (${tempLinkedList.length})`);
+tempLinkedList = linkedList.slice(-2000);
+console.log(`${tempLinkedList} (${tempLinkedList.length})`); // entire array
+tempLinkedList = linkedList.slice(-2000, 1);
+console.log(`${tempLinkedList} (${tempLinkedList.length})`);
+tempLinkedList = linkedList.slice(10000);
+console.log(`${tempLinkedList} (${tempLinkedList.length})`); // empty array
+tempLinkedList = linkedList.slice(1, -4000);
+console.log(`${tempLinkedList} (${tempLinkedList.length})`); // empty array
 console.log('--- indexOf');
-console.log(linkedList.indexOf(5));
+linkedList = DLinkedList.fromArray([1,2,1,2,1,2]);
+console.log(`${linkedList} (${linkedList.length})`);
 console.log(linkedList.indexOf(1));
-console.log(linkedList.indexOf("lol"));
-console.log(linkedList.indexOf(1, 1));
+console.log(linkedList.indexOf(2));
+console.log(linkedList.indexOf(3));
+console.log(linkedList.indexOf(1, 2));
+console.log('--- lastIndexOf');
+console.log(`${linkedList} (${linkedList.length})`);
+console.log(linkedList.lastIndexOf(1));
+console.log(linkedList.lastIndexOf(2));
+console.log(linkedList.lastIndexOf(3));
+console.log(linkedList.lastIndexOf(1, 0));
 // */
 
 /*
@@ -838,13 +771,6 @@ console.log(arr.slice(1, -180)); // empty array
 // */
 
 /*
-let arr = [1,2,3,4,5];
-arr = arr.concat([6,7,8]);
-// arr.concat(["lol"]);
-console.log(arr);
-// */
-
-/*
-let arr = new Array(1, [2,3,4], 5);
-console.log(arr);
+let arr = [1,1,2,1,2,1];
+console.log(arr.lastIndexOf(1, 4));
 // */
