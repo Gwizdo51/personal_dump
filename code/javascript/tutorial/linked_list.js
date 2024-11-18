@@ -552,17 +552,39 @@ class DLinkedList {
         return subList;
     };
 
+    // indexOf = (value=isRequired("value"), fromIndex=0) => {
+    //     // [].indexOf();
+    //     // return the index of first occurence of "value" in the list, starting from "fromIndex" (only positive)
+    //     // if not found, return -1
+    //     let foundAt = -1;
+    //     let currentIndex = 0;
+    //     let currentNode = this._firstNode;
+    //     // while the end of the list has not been reached ...
+    //     while (currentNode) {
+    //         // if the value has been found after "fromIndex" ...
+    //         if (currentIndex >= fromIndex && currentNode.value === value) {
+    //             // return the index the value was found at
+    //             foundAt = currentIndex;
+    //             break;
+    //         }
+    //         // keep looking
+    //         currentIndex++;
+    //         currentNode = currentNode.next;
+    //     }
+    //     return foundAt;
+    // };
     indexOf = (value=isRequired("value"), fromIndex=0) => {
         // [].indexOf();
-        // return the index of first occurence of "value" in the list, starting from "fromIndex" (only positive)
+        // return the index of first occurence of "value" in the list, starting from "fromIndex"
+        // TODO: "fromIndex" can be positive or negative (array is still searched front to back)
         // if not found, return -1
         let foundAt = -1;
-        let currentIndex = 0;
-        let currentNode = this._firstNode;
+        let currentIndex = fromIndex;
+        let currentNode = this._getNode(fromIndex);
         // while the end of the list has not been reached ...
         while (currentNode) {
             // if the value has been found after "fromIndex" ...
-            if (currentIndex >= fromIndex && currentNode.value === value) {
+            if (currentNode.value === value) {
                 // return the index the value was found at
                 foundAt = currentIndex;
                 break;
@@ -577,6 +599,8 @@ class DLinkedList {
     lastIndexOf = (value=isRequired("value"), fromIndex=Infinity) => {
         // Array.prototype.lastIndexOf();
         // same as "indexOf", but start looking from the end
+        // TODO: use "this._getNode"
+        // TODO: "fromIndex" can be positive or negative (array is still searched back to front)
         // "fromIndex" is the highest index the value can be found at
         let foundAt = -1;
         let currentIndex = this.length - 1;
@@ -596,7 +620,28 @@ class DLinkedList {
         return foundAt;
     };
 
-    includes = () => {};
+    includes = (value=isRequired("value"), fromIndex=0) => {
+        // returns true if the value is found in the list
+        // start looking from fromIndex
+        // TODO: "fromIndex" can be positive or negative (array is still searched front to back)
+        // TODO: use "this._getNode"
+        let valueFound = false;
+        let currentIndex = 0;
+        let currentNode = this._firstNode;
+        // while the end of the list has not been reached ...
+        while (currentNode) {
+            // if the value has been found after "fromIndex" ...
+            if (currentIndex >= fromIndex && currentNode.value === value) {
+                valueFound = true;
+                break;
+            }
+            // keep looking
+            currentIndex++;
+            currentNode = currentNode.next;
+        }
+        return valueFound;
+    };
+
     findIndex = () => {};
     findLastIndex = () => {};
     filter = () => {};
