@@ -67,7 +67,7 @@ $colors_table = _gen_colors_hashtable
 
 function _gen_git_prompt {
     # look for possible branch name, silence git "not in git repo" error
-    $branch = $(& 'git.exe' 'rev-parse' '--abbrev-ref' 'HEAD' 2> $null)
+    $branch = (& 'git.exe' 'rev-parse' '--abbrev-ref' 'HEAD' 2> $null)
     if ($branch -eq $null) { # not in a git repo, don't return anything
         return ''
     }
@@ -183,11 +183,21 @@ function Alias-Python {
 New-Item -Path Alias:python -Value Alias-Python -Force | Out-Null
 
 ### git
+function _update_git_prompt {
+    if ((Get-Location).drive.provider.name -eq 'FileSystem') {
+        # we are in a FileSystem drive, safe to look for git branches
+        $Env:_GIT_PROMPT_MODIFIER = _gen_git_prompt
+    }
+    else {
+        # we are not in a FileSystem drive, clear $Env:_GIT_PROMPT_MODIFIER
+        $Env:_GIT_PROMPT_MODIFIER = ''
+    }
+}
 function Alias-GIT {
     # call git
     & 'git.exe' $args
-    # udpate $Env:_GIT_PROMPT_MODIFIER
-    Alias-CD -DirPath '.'
+    # udpate the git prompt when necessary
+    _update_git_prompt
 }
 New-Item -Path Alias:git -Value Alias-GIT -Force | Out-Null
 function Git-Tree {git log --graph --decorate --pretty=oneline --abbrev-commit}
@@ -245,14 +255,7 @@ function Alias-CD {
     # set the new current directory
     Set-Location $DirPath -ErrorAction Stop
     # update the git prompt when necessary
-    if ((Get-Location).drive.provider.name -eq 'FileSystem') {
-        # we are in a FileSystem drive, safe to look for git branches
-        $Env:_GIT_PROMPT_MODIFIER = _gen_git_prompt
-    }
-    else {
-        # we are not in a FileSystem drive, clear $Env:_GIT_PROMPT_MODIFIER
-        $Env:_GIT_PROMPT_MODIFIER = ''
-    }
+    _update_git_prompt
 }
 # override "cd" alias with cd_alias
 New-Item -Path Alias:cd -Value Alias-CD -Force | Out-Null
@@ -342,7 +345,7 @@ function Make-SymLink {
         [Parameter(Mandatory)] $LinkPath # where the link will be
     )
     # check if the target exists
-    # if (-not $(Test-Path $TargetPath)) {Write-Error "$TargetPath does not exist"}
+    # if (-not (Test-Path $TargetPath)) {Write-Error "$TargetPath does not exist"}
     if (-not (Test-Path $TargetPath)) {
         $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
             [System.IO.FileNotFoundException] "'${TargetPath}' not found",
