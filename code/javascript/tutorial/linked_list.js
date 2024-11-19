@@ -1,8 +1,8 @@
 "use strict";
 
-function isRequired(parameterName) {
-    throw new Error(`parameter "${parameterName}" is required`);
-}
+// function isRequired(parameterName) {
+//     throw new Error(`parameter "${parameterName}" is required`);
+// }
 
 // rewrite the linked list code as a class
 class DLinkedListNode {
@@ -12,7 +12,7 @@ class DLinkedListNode {
     #next;
     #previous;
 
-    constructor(value=isRequired('value'), previous=null, next=null) {
+    constructor(value=DLinkedList.isRequired('value'), previous=null, next=null) {
         this.value = value;
         this.next = next;
         this.previous = previous;
@@ -70,6 +70,10 @@ class DLinkedList {
     #firstNode = null;
     #lastNode = null;
     #length = 0
+
+    static isRequired(parameterName) {
+        throw new Error(`parameter "${parameterName}" is required`);
+    }
 
     constructor(...args) {
         // this.firstNode = null;
@@ -188,7 +192,7 @@ class DLinkedList {
         return this;
     };
 
-    insert = (value, index=isRequired("index")) => {
+    insert = (value, index=DLinkedList.isRequired("index")) => {
         // create a new node with the provided data
         const newNode = new DLinkedListNode(value);
         // if the list is empty, set the new node as the first and last node
@@ -283,10 +287,13 @@ class DLinkedList {
         return this;
     };
 
-    _getNode = (index=isRequired("index")) => {
+    _getNode = (index=DLinkedList.isRequired("index")) => {
         // return the node at the given index (positive or negative)
         // if the index is out of range, return "null"
         let node = null;
+        if (index >= this.length || index < -this.length) {
+            return node;
+        }
         if (index >= 0) {
             let currentNode = this._firstNode;
             let currentIndex = 0;
@@ -314,13 +321,13 @@ class DLinkedList {
         return node;
     };
 
-    getValue = (index=isRequired("index")) => {
+    getValue = (index=DLinkedList.isRequired("index")) => {
         // return the value at the given index (positive or negative)
         // if the index is out range, return "undefined"
         return this._getNode(index)?.value;
     };
 
-    setValue = (value, index=isRequired("index")) => {
+    setValue = (value, index=DLinkedList.isRequired("index")) => {
         // set the value at the given index (positive or negative)
         // if the index is out range, don't do anything
         const node = this._getNode(index);
@@ -380,7 +387,7 @@ class DLinkedList {
         return poppedValue;
     };
 
-    pop = (index=isRequired("index")) => {
+    pop = (index=DLinkedList.isRequired("index")) => {
         // if the index is out of range, doesn't do anything and returns "undefined"
         let poppedValue;
         // can only pop a value if the list is not empty
@@ -460,7 +467,7 @@ class DLinkedList {
     //     console.log(array); // reference to arr
     //     // console.log(this); // undefined
     // });
-    forEach = (callback=isRequired("callback")) => {
+    forEach = (callback=DLinkedList.isRequired("callback")) => {
         let currentIndex = 0;
         let currentNode = this._firstNode;
         // while (currentIndex < this.length) {
@@ -472,7 +479,27 @@ class DLinkedList {
         }
     };
 
-    static fromArray(array) {
+    some = (callback=DLinkedList.isRequired("callback")) => {
+        // runs the callback for each item of the list as long as it returns false
+        // stops as soon at the function returns true
+        // return false if all calls of the callback returned false, return true otherwise
+        let currentIndex = 0;
+        let currentNode = this._firstNode;
+        let any = false;
+        // let callbackReturnValue;
+        while (currentNode) {
+            // callbackReturnValue = callback(currentNode.value, currentIndex, this);
+            if (callback(currentNode.value, currentIndex, this)) {
+                any = true;
+                break;
+            }
+            currentIndex++;
+            currentNode = currentNode.next;
+        }
+        return any;
+    };
+
+    static fromArray(array=DLinkedList.isRequired("array")) {
         // /!\ cannot make a list from an array that contains any "undefined"
         // create an empty list
         // we use "this[Symbol.species]()" here to create an object of the right species
@@ -552,35 +579,18 @@ class DLinkedList {
         return subList;
     };
 
-    // indexOf = (value=isRequired("value"), fromIndex=0) => {
-    //     // [].indexOf();
-    //     // return the index of first occurence of "value" in the list, starting from "fromIndex" (only positive)
-    //     // if not found, return -1
-    //     let foundAt = -1;
-    //     let currentIndex = 0;
-    //     let currentNode = this._firstNode;
-    //     // while the end of the list has not been reached ...
-    //     while (currentNode) {
-    //         // if the value has been found after "fromIndex" ...
-    //         if (currentIndex >= fromIndex && currentNode.value === value) {
-    //             // return the index the value was found at
-    //             foundAt = currentIndex;
-    //             break;
-    //         }
-    //         // keep looking
-    //         currentIndex++;
-    //         currentNode = currentNode.next;
-    //     }
-    //     return foundAt;
-    // };
-    indexOf = (value=isRequired("value"), fromIndex=0) => {
+    indexOf = (value, fromIndex=0) => {
         // [].indexOf();
         // return the index of first occurence of "value" in the list, starting from "fromIndex"
-        // TODO: "fromIndex" can be positive or negative (array is still searched front to back)
+        // "fromIndex" can be positive or negative (array is still searched front to back)
         // if not found, return -1
+        // if fromIndex is negative, add this.length to it
+        fromIndex = fromIndex >= 0 ? fromIndex : fromIndex + this.length;
+        // if still negative, set to 0
+        fromIndex = fromIndex >= 0 ? fromIndex : 0;
+        let currentNode = this._getNode(fromIndex);
         let foundAt = -1;
         let currentIndex = fromIndex;
-        let currentNode = this._getNode(fromIndex);
         // while the end of the list has not been reached ...
         while (currentNode) {
             // if the value has been found after "fromIndex" ...
@@ -596,19 +606,22 @@ class DLinkedList {
         return foundAt;
     };
 
-    lastIndexOf = (value=isRequired("value"), fromIndex=Infinity) => {
+    lastIndexOf = (value, fromIndex=-1) => {
         // Array.prototype.lastIndexOf();
         // same as "indexOf", but start looking from the end
-        // TODO: use "this._getNode"
-        // TODO: "fromIndex" can be positive or negative (array is still searched back to front)
         // "fromIndex" is the highest index the value can be found at
+        // TODO: this is wrong, check def of [].lastIndexOf()
+        // if fromIndex is negative, add this.length to it
+        fromIndex = fromIndex >= 0 ? fromIndex : fromIndex + this.length;
+        // if still negative, set to 0
+        fromIndex = fromIndex >= 0 ? fromIndex : 0;
+        let currentNode = this._getNode(fromIndex);
         let foundAt = -1;
-        let currentIndex = this.length - 1;
-        let currentNode = this._lastNode;
+        let currentIndex = fromIndex;
         // while the start of the list has not been reached ...
         while (currentNode) {
             // if the value has been found before "fromIndex" ...
-            if (currentIndex <= fromIndex && currentNode.value === value) {
+            if (currentNode.value === value) {
                 // return the index the value was found at
                 foundAt = currentIndex;
                 break;
@@ -620,18 +633,22 @@ class DLinkedList {
         return foundAt;
     };
 
-    includes = (value=isRequired("value"), fromIndex=0) => {
+    includes = (value, fromIndex=0) => {
         // returns true if the value is found in the list
         // start looking from fromIndex
         // TODO: "fromIndex" can be positive or negative (array is still searched front to back)
         // TODO: use "this._getNode"
+        // if fromIndex is negative, add this.length to it
+        fromIndex = fromIndex >= 0 ? fromIndex : fromIndex + this.length;
+        // if still negative, set to 0
+        fromIndex = fromIndex >= 0 ? fromIndex : 0;
+        let currentNode = this._getNode(fromIndex);
         let valueFound = false;
-        let currentIndex = 0;
-        let currentNode = this._firstNode;
+        let currentIndex = fromIndex;
         // while the end of the list has not been reached ...
         while (currentNode) {
             // if the value has been found after "fromIndex" ...
-            if (currentIndex >= fromIndex && currentNode.value === value) {
+            if (currentNode.value === value) {
                 valueFound = true;
                 break;
             }
@@ -743,6 +760,20 @@ console.log('--- forEach');
 linkedList.forEach((value, index, list) => {
     console.log(`${index}: ${value}`);
 });
+console.log('--- some');
+let any = linkedList.some((value, index) => {
+    console.log(value);
+    return false;
+});
+console.log(any);
+any = linkedList.some((value, index) => {
+    console.log(value);
+    if (value === 3) {
+        return true;
+    }
+    return false;
+});
+console.log(any);
 console.log('--- fromArray');
 linkedList = DLinkedList.fromArray([1,2,3,4,5]);
 console.log(`${linkedList} (${linkedList.length})`);
@@ -784,12 +815,15 @@ console.log(linkedList.indexOf(1));
 console.log(linkedList.indexOf(2));
 console.log(linkedList.indexOf(3));
 console.log(linkedList.indexOf(1, 2));
+console.log(linkedList.indexOf(1, -3));
+console.log(linkedList.indexOf(1, -100000));
 console.log('--- lastIndexOf');
 console.log(`${linkedList} (${linkedList.length})`);
 console.log(linkedList.lastIndexOf(1));
 console.log(linkedList.lastIndexOf(2));
 console.log(linkedList.lastIndexOf(3));
 console.log(linkedList.lastIndexOf(1, 0));
+console.log(linkedList.lastIndexOf(1, -3));
 // */
 
 /*
@@ -818,4 +852,22 @@ console.log(arr.slice(1, -180)); // empty array
 /*
 let arr = [1,1,2,1,2,1];
 console.log(arr.lastIndexOf(1, 4));
+// */
+
+/* can I break a forEach loop?
+let arr = [1,2,3,4,5];
+// arr.forEach((value) => {
+//     if (value === 3) {
+//         console.log("found");
+//         break;
+//     }
+// });
+// "some" can be used for that purpose
+arr.some((value) => {
+    console.log(value);
+    if (value === 3) {
+        return true;
+    }
+    return false;
+});
 // */
