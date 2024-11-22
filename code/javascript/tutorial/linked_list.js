@@ -586,8 +586,12 @@ class DLinkedList {
         // if not found, return -1
         // if fromIndex is negative, add this.length to it
         fromIndex = fromIndex >= 0 ? fromIndex : fromIndex + this.length;
-        // if still negative, set to 0
+        // if still negative, search entire array
         fromIndex = fromIndex >= 0 ? fromIndex : 0;
+        // if out of range, don't search
+        if (fromIndex >= this.length) {
+            return -1;
+        }
         let currentNode = this._getNode(fromIndex);
         let foundAt = -1;
         let currentIndex = fromIndex;
@@ -613,8 +617,12 @@ class DLinkedList {
         // TODO: this is wrong, check def of [].lastIndexOf()
         // if fromIndex is negative, add this.length to it
         fromIndex = fromIndex >= 0 ? fromIndex : fromIndex + this.length;
-        // if still negative, set to 0
-        fromIndex = fromIndex >= 0 ? fromIndex : 0;
+        // if still negative, don't search
+        if (fromIndex < 0) {
+            return -1;
+        }
+        // if out of range, search entire array
+        fromIndex = fromIndex >= this.length ? this.length - 1 : fromIndex;
         let currentNode = this._getNode(fromIndex);
         let foundAt = -1;
         let currentIndex = fromIndex;
@@ -817,13 +825,17 @@ console.log(linkedList.indexOf(3));
 console.log(linkedList.indexOf(1, 2));
 console.log(linkedList.indexOf(1, -3));
 console.log(linkedList.indexOf(1, -100000));
+console.log(linkedList.indexOf(1, 100000));
 console.log('--- lastIndexOf');
 console.log(`${linkedList} (${linkedList.length})`);
 console.log(linkedList.lastIndexOf(1));
 console.log(linkedList.lastIndexOf(2));
 console.log(linkedList.lastIndexOf(3));
 console.log(linkedList.lastIndexOf(1, 0));
+console.log(linkedList.lastIndexOf(1, 2));
 console.log(linkedList.lastIndexOf(1, -3));
+console.log(linkedList.lastIndexOf(1, -100000));
+console.log(linkedList.lastIndexOf(1, 100000));
 // */
 
 /*

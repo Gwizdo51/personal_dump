@@ -22,3 +22,6 @@ du -sh <path>
 find files:
 find <path/to/folder> -iname <stuff_to_find>
 find ./ -iname "*.ipynb"
+
+apply command to output of find:
+find ./notes -type d -exec chmod 755 {} \;
