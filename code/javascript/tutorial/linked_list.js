@@ -88,7 +88,7 @@ class DLinkedList {
         return this.constructor.name;
     }
 
-    // to be able to use obj.constructor[Symbol.species] in the methods that return a new instance ("copy", "filter", "map", "concat", "slice")
+    // to be able to use obj.constructor[Symbol.species] in the methods that return a new instance ("fromArray", "copy", "filter", "map", "concat", "slice")
     static get [Symbol.species]() {
         return this;
     }
@@ -614,7 +614,6 @@ class DLinkedList {
         // Array.prototype.lastIndexOf();
         // same as "indexOf", but start looking from the end
         // "fromIndex" is the highest index the value can be found at
-        // TODO: this is wrong, check def of [].lastIndexOf()
         // if fromIndex is negative, add this.length to it
         fromIndex = fromIndex >= 0 ? fromIndex : fromIndex + this.length;
         // if still negative, don't search
@@ -644,12 +643,14 @@ class DLinkedList {
     includes = (value, fromIndex=0) => {
         // returns true if the value is found in the list
         // start looking from fromIndex
-        // TODO: "fromIndex" can be positive or negative (array is still searched front to back)
-        // TODO: use "this._getNode"
         // if fromIndex is negative, add this.length to it
         fromIndex = fromIndex >= 0 ? fromIndex : fromIndex + this.length;
         // if still negative, set to 0
         fromIndex = fromIndex >= 0 ? fromIndex : 0;
+        // if out of range, don't search
+        if (fromIndex >= this.length) {
+            return false;
+        }
         let currentNode = this._getNode(fromIndex);
         let valueFound = false;
         let currentIndex = fromIndex;
@@ -667,11 +668,101 @@ class DLinkedList {
         return valueFound;
     };
 
-    findIndex = () => {};
-    findLastIndex = () => {};
-    filter = () => {};
-    map = () => {};
-    reduce = () => {};
+    findIndex = (callback=DLinkedList.isRequired("callback")) => {
+        // returns the index of the first element in an array that satisfies the provided testing function
+        // callback = function(item, index, this) -> boolean
+        let currentIndex = 0;
+        let currentNode = this._firstNode;
+        let foundAt = -1;
+        while (currentNode) {
+            if (callback(currentNode.value, currentIndex, this)) {
+                foundAt = currentIndex;
+                break;
+            }
+            currentIndex++;
+            currentNode = currentNode.next;
+        }
+        return foundAt;
+    };
+
+    findLastIndex = (callback=DLinkedList.isRequired("callback")) => {
+        // returns the index of the last element in an array that satisfies the provided testing function
+        let currentIndex = this.length - 1;
+        let currentNode = this._lastNode;
+        let foundAt = -1;
+        while (currentNode) {
+            if (callback(currentNode.value, currentIndex, this)) {
+                foundAt = currentIndex;
+                break;
+            }
+            currentIndex--;
+            currentNode = currentNode.previous;
+        }
+        return foundAt;
+    };
+
+    filter = (callback=DLinkedList.isRequired("callback")) => {
+        // creates and returns a shallow copy of a portion of the list, filtered down to just the elements
+        // that pass the test implemented by the provided function
+        const filteredArray = new this.constructor[Symbol.species]();
+        this.forEach((value, index) => {
+            // newLinkedList.appendLast(value);
+            if (callback(value, index, this)) {
+                filteredArray.appendLast(value);
+            }
+        });
+        return filteredArray;
+    };
+
+    map = (callback=DLinkedList.isRequired("callback")) => {
+        // creates and returns a new list populated with the results of calling a
+        // provided function on every element in this list
+        const mappedList = new this.constructor[Symbol.species]();
+        this.forEach((value, index) => {
+            mappedList.appendLast(callback(value, index, this));
+        });
+        return mappedList;
+    };
+
+    reduce = (callback=DLinkedList.isRequired("callback"), initialValue) => {
+        const InitialValueIsSet = typeof initialValue !== "undefined";
+        // let isFirstCall = true;
+        // return isInitialValueSet;
+        // callback = function(accumulator, currentValue, currentIndex, list) -> mixed
+        // accumulator: the value resulting from the previous call to callback
+        // currentValue: the value of the current element
+        // currentIndex: the index of the current element
+        // list: this list
+        // if the list is empty and the initial value is not set, raise an error
+        if (this.length === 0 && !InitialValueIsSet) {
+            throw new TypeError("Cannot reduce an empty list if no initial value is provided");
+        }
+        let currentReducedValue;
+        let currentIndex = 0;
+        let currentNode = this._firstNode;
+        // for each node ...
+        while (currentNode) {
+            // special case for the first call
+            if (currentIndex === 0) {
+                // if the initial value is not set, set "currentReducedValue" to the first item of the list and continue
+                if (!InitialValueIsSet) {
+                    currentReducedValue = currentNode.value;
+                    currentIndex++;
+                    currentNode = currentNode.next;
+                    continue;
+                }
+                // otherwise, set "currentReducedValue" to "initialValue" and compute the first item as usual
+                else {
+                    currentReducedValue = initialValue;
+                }
+            }
+            // update "currentReducedValue" with the result returned by "callback"
+            currentReducedValue = callback(currentReducedValue, currentNode.value, currentIndex, this);
+            currentIndex++;
+            currentNode = currentNode.next;
+        }
+        return currentReducedValue;
+    };
 }
 
 // /*
@@ -836,6 +927,61 @@ console.log(linkedList.lastIndexOf(1, 2));
 console.log(linkedList.lastIndexOf(1, -3));
 console.log(linkedList.lastIndexOf(1, -100000));
 console.log(linkedList.lastIndexOf(1, 100000));
+console.log('--- includes');
+console.log(`${linkedList} (${linkedList.length})`);
+console.log(linkedList.includes(1));
+console.log(linkedList.includes(2));
+console.log(linkedList.includes(3));
+console.log(linkedList.includes(1, 0));
+console.log(linkedList.includes(1, 5));
+console.log(linkedList.includes(1, -3));
+console.log(linkedList.includes(1, -100000));
+console.log(linkedList.includes(1, 100000));
+console.log('--- findIndex');
+linkedList = new DLinkedList(1,2,3,4,5);
+console.log(`${linkedList} (${linkedList.length})`);
+console.log(linkedList.findIndex((item) => {return item < 3;}));
+console.log(linkedList.findIndex((item) => {return item > 3;}));
+console.log(linkedList.findIndex((item) => {return item === 5;}));
+console.log(linkedList.findIndex((item) => {return item === -2;}));
+console.log('--- findLastIndex');
+console.log(linkedList.findLastIndex((item) => {return item < 3;}));
+console.log(linkedList.findLastIndex((item) => {return item > 3;}));
+console.log(linkedList.findLastIndex((item) => {return item === 5;}));
+console.log(linkedList.findLastIndex((item) => {return item === -2;}));
+console.log('--- filter');
+let filteredLinkedList = linkedList.filter((value, index) => {
+    return index >= 2;
+});
+console.log(`${filteredLinkedList} (${filteredLinkedList.length})`);
+filteredLinkedList = linkedList.filter((value, index) => {
+    return value < 3;
+});
+console.log(`${filteredLinkedList} (${filteredLinkedList.length})`);
+filteredLinkedList = linkedList.filter((value, index) => {
+    return value % 2 === 1;
+});
+console.log(`${filteredLinkedList} (${filteredLinkedList.length})`);
+console.log('--- map');
+let mappedList = linkedList.map((value) => {
+    return value * 2;
+});
+console.log(`${mappedList} (${mappedList.length})`);
+mappedList = linkedList.map((value) => {
+    return -value;
+});
+console.log(`${mappedList} (${mappedList.length})`);
+console.log('--- reduce');
+linkedList = new DLinkedList(1,2,3,4,5);
+console.log(`${linkedList} (${linkedList.length})`);
+// console.log(linkedList.reduce());
+// console.log(linkedList.reduce("bruh"));
+// console.log(linkedList.reduce("bruh", null));
+// console.log(linkedList.reduce("bruh", undefined));
+console.log(linkedList.reduce((accumulator, value) => {return accumulator + value;}, 10)); // sum
+console.log(linkedList.reduce((accumulator, value) => {return value > accumulator ? value : accumulator})); // max
+console.log(linkedList.reduce((accumulator, value) => {return value < accumulator ? value : accumulator}, -15)); // min
+console.log(linkedList.reduce((accumulator) => {return accumulator + 1}, 0)); // count
 // */
 
 /*
