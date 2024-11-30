@@ -63,7 +63,7 @@ def time_worked_pretty_print(raw_time_worked_data: str, separator_length: int = 
     """
 
     # check input data format
-    input_file_regex_format = re.compile('^.+\n(\d\d: +(\d{1,2}h(\d\d)?-\d{1,2}h(\d\d)? *)+\n?)+$')
+    input_file_regex_format = re.compile(r"^.+\n(\d\d: +(\d{1,2}h(\d\d)?-\d{1,2}h(\d\d)? *)+\n?)+$")
     if not input_file_regex_format.match(raw_time_worked_data):
         raise FormatError("The contents of the input file do not comply with the expected format")
 

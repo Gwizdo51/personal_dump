@@ -97,7 +97,7 @@ function Recycle-Item {
         [string[]] $Path # should be able to take a list of paths
     )
     begin {
-        $all_filesystem_roots = (Get-PSDrive | where {$_.provider.name -eq 'FileSystem'}).root
+        $all_filesystem_roots = (Get-PSDrive | ? {$_.provider.name -eq 'FileSystem'}).Root
         $shell = New-Object -ComObject 'Shell.Application'
     }
     process {
@@ -116,7 +116,7 @@ function Recycle-Item {
             # make a pipeline to delete all items pointed by $path_item
             $path_item | Get-Item -Force | ? {
                 # check if the item is a FileSystem item
-                if ($_.PSProvider.Name -eq 'FileSystem') {$True}
+                if ($_.PSProvider.Name -eq 'FileSystem') {Write-Output $True}
                 else {
                     $ErrorRecord = [System.Management.Automation.ErrorRecord]::new(
                         [System.InvalidOperationException] 'Can only recycle files, folders and links',
@@ -125,7 +125,7 @@ function Recycle-Item {
                         $_
                     )
                     $PSCmdlet.WriteError($ErrorRecord)
-                    $False
+                    Write-Output $False
                 }
             } | ? {
                 # check if the item is the root of a drive
@@ -137,10 +137,10 @@ function Recycle-Item {
                         $_
                     )
                     $PSCmdlet.WriteError($ErrorRecord)
-                    $False
+                    Write-Output $False
                 }
-                else {$True}
-            } | ? {$PSCmdlet.ShouldProcess($_, 'Recycle')} | % {
+                else {Write-Output $True}
+            } | ? {$PSCmdlet.ShouldProcess($_, 'Recycle-Item')} | % {
                 $parent_dir_path = Split-Path $_.FullName -Parent
                 $shell_dir = $shell.Namespace($parent_dir_path)
                 $shell_item = $shell_dir.ParseName($_.Name)

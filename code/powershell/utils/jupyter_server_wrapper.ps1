@@ -227,6 +227,7 @@ function Get-JobServerLogs { # print the logs of the jupyter server when running
 }
 # New-Item -Path Alias:jl -Value Get-JobServerLogs -Force | Out-Null
 
+
 # need to work:
 # Kill-Jupyter-New -Port 8888, 8889 => kill servers running at port 8888 and 8889
 # 8888, 8889 | Kill-Jupyter-New     => kill servers running at port 8888 and 8889

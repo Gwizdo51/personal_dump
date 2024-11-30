@@ -72,9 +72,9 @@ def title_printer(title: str, fill_char: str = "#", print_: bool = True) -> str:
 ### named and unnamed args ###
 ##############################
 
-# <must not be named> / <can be name or not> * <must be named>
+# <must not be positional> / <can be positional or named> * <must be named>
 
-def func_test(unnamed_arg, /, unnamed_arg_2, *, named_arg = 0):
+def func_test(arg_1, /, arg_2, *, arg_3):
     pass
 
 
@@ -200,6 +200,46 @@ class MyClassInstance(metaclass=my_metaclass):
 ##################
 
 
+#############
+### flags ###
+#############
+
+def flags_test():
+    flag_0 = 1 << 0
+    flag_1 = 1 << 1
+    flag_2 = 1 << 2
+    flag_3 = 1 << 3
+    flag_4 = 1 << 4
+    flag_5 = 1 << 5
+    flags = [flag_0, flag_1, flag_2, flag_3, flag_4, flag_5]
+    # for flag in flags:
+    #     print(flag)
+    flag_test = 0
+    # turn flags on
+    flag_test |= flag_3 | flag_1 | flag_5
+    print(flag_test)
+    print(bin(flag_test))
+    # check if bit is set
+    print(bool(flag_test & flag_0))
+    print(flag_test & flag_0 > 0)
+    print(bool(flag_test & flag_1))
+    print(flag_test & flag_1 > 0)
+    print(bool(flag_test & flag_2))
+    print(bool(flag_test & flag_3))
+    print(~flag_test)
+    print(bin(~flag_test))
+    # turn flags off
+    flag_test &= ~flag_3
+    flag_test &= ~flag_3
+    flag_test &= ~flag_3
+    print(flag_test)
+    print(bin(flag_test))
+    print(bool(flag_test & flag_0))
+    print(bool(flag_test & flag_1))
+    print(bool(flag_test & flag_2))
+    print(bool(flag_test & flag_3))
+
+
 if __name__ == "__main__":
     pass
 
@@ -214,7 +254,7 @@ if __name__ == "__main__":
     # print(_min([1,5,-2]))
 
     # # title_printer
-    # title_printer("decorators")
+    # title_printer("flags")
     # title_printer("generator", fill_char="+")
 
     # # named and unnamed args
@@ -330,6 +370,9 @@ if __name__ == "__main__":
     # print(MyClassInstance)
     # print(MyClassInstance.__mro__)
     # print(MyClassInstance.__class__)
+
+    # flags
+    flags_test()
 
     ############
     ### DUMP ###
