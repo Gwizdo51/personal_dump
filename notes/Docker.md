@@ -33,6 +33,8 @@ A folder of images inside a registry.
 | -> same with interactive shell | `docker run -it <image_name>` |
 | -> name the container | `docker run --name <container_name> -it <image_name>` |
 | -> delete the container when it exits | `docker run --rm -it <image_name>` |
+| -> with a volume mounted | `docker run -v <volume>:<mount_point> <image_name>` |
+| -> with a host directory mounted as a volume (modifications are mirrored) | `docker run -v <host_dir_path>:<mount_point> <image_name>` |
 | list all containers | `docker ps -a` |
 | list all running containers | `docker ps` |
 | stop a running container | `docker stop <container_name\|container_ID>` |
@@ -60,14 +62,14 @@ A folder of images inside a registry.
 |  |  |
 |  |  |
 
-# Dockerfile
+# `Dockerfile`
 
 A `Dockerfile` is a file that specifies an image, i.e. how a container is built, and what it does. Each line of the Dockerfile creates a new layer to the image.
 
 ```Dockerfile
 # specify the base image that this Dockerfile extends
 FROM <image_name>
-# set the working directory, where files are copied and commands are executed
+# set the working directory (commands are executed here and file paths are relative to here)
 WORKDIR <path>
 # copy files from the host to the image
 COPY <host_path> <image_path>
@@ -81,4 +83,61 @@ ARG <variable>=<value>
 ENV <name> <value>
 # expose a port to the host
 EXPOSE <port-number>
+# define an entrypoint for the image: the container will implicitely run this executable on startup
+# (can be overridden in a compose.yml) (overrides ENTRYPOINT from base image)
+ENTRYPOINT ["cmd"]
+# if ENTRYPOINT, list of arguments to the command in ENTRYPOINT
+# if no ENTRYPOINT, command to run on container startup
+# (always last instruction, preferably) (overrides CMD from the base image)
+CMD ["cmd", "arg1", ...]
 ```
+
+# `compose.yml`
+
+A single configuration file for everything an application needs:
+- the volumes used and where they are mounted
+- the different services, how they are built and run
+- the ports they commuicate with
+
+```yaml
+# specify the persistent volumes used by the application
+volumes:
+  html_dir_compose:
+
+# specify the different containers
+services:
+
+  ssh_server:
+    # spawn from a Dockerfile
+    build:
+      context: "./"
+      target: "ssh_server" # specified in the Dockerfile with the "AS <target>" instruction
+    # mount the persistent volume
+    volumes:
+      - "html_dir_compose:/mnt"
+    # equivalent to the "CMD" instruction of the Dockerfile
+    command: "bash -c '/usr/sbin/sshd -D'"
+    # expose the ports the container communicates with (<host>:<container>)
+    # here, only ssh
+    ports:
+      - "22:22"
+
+  apache_server:
+    # spawn from a vanilla image
+    image: "php:8.3-apache"
+    # mount (and mirror) a directory from the host
+    volumes:
+      - "./8_axocamp_MVC:/var/www/html"
+    # since the "command" instruction overrides the original CMD from the image, we have to add it at the end of ours
+    # to get the original CMD of the image, look at the last layer (here, "apache2-foreground")
+    # https://hub.docker.com/layers/library/php/8.3-apache/images/sha256-9e8338661e2abfc1aa17ca678580ddab53b93ea3cf6ef718d502338639f5264b
+    command: "bash -c 'mv /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini && apache2-foreground'"
+    # expose HTTP port
+    ports:
+      - "80:80"
+```
+
+# compose.yml "command" vs RUN vs CMD vs ENTRYPOINT
+
+- https://stackoverflow.com/questions/72284462/cmd-in-dockerfile-vs-command-in-docker-compose-yml
+- https://www.docker.com/blog/docker-best-practices-choosing-between-run-cmd-and-entrypoint/
