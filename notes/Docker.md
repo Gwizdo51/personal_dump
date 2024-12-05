@@ -55,12 +55,6 @@ A folder of images inside a registry.
 | create a volume | `docker volume create <volume>` |
 | list all volumes | `docker volume ls` |
 | remove a volume (only when not attached) | `docker volume rm <volume>` |
-|  |  |
-|  |  |
-|  |  |
-|  |  |
-|  |  |
-|  |  |
 
 # `Dockerfile`
 
@@ -81,8 +75,10 @@ USER <user_or_uid>
 ARG <variable>=<value>
 # add an environment variable
 ENV <name> <value>
-# expose a port to the host
-EXPOSE <port-number>
+# expose ports to the host
+# the protocol defaults to "tcp"
+# only serves as documentation, ports still have to be manually exposed on container creation
+EXPOSE <port-number>/<protocol>
 # define an entrypoint for the image: the container will implicitely run this executable on startup
 # (can be overridden in a compose.yml) (overrides ENTRYPOINT from base image)
 ENTRYPOINT ["cmd"]
@@ -102,7 +98,7 @@ A single configuration file for everything an application needs:
 ```yaml
 # specify the persistent volumes used by the application
 volumes:
-  html_dir_compose:
+  html_dir_compose: {}
 
 # specify the different containers
 services:

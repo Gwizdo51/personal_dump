@@ -1,0 +1,37 @@
+name: "mysql_phpmyadmin_server"
+
+# for some reason, a persistent volume has very low write speed on Windows
+# -> mounting local directory instead
+# volumes:
+#   mysql_data: {}
+
+services:
+
+  # backend hosting the databse in mysql
+  mysql_container:
+    # spawn from the official mysql image
+    image: "mysql:8.0"
+    # expose the standard mysql port
+    ports:
+      - "3306:3306"
+    # mount a local directory to save the database files
+    volumes:
+      # - "mysql_data:/var/lib/mysql"
+      - "./data:/var/lib/mysql"
+    # set a password for the mysql root user
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456789"
+
+  # frontend for manipulating the database
+  phpmyadmin_container:
+    # spawn from the official phpmyadmin image
+    image: "phpmyadmin:5.2.1-apache"
+    # expose the HTTP port
+    ports:
+      - "80:80"
+    # define the default host as "mysql_container"
+    environment:
+      PMA_HOST: "mysql_container"
+    # phpmyadmin should only run when mysql_container is running
+    depends_on:
+      - "mysql_container"

@@ -1,0 +1,29 @@
+# unceremoniously stolen (and repaired) from https://github.com/pocketpairjp/palworld-dedicated-server-docker
+
+name: "palworld_server"
+
+services:
+
+  palworld_server_container:
+    # https://github.com/pocketpairjp/palworld-dedicated-server-docker/pkgs/container/palserver
+    # spawn the container from a Dockerfile
+    build:
+      context: "./"
+      target: "palworld_server_image"
+    # mount a local directory to save the server files
+    volumes:
+      - "./data:/pal/Package/Pal/Saved"
+    # restart the container if it stops on its own
+    restart: "unless-stopped"
+    # expose the configured port over UDP
+    ports:
+      - "8211:8211/udp"
+    # # https://tech.palworldgame.com/settings-and-operation/arguments
+    # command:
+    #   - "-port=8211"
+    #   - "-useperfthreads"
+    #   - "-NoAsyncLoadingThread"
+    #   - "-UseMultithreadForDS"
+
+    # debug
+    # entrypoint: "/bin/bash"
