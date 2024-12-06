@@ -14,5 +14,4 @@ RUN echo "arthur:arthur" | chpasswd
 EXPOSE 22/tcp
 
 # launch the server
-ENTRYPOINT ["/usr/sbin/sshd"]
-CMD ["-D"]
+CMD ["/usr/sbin/sshd", "-D"]

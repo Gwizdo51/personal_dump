@@ -8,5 +8,6 @@ COPY ./helper.sh /pal/helper.sh
 EXPOSE 8211/udp
 
 # launch the server
+# ENTRYPOINT is necessary, because it is present in the original Dockerfile
 ENTRYPOINT ["/pal/helper.sh"]
 CMD ["-port=8211", "-useperfthreads", "-NoAsyncLoadingThread", "-UseMultithreadForDS"]
