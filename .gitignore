@@ -33,3 +33,4 @@ __pycache__/
 code/python/tests_dir/
 ps_buffer.txt
 sudo.bat
+configs/docker/*/data/
