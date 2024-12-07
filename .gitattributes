@@ -28,8 +28,6 @@
 # keep bash files with lf line endings on Windows
 .bash*      eol=lf
 *.sh        eol=lf
-# the palworld server runs on a unix OS
-configs/docker/4_palworld_server/PalWorldSettings.ini eol=lf
 
 # binaries
 *.png       -text
