@@ -14,3 +14,9 @@ services:
     # here, only SSH
     ports:
       - "22:22"
+    # command: "bash"
+    # pull the last version of personal_dump before launching the server
+    command: "bash -c 'cd /home/arthur/personal_dump/
+      && git pull
+      && cd /
+      && /usr/sbin/sshd -D'"

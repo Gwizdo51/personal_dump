@@ -35,5 +35,5 @@ services:
     depends_on:
       # - "mysql_container"
       mysql_container:
-        condition: service_healthy
-        restart: true
+        condition: "service_healthy"
+        restart: True

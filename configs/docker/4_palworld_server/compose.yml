@@ -31,6 +31,6 @@ services:
     # only start the server if the initialisation is successful
     depends_on:
       init_server_container:
-        condition: service_completed_successfully
+        condition: "service_completed_successfully"
     # debug
     # entrypoint: "bash"

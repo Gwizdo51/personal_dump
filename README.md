@@ -2,10 +2,10 @@
 
 ### *WIP*
 - [ ] make pretty bash prompt
-- [ ] add custom aliases to ssh server Dockerfile
+- [ ] continue Docker tuto
+- [ ] finish javascript tuto
 
 ### *TODO*
-- [ ] finish javascript tuto
 - [ ] add linux + bash notes
 - [ ] add powershell docstrings to own cmdlets
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
@@ -68,6 +68,7 @@
 - [x] make a "Restart-System" cmdlet
 - [x] make a "Recycle" cmdlet
 - [x] make a "Get-Size" cmdlet (must work with folders)
+- [x] add custom bash profile to ssh server Dockerfile
 
 # Ideas
 
