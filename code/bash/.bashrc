@@ -105,7 +105,7 @@ fi
 # some more ls aliases
 #alias ll='ls -alF'
 #alias la='ls -A'
-alias l='ls -CF'
+# alias l='ls -CF'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -131,18 +131,18 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/arthur/Programs/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/home/arthur/Programs/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/arthur/Programs/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/home/arthur/Programs/anaconda3/bin:$PATH"
-    fi
-fi
+# # >>> conda initialize >>>
+# # !! Contents within this block are managed by 'conda init' !!
+# __conda_setup="$('/home/arthur/Programs/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+# if [ $? -eq 0 ]; then
+#     eval "$__conda_setup"
+# else
+#     if [ -f "/home/arthur/Programs/anaconda3/etc/profile.d/conda.sh" ]; then
+#         . "/home/arthur/Programs/anaconda3/etc/profile.d/conda.sh"
+#     else
+#         export PATH="/home/arthur/Programs/anaconda3/bin:$PATH"
+#     fi
+# fi
 
-unset __conda_setup
-# <<< conda initialize <<<
+# unset __conda_setup
+# # <<< conda initialize <<<

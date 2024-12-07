@@ -1,0 +1,36 @@
+# unceremoniously stolen (and repaired) from https://github.com/pocketpairjp/palworld-dedicated-server-docker
+
+name: "palworld_server"
+
+services:
+
+  init_server_container:
+    # spawn the container from a Dockerfile
+    build:
+      context: "./"
+      target: "init_server_image"
+    # mount the "./data" directory to write the config file into
+    volumes:
+      - "./data:/tmp/data"
+      # have to mount the config yaml file to not have to rebuild the image when updating the settings
+      - "./palworld_server_config.yml:/tmp/palworld_server_config.yml:ro"
+
+  palworld_server_container:
+    # spawn the container from a Dockerfile
+    build:
+      context: "./"
+      target: "palworld_server_image"
+    # mount a local directory to save the server files
+    volumes:
+      - "./data:/pal/Package/Pal/Saved"
+    # restart the container if it stops on its own
+    restart: "unless-stopped"
+    # expose the configured port over UDP
+    ports:
+      - "8211:8211/udp"
+    # only start the server if the initialisation is successful
+    depends_on:
+      init_server_container:
+        condition: service_completed_successfully
+    # debug
+    # entrypoint: "bash"
