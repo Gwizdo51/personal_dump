@@ -1,13 +1,13 @@
 # TODO list
 
 ### *WIP*
-- [ ] make pretty bash prompt
-- [ ] add custom aliases to ssh server Dockerfile
+- [ ] add more verbose to profile
+- [ ] add linux + bash notes
 
 ### *TODO*
-- [ ] finish javascript tuto
-- [ ] add linux + bash notes
 - [ ] add powershell docstrings to own cmdlets
+- [ ] mess with [PSReadLine](https://learn.microsoft.com/en-us/powershell/module/psreadline/?view=powershell-7.3)
+- [ ] add tkinter tests
 - [ ] make DotDict.\_\_dict__ behavior consistent with a regular object (not a dict) behavior
 - [ ] make every DotDict dict method consistent with the dict class
 - [ ] make pretty_string_factory a module on its own
@@ -19,7 +19,10 @@
 - [ ] add a RegEx UUID detector to tests.py
 - [ ] test python decorators
 - [ ] add windows notes about adding virtual memory
+- [ ] add git flow notes
+- [ ] add keyboard shortcut to start screensaver on demand on windows
 - [ ] create "Réussite" game
+- [ ] reinstall OS at some point (never update conda on base with conda-forge, btw)
 - [ ] add notes on connecting PS4 controller on windows
 
 ### *DONE*

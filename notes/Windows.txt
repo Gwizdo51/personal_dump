@@ -54,7 +54,7 @@ installed programs:
     epic games launcher
     vlc
     ubisoft connect
-    ds4windows (with hidhide if double input)
+    parsec, hidhide, ds4windows
     windows terminal
     git
     vscode

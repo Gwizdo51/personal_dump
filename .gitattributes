@@ -2,9 +2,9 @@
 
 # possible attributes:
 # - "text=auto": let git figure out if the files are text or binary files (default behavior for all files)
-# - "text": files are text files, end of line (EOL) should be normalised
-# - "-text": files are not text files, EOL should not be normalised
-# - "eol=(lf,crlf)": files are text files, but should be checked out (pulled) with linux (lf) or windows (crlf) EOL
+# - "text": files are text files, end of line should be normalised
+# - "-text": files are not text files, end of line should not be normalised
+# - "eol=(lf,crlf)": files are text files, but should be checked out with linux (lf) or windows (crlf) line endings
 # - linguist-vendored: files will not be accounted for in the list of languages used
 
 # text files will always be checked in with LF line endings, binary files will be checked in as-is
