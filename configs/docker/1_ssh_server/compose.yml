@@ -9,7 +9,7 @@ services:
       target: "ssh_server_image" # specified in the Dockerfile with the "AS <target>" instruction
     # mount a persistent directory on /mnt
     volumes:
-      - "./mnt:/mnt"
+      - "./data:/mnt"
     # expose the ports the container communicates with (<host>:<container>)
     # here, only SSH
     ports:
