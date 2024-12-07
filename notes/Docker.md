@@ -48,7 +48,10 @@ A folder of images inside a registry.
 | give an name to an image | `docker tag <username>/<image_name> <username>/<image_name>:<tag_name>` |
 | publish an image to a registry | `docker push <username>/<image_name>:<tag_name>` |
 | run a `compose.yml` file | `docker compose up -d --build` |
-| stop a application running with `compose` | `docker compose down` |
+| stop a application running with `compose` | `docker compose stop` |
+| -> stop and remove the containers | `docker compose down` |
+| -> start after being stopped | `docker compose start` |
+| -> restart | `docker compose restart` |
 | create a new image after manual modifications of a container | `docker container commit -m "message" <base_container> <new_image>` |
 | view the layers of an image | `docker image history <image>` |
 | remove a container | `docker rm [-f] <container_name>` |

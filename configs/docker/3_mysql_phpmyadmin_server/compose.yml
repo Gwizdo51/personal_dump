@@ -7,10 +7,12 @@ name: "mysql_phpmyadmin_server"
 
 services:
 
-  # backend hosting the databse in mysql
+  # backend hosting the database in mysql
   mysql_container:
-    # spawn from the official mysql image
-    image: "mysql:8.0"
+    # spawn from a Dockerfile
+    build:
+      context: "./"
+      target: "mysql_image"
     # expose the standard mysql port
     ports:
       - "3306:3306"
@@ -18,9 +20,6 @@ services:
     volumes:
       # - "mysql_data:/var/lib/mysql"
       - "./data:/var/lib/mysql"
-    # set a password for the mysql root user
-    environment:
-      MYSQL_ROOT_PASSWORD: "123456789"
 
   # frontend for manipulating the database
   phpmyadmin_container:
@@ -32,6 +31,9 @@ services:
     # define the default host as "mysql_container"
     environment:
       PMA_HOST: "mysql_container"
-    # phpmyadmin should only run when mysql_container is running
+    # phpmyadmin should only start when mysql_container is ready
     depends_on:
-      - "mysql_container"
+      # - "mysql_container"
+      mysql_container:
+        condition: service_healthy
+        restart: true
