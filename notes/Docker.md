@@ -44,7 +44,8 @@ A folder of images inside a registry.
 | download an image | `docker pull <image_name>` |
 | list all downloaded images | `docker images` |
 | build an image from a `Dockerfile`, with a specified name | `docker build <dir_with_dockerfile> -t <username>/<image_name>` |
-| -> same with a specified `Dockerfile` path (gives access to parent folders) | `docker build -t <some_tag> -f <path/to/Dockerfile> .` |
+| -> same with a specified `Dockerfile` path (gives access to parent folders) | `docker build <dir_with_dockerfile> -t <some_tag> -f <path/to/Dockerfile> .` |
+| -> same with a specified target within the `Dockerfile` | `docker build <dir_with_dockerfile> --target <target_name> -t <some_tag>` |
 | give an name to an image | `docker tag <username>/<image_name> <username>/<image_name>:<tag_name>` |
 | publish an image to a registry | `docker push <username>/<image_name>:<tag_name>` |
 | run a `compose.yml` file | `docker compose up -d --build` |

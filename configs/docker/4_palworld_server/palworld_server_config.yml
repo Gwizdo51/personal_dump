@@ -55,7 +55,7 @@ ServerPlayerMaxNum: 32
 ServerName: "\"Arthur's server\""
 ServerDescription: "\"\""
 AdminPassword: "\"BOYIDGAF\""
-# ServerPassword: '""'
+# ServerPassword: "\"\""
 ServerPassword: "\"123456789\""
 PublicPort: 8211
 PublicIP: "\"\""
