@@ -13,6 +13,8 @@ services:
     build:
       context: "./"
       target: "mysql_image"
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456789"
     # expose the standard mysql port
     ports:
       - "3306:3306"
