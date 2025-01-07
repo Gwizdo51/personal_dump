@@ -11,6 +11,7 @@ to change the configuration of the server:
 
 import yaml
 from pathlib import Path
+import sys
 
 
 def gen_palworld_settings():
@@ -38,5 +39,10 @@ def gen_palworld_settings():
 
 
 if __name__ == "__main__":
-    gen_palworld_settings()
-    print("Successfully generated the server config file")
+    try:
+        gen_palworld_settings()
+        print("Successfully generated the server config file")
+    except Exception as e:
+        print("an error has been raised")
+        print(e)
+        sys.exit(1)
