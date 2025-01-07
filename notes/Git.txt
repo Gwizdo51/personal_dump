@@ -116,6 +116,8 @@ undo last commit, but keep the changes:
 git reset HEAD^
 undo N commits, but keep the changes:
 git reset HEAD~N
+set to a specific commit:
+git reset --hard <commit_hash>
 
 display the history of the current branch as a tree:
 git log --graph --decorate --pretty=oneline --abbrev-commit
