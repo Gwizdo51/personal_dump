@@ -13,6 +13,8 @@ VOLUME /tmp/data
 # CMD ["bash"]
 # run the python script
 CMD ["python", "gen_palworld_settings.py"]
+# fix to get container output in chronological order
+# CMD ["python", "gen_palworld_settings.py", "2>&1"]
 
 # container used for the server itself
 # start from the official PocketPair palserver image

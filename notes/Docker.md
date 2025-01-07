@@ -48,17 +48,19 @@ A folder of images inside a registry.
 | -> same with a specified target within the `Dockerfile` | `docker build <dir_with_dockerfile> --target <target_name> -t <some_tag>` |
 | give an name to an image | `docker tag <username>/<image_name> <username>/<image_name>:<tag_name>` |
 | publish an image to a registry | `docker push <username>/<image_name>:<tag_name>` |
-| run a `compose.yml` file | `docker compose up -d --build` |
-| stop a application running with `compose` | `docker compose stop` |
+| build an app from a `compose.yml` file | `docker compose build` |
+| -> run an application from a `compose.yml` file | `docker compose up -d` |
 | -> stop and remove the containers | `docker compose down` |
+| -> stop a application running with `compose` | `docker compose stop` |
 | -> start after being stopped | `docker compose start` |
-| -> restart | `docker compose restart` |
+| -> restart an application | `docker compose restart` |
 | create a new image after manual modifications of a container | `docker container commit -m "message" <base_container> <new_image>` |
 | view the layers of an image | `docker image history <image>` |
 | remove a container | `docker rm [-f] <container_name>` |
 | create a volume | `docker volume create <volume>` |
 | list all volumes | `docker volume ls` |
 | remove a volume (only when not attached) | `docker volume rm <volume>` |
+| remove useless stuff (dangling images, stopped containers, unused build cache) | `docker system prune` |
 
 # `Dockerfile`
 
