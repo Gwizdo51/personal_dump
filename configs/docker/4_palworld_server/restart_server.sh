@@ -14,4 +14,4 @@ docker compose -f ${compose_file_path} build
 docker system prune -f
 
 # restart the server with the new image
-docker compose -f ${compose_file_path} -d up
+docker compose -f ${compose_file_path} up -d
