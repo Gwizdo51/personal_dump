@@ -23,14 +23,10 @@ def gen_palworld_settings():
     palworld_settings_file_lines = []
     palworld_settings_file_lines.append("[/Script/Pal.PalGameWorldSettings]\n")
     options_settings_line = "OptionSettings=("
-    first_key = True
+    settings_list = []
     for key in palworld_settings_dict.keys():
-        if first_key:
-            first_key = False
-        else:
-            options_settings_line += ","
-        options_settings_line += f"{key}={palworld_settings_dict[key]}"
-    options_settings_line += ")\n"
+        settings_list.append(f"{key}={palworld_settings_dict[key]}")
+    options_settings_line += ",".join(settings_list) + ")\n"
     palworld_settings_file_lines.append(options_settings_line)
     # write the lines to "./PalWorldSettings.ini", with Unix EOL
     # add a line break at the end to make it a POSIX text file
