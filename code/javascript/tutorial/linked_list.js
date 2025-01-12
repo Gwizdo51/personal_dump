@@ -4,7 +4,6 @@
 //     throw new Error(`parameter "${parameterName}" is required`);
 // }
 
-// rewrite the linked list code as a class
 class DLinkedListNode {
 
     // protect the "value", "next" and "previous" properties
@@ -76,7 +75,6 @@ class DLinkedList {
     }
 
     constructor(...args) {
-        // this.firstNode = null;
         // concat each item of args to "this" -> can't work: infinite loop, concat returns a new linked list
         for (let value of args) {
             this.appendLast(value);

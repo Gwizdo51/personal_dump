@@ -8,6 +8,7 @@
 4. install git, docker, curl, htop
 4. connect to tailscale VPN
 5. connect to git with ssh key
+6. clone this repo in `/srv`
 6. setup cron to reset server daily
     1. disable anacron: `sudo systemctl stop anacron.timer`
     2. copy `restart_server.sh` to `/etc/cron.daily`
