@@ -18,4 +18,4 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Add the current user to the group of docker sudoers
-sudo usermode -aG docker $USER
+sudo usermod -aG docker $USER
