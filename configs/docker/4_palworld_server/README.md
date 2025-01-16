@@ -1,11 +1,11 @@
-### Install server
+### Install server on Linux
 
 1. add 40G drive to vbox image
 2. bridged network access
 3. install debian
     - increase swap to 5G
 4. remove safe padding on partitions (`tune2fs /dev/XXX -m 0`)
-4. install git, docker, curl, htop
+4. install git, docker (`docker_install_script.sh`), curl, htop
 4. connect to tailscale VPN
 5. connect to git with ssh key
 6. clone this repo in `/srv`
