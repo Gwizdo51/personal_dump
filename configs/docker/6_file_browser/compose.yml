@@ -1,13 +1,14 @@
 name: "file_browser"
 services:
   filebrowser_container:
-    image: "filebrowser/filebrowser:s6"
+    image: "filebrowser/filebrowser"
     volumes:
     - "./data/root:/srv"
-    - "./data/filebrowser.db:/database/filebrowser.db"
+    - "./data/filebrowser.db:/database.db"
+    # environment:
+    #   PGID: 1000
+    #   PUID: 1000
+    user: "1000:1000"
     ports:
     - "80:80"
-    environment:
-      PGID: 1000
-      PUID: 1000
-    command: "chown -R 1000:1000 /database"
+    # command: "chown -R 1000:1000 /database"

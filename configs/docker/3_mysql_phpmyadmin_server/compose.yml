@@ -17,11 +17,11 @@ services:
       MYSQL_ROOT_PASSWORD: "123456789"
     # expose the standard mysql port
     ports:
-      - "3306:3306"
+    - "3306:3306"
     # mount a local directory to save the database files
     volumes:
-      # - "mysql_data:/var/lib/mysql"
-      - "./data:/var/lib/mysql"
+    # - "mysql_data:/var/lib/mysql"
+    - "./data:/var/lib/mysql"
 
   # frontend for manipulating the database
   phpmyadmin_container:
@@ -29,7 +29,7 @@ services:
     image: "phpmyadmin:5.2.1-apache"
     # expose the HTTP port
     ports:
-      - "80:80"
+    - "80:80"
     # define the default host as "mysql_container"
     environment:
       PMA_HOST: "mysql_container"

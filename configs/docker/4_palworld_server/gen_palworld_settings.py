@@ -29,7 +29,6 @@ def gen_palworld_settings():
     options_settings_line += ",".join(settings_list) + ")\n"
     palworld_settings_file_lines.append(options_settings_line)
     # write the lines to "./PalWorldSettings.ini", with Unix EOL
-    # add a line break at the end to make it a POSIX text file
     file_path = Path.cwd() / "data" / "Config" / "LinuxServer" / "PalWorldSettings.ini"
     with open(file_path, "w", newline="\n") as f:
         f.writelines(palworld_settings_file_lines)
