@@ -5,10 +5,7 @@ services:
     volumes:
     - "./data/root:/srv"
     - "./data/filebrowser.db:/database.db"
-    # environment:
-    #   PGID: 1000
-    #   PUID: 1000
     user: "1000:1000"
     ports:
     - "80:80"
-    # command: "chown -R 1000:1000 /database"
+    restart: unless-stopped

@@ -2,6 +2,10 @@
 # - https://www.youtube.com/watch?v=9nzHm3xGz2I
 # - https://github.com/rustdesk/rustdesk-server/blob/master/docker-compose.yml
 
+# in client, to connect to remote server:
+# - add "ID server" and "Relay server": IP of docker host
+# - add key: ./data/id_ed25519.pub content
+
 name: rustdesk
 
 networks:
