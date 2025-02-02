@@ -1,0 +1,7 @@
+name: noip_duc
+
+services:
+  image: ghcr.io/noipcom/noip-duc:latest
+
+# to run :
+# docker compose --env-file ./noip_duc.env up -d
