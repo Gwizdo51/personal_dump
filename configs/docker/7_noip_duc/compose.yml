@@ -1,5 +1,4 @@
 name: noip_duc
-
 services:
   noip_duc_container:
     build:
@@ -7,6 +6,3 @@ services:
       target: "noip_duc_image"
     entrypoint: noip-duc
     command: "-g all.ddnskey.com -u <ddnskey_username> -p <ddnskey_password>"
-
-# to run :
-# docker compose --env-file ./noip_duc.env up -d
