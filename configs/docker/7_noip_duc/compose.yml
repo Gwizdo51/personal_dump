@@ -1,9 +1,19 @@
 name: "noip_duc"
+
+networks:
+  noip_duc_net:
+    external: false
+
 services:
+
   noip_duc_container:
+    container_name: "noip_duc_container"
+    networks:
+    - "noip_duc_net"
     build:
       context: "./"
       target: "noip_duc_image"
     restart: "unless-stopped"
+    # entrypoint: "bash"
     entrypoint: "noip-duc"
     command: "-g all.ddnskey.com -u <ddnskey_username> -p <ddnskey_password>"

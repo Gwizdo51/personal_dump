@@ -1,6 +1,15 @@
-name: "file_browser"
+name: "filebrowser"
+
+networks:
+  filebrowser_net:
+    external: false
+
 services:
+
   filebrowser_container:
+    container_name: "filebrowser_container"
+    networks:
+    - "filebrowser_net"
     image: "filebrowser/filebrowser"
     volumes:
     - "./data/root:/srv"
@@ -8,4 +17,4 @@ services:
     user: "1000:1000"
     ports:
     - "80:80"
-    restart: unless-stopped
+    restart: "unless-stopped"

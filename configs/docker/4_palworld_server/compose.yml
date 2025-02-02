@@ -2,9 +2,16 @@
 
 name: "palworld_server"
 
+networks:
+  palworld_net:
+    external: false
+
 services:
 
   init_server_container:
+    container_name: "init_server_container"
+    networks:
+    - "palworld_net"
     # spawn the container from a Dockerfile
     build:
       context: "./"
@@ -16,6 +23,9 @@ services:
     - "./palworld_server_config.yml:/tmp/palworld_server_config.yml:ro"
 
   palworld_server_container:
+    container_name: "palworld_server_container"
+    networks:
+    - "palworld_net"
     # spawn the container from a Dockerfile
     build:
       context: "./"

@@ -11,39 +11,39 @@
 # the session id is the one with the line "Service=gdm-password" when running the command :
 #   loginctl list-sessions --no-legend | while read id rest; do echo; loginctl show-session $id; done
 
-name: rustdesk
+name: "rustdesk"
 
 networks:
-  rustdesk-net:
+  rustdesk_net:
     external: false
 
 services:
   hbbs:
-    container_name: hbbs
+    container_name: "hbbs"
     ports:
-    - 21115:21115
-    - 21116:21116
-    - 21116:21116/udp
-    - 21118:21118
-    image: rustdesk/rustdesk-server:latest
-    command: hbbs -r arthurs-crib.ddns.net:21117
+    - "21115:21115"
+    - "21116:21116"
+    - "21116:21116/udp"
+    - "21118:21118"
+    image: "rustdesk/rustdesk-server:latest"
+    command: "hbbs"
     volumes:
-    - ./data:/root
+    - "./data:/root"
     networks:
-    - rustdesk-net
+    - "rustdesk_net"
     depends_on:
-    - hbbr
-    restart: unless-stopped
+    - "hbbr"
+    restart: "unless-stopped"
 
   hbbr:
-    container_name: hbbr
+    container_name: "hbbr"
     ports:
-    - 21117:21117
-    - 21119:21119
-    image: rustdesk/rustdesk-server:latest
-    command: hbbr
+    - "21117:21117"
+    - "21119:21119"
+    image: "rustdesk/rustdesk-server:latest"
+    command: "hbbr"
     volumes:
-    - ./data:/root
+    - "./data:/root"
     networks:
-    - rustdesk-net
-    restart: unless-stopped
+    - "rustdesk_net"
+    restart: "unless-stopped"

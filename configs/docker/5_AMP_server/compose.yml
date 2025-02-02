@@ -1,8 +1,15 @@
 name: "amp_server"
 
+networks:
+  amp_net:
+    external: false
+
 services:
 
   apache_php_container:
+    container_name: "apache_php_container"
+    networks:
+    - "amp_net"
     # spawn from a Dockerfile
     build:
       context: "./"
@@ -25,6 +32,9 @@ services:
     # command: "apache2-foreground"
 
   mysql_container:
+    container_name: "mysql_container"
+    networks:
+    - "amp_net"
     image: "mysql:9.1"
     ports:
     - "3306:3306"
@@ -36,6 +46,9 @@ services:
       MYSQL_ROOT_PASSWORD: "123456789"
 
   phpmyadmin_container:
+    container_name: "phpmyadmin_container"
+    networks:
+    - "amp_net"
     # spawn from the official phpmyadmin image
     image: "phpmyadmin:5.2.1-apache"
     # expose the HTTP port
