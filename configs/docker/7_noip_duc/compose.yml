@@ -1,8 +1,9 @@
-name: noip_duc
+name: "noip_duc"
 services:
   noip_duc_container:
     build:
       context: "./"
       target: "noip_duc_image"
-    entrypoint: noip-duc
+    restart: "unless-stopped"
+    entrypoint: "noip-duc"
     command: "-g all.ddnskey.com -u <ddnskey_username> -p <ddnskey_password>"
