@@ -3,7 +3,7 @@
 # - https://github.com/rustdesk/rustdesk-server/blob/master/docker-compose.yml
 
 # in client, to connect to remote server:
-# - add "ID server" and "Relay server": IP of docker host
+# - add "ID server" and "Relay server": IP of docker host (have to be the exact same syntax on every client)
 # - add key: ./data/id_ed25519.pub content
 
 # to wake up screen remotely :
