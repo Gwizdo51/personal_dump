@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# This script installs and sets up Docker engine on a Debian distribution
+# source:
 # https://docs.docker.com/engine/install/debian/
 
 # Add Docker's official GPG key
@@ -16,8 +18,8 @@ echo \
     sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 
-# Install docker
+# Install Docker
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# Add the current user to the group of docker sudoers
+# Add the current user to the group of Docker sudoers
 sudo usermod -aG docker $USER
