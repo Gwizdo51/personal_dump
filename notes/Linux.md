@@ -52,6 +52,12 @@ https://stackoverflow.com/questions/78074498/how-to-configure-xrdp-to-work-with-
 - Optionally, to get the vertical menu on the side, add to `~/.xsessionrc` :<br>
 `export XDG_CURRENT_DESKTOP=ubuntu:GNOME`
 
+to wake up screen remotely (only works when already logged in):<br>
+`loginctl unlock-session <session_id>`
+
+the session id is the one with the line "Service=gdm-password" when running the command :<br>
+`loginctl list-sessions --no-legend | while read id rest; do echo; loginctl show-session $id; done`
+
 ### On the windows machine to log in with
 
 - Open `Remote Desktop Connection`
