@@ -3,6 +3,7 @@ name: "apache_php_server"
 services:
 
   apache_php_container:
+    container_name: "apache_php_container"
     # spawn from a Dockerfile
     build:
       context: "./"
