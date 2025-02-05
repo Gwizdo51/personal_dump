@@ -16,9 +16,9 @@ services:
       target: "apache_server_img"
     # mount the directory containing the web app files to "/var/www/html"
     volumes:
-    # - "D:\\code\\esaip_repo\\S3\\php\\8_axocamp_MVC:/var/www/html:ro"
-    # - "D:\\code\\esaip_repo\\S3\\php\\9_immatriculation:/var/www/html:ro"
-    # - "C:\\Users\\Arthur\\code\\esaip_repo\\S3\\php\\9_immatriculation:/var/www/html:ro"
+    # - "D:\\code\\esaip_repo\\S3\\php\\08_axocamp_MVC:/var/www/html:ro"
+    # - "D:\\code\\esaip_repo\\S3\\php\\09_immatriculation:/var/www/html:ro"
+    # - "C:\\Users\\Arthur\\code\\esaip_repo\\S3\\php\\09_immatriculation:/var/www/html:ro"
     - "~/Documents/esaip_repo/S3/php/10_eval_0115:/var/www/html:ro"
     # expose the HTTP port
     ports:

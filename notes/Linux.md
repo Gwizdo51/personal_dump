@@ -21,12 +21,15 @@ bash zoom :
 folder / file disk usage :<br>
 `du -sh <path>`
 
-find files:<br>
+find files :<br>
 `find <path/to/folder> -iname <stuff_to_find>`<br>
 `find ./ -iname "*.ipynb"`
 
-apply command to output of find:<br>
+apply command to output of find :<br>
 `find ./notes -type d -exec chmod 755 {} \;`
+
+Inflate .tar.gz file :<br>
+`tar -xvzf <file_path.tar.gz> -C <destination_folder_path>`
 
 # Setup Remote Desktop Viewer on Linux
 
