@@ -2,16 +2,18 @@ name: "wakeonlan_server"
 
 services:
 
-  apache_php_container:
+  wakeonlan_server_container:
     container_name: "wakeonlan_server_container"
     # spawn from a Dockerfile
     build:
       context: "./"
       target: "wakeonlan_server_img"
     # mount the directory containing the web app files to "/var/www/html"
+    restart: unless-stopped
+    network_mode: host
     volumes:
     - "./:/var/www/html:ro"
     # expose the HTTP port
-    ports:
-    - "8080:80"
-    - "9:9/udp"
+    # ports:
+    # - "8080:80"
+    # - "9:9/udp"
