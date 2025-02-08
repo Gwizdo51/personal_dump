@@ -9,3 +9,4 @@ RUN apt-get update
 RUN apt-get install wakeonlan -y
 # expose SSH port
 EXPOSE 80
+EXPOSE 9/udp
