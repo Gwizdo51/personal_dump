@@ -9,7 +9,7 @@ services:
       context: "./"
       target: "wakeonlan_server_img"
     # mount the directory containing the web app files to "/var/www/html"
-    restart: unless-stopped
+    # restart: unless-stopped
     network_mode: host
     volumes:
     - "./:/var/www/html:ro"
