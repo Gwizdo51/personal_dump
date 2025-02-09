@@ -17,5 +17,7 @@ RUN a2enmod rewrite
 RUN apt-get update
 RUN apt-get install wakeonlan -y
 # expose ports
+# 8080/TCP for Apache
 EXPOSE 8080
+# 9/UDP for wakeonlan
 EXPOSE 9/udp

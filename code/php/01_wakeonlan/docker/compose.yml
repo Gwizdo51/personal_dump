@@ -8,13 +8,10 @@ services:
     build:
       context: "./"
       target: "wakeonlan_server_img"
-    restart: unless-stopped
+    # wakeonlan needs the "host" network mode to work
     network_mode: host
     # mount the directory containing the web app files to "/var/www/html"
     volumes:
     - "../:/var/www/html:ro"
-    # expose the HTTP port
-    # ports:
-    # - "8080:80"
-    # - "9:9/udp"
+    restart: unless-stopped
     # command: "/bin/bash"
