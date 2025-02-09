@@ -7,7 +7,7 @@ COPY ./wakeonlan.conf /etc/apache2/sites-available/
 # disable / enable the virtual hosts
 RUN a2dissite 000-default
 RUN a2ensite wakeonlan
-# Apache should listen on the 8080
+# Apache should listen on the 8080 port
 RUN rm /etc/apache2/ports.conf
 COPY ./ports.conf /etc/apache2/
 # activate the rewrite mod
@@ -16,6 +16,6 @@ RUN a2enmod rewrite
 # install wakeonlan
 RUN apt-get update
 RUN apt-get install wakeonlan -y
-# expose SSH port
-# EXPOSE 80
-# EXPOSE 9/udp
+# expose ports
+EXPOSE 8080
+EXPOSE 9/udp
