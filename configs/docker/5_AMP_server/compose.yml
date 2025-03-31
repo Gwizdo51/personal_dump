@@ -20,6 +20,7 @@ services:
     # - "D:\\code\\esaip_repo\\S3\\php\\09_immatriculation:/var/www/html:ro"
     # - "C:\\Users\\Arthur\\code\\esaip_repo\\S3\\php\\09_immatriculation:/var/www/html:ro"
     - "~/Documents/esaip_repo/S3/php/10_eval_0115:/var/www/html:ro"
+    # - ""
     # expose the HTTP port
     ports:
     - "80:80"
@@ -36,7 +37,8 @@ services:
     container_name: "mysql_container"
     networks:
     - "amp_net"
-    image: "mysql:latest"
+    # image: "mysql:latest"
+    image: "mysql:9.1"
     ports:
     - "3306:3306"
     # mount a local directory to save the database files

@@ -1,5 +1,6 @@
 # start from the official mysql image
-FROM mysql:latest AS mysql_image
+# FROM mysql:latest AS mysql_image
+FROM mysql:9.1 AS mysql_image
 # expose the standard mysql port
 EXPOSE 3306
 # set a password for the mysql root user
