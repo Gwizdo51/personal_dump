@@ -63,6 +63,7 @@ A folder of images inside a registry.
 | list all volumes | `docker volume ls` |
 | remove a volume (only when not attached) | `docker volume rm <volume>` |
 | remove useless stuff (dangling images, stopped containers, unused build cache) | `docker system prune` |
+| copy a file from a container to the host | `docker cp <container_id>:/file/path/within/container /host/path/target` |
 
 # `Dockerfile`
 
