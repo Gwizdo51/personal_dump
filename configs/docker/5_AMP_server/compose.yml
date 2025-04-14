@@ -1,0 +1,67 @@
+name: "amp_server"
+
+networks:
+  amp_net:
+    external: false
+
+services:
+
+  apache_php_container:
+    container_name: "apache_php_container"
+    networks:
+    - "amp_net"
+    # spawn from a Dockerfile
+    build:
+      context: "./"
+      target: "apache_server_img"
+    # mount the directory containing the web app files to "/var/www/html"
+    volumes:
+    # - "D:\\code\\esaip_repo\\S3\\php\\08_axocamp_MVC:/var/www/html:ro"
+    # - "D:\\code\\esaip_repo\\S3\\php\\09_immatriculation:/var/www/html:ro"
+    # - "C:\\Users\\Arthur\\code\\esaip_repo\\S3\\php\\09_immatriculation:/var/www/html:ro"
+    - "~/Documents/esaip_repo/S3/php/10_eval_0115:/var/www/html:ro"
+    # - ""
+    # expose the HTTP port
+    ports:
+    - "80:80"
+    # allow everything for everything in /var/www/html for everyone
+    # command: "bash -c 'chmod -R 775 /var/www/html/
+    #   && apache2-foreground'"
+    # entrypoint: "bash"
+    # command:
+    #   - "-c"
+    #   - "chmod -R 777 /var/www/html/ && apache2-foreground"
+    # command: "apache2-foreground"
+
+  mysql_container:
+    container_name: "mysql_container"
+    networks:
+    - "amp_net"
+    # image: "mysql:latest"
+    image: "mysql:9.1"
+    ports:
+    - "3306:3306"
+    # mount a local directory to save the database files
+    volumes:
+    # - "mysql_data:/var/lib/mysql"
+    - "./data:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456789"
+    # bugfix when using "compose up" on a database that already exists
+    entrypoint: "bash"
+    command:
+    - "-c"
+    - "rm /var/lib/mysql/mysql.sock -f && docker-entrypoint.sh mysqld"
+
+  phpmyadmin_container:
+    container_name: "phpmyadmin_container"
+    networks:
+    - "amp_net"
+    # spawn from the official phpmyadmin image
+    image: "phpmyadmin:5.2.1-apache"
+    # expose the HTTP port
+    ports:
+    - "8080:80"
+    # define the default host as "mysql_container"
+    environment:
+      PMA_HOST: "mysql_container"

@@ -9,11 +9,11 @@ services:
       target: "ssh_server_image" # specified in the Dockerfile with the "AS <target>" instruction
     # mount a persistent directory on /mnt
     volumes:
-      - "./data:/mnt"
+    - "./data:/mnt"
     # expose the ports the container communicates with (<host>:<container>)
     # here, only SSH
     ports:
-      - "22:22"
+    - "22:22"
     # command: "bash"
     # pull the last version of personal_dump before launching the server
     command: "bash -c 'cd /home/arthur/personal_dump/

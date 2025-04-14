@@ -5,29 +5,46 @@ name: "mysql_phpmyadmin_server"
 # volumes:
 #   mysql_data: {}
 
+networks:
+  mysql_net:
+    external: false
+
 services:
 
   # backend hosting the database in mysql
   mysql_container:
+    container_name: "mysql_container"
+    networks:
+    - "mysql_net"
     # spawn from a Dockerfile
     build:
       context: "./"
       target: "mysql_image"
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456789"
     # expose the standard mysql port
     ports:
-      - "3306:3306"
+    - "3306:3306"
     # mount a local directory to save the database files
     volumes:
-      # - "mysql_data:/var/lib/mysql"
-      - "./data:/var/lib/mysql"
+    # - "mysql_data:/var/lib/mysql"
+    - "./data:/var/lib/mysql"
+    # bugfix when using "compose up" on a database that already exists
+    entrypoint: "bash"
+    command:
+    - "-c"
+    - "rm /var/lib/mysql/mysql.sock -f && docker-entrypoint.sh mysqld"
 
   # frontend for manipulating the database
   phpmyadmin_container:
+    container_name: "phpmyadmin_container"
+    networks:
+    - "mysql_net"
     # spawn from the official phpmyadmin image
     image: "phpmyadmin:5.2.1-apache"
     # expose the HTTP port
     ports:
-      - "80:80"
+    - "80:80"
     # define the default host as "mysql_container"
     environment:
       PMA_HOST: "mysql_container"

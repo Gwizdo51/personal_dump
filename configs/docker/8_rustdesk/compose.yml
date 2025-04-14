@@ -1,0 +1,44 @@
+# sources:
+# - https://www.youtube.com/watch?v=9nzHm3xGz2I
+# - https://github.com/rustdesk/rustdesk-server/blob/master/docker-compose.yml
+
+# in client, to connect to remote server:
+# - add "ID server" and "Relay server": IP of docker host (have to be the exact same syntax on every client)
+# - add key: ./data/id_ed25519.pub content
+
+name: "rustdesk"
+
+networks:
+  rustdesk_net:
+    external: false
+
+services:
+  hbbs:
+    container_name: "hbbs"
+    ports:
+    - "21115:21115"
+    - "21116:21116"
+    - "21116:21116/udp"
+    - "21118:21118"
+    image: "rustdesk/rustdesk-server:latest"
+    command: "hbbs"
+    volumes:
+    - "./data:/root"
+    networks:
+    - "rustdesk_net"
+    depends_on:
+    - "hbbr"
+    restart: "unless-stopped"
+
+  hbbr:
+    container_name: "hbbr"
+    ports:
+    - "21117:21117"
+    - "21119:21119"
+    image: "rustdesk/rustdesk-server:latest"
+    command: "hbbr"
+    volumes:
+    - "./data:/root"
+    networks:
+    - "rustdesk_net"
+    restart: "unless-stopped"
