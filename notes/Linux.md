@@ -31,6 +31,15 @@ apply command to output of find :<br>
 Inflate .tar.gz file :<br>
 `tar -xvzf <file_path.tar.gz> -C <destination_folder_path>`
 
+# Packages to install on Debian
+
+- git
+- curl
+- docker
+- htop
+- tailscale
+- ntp
+
 # Setup Remote Desktop Viewer on Linux
 
 https://stackoverflow.com/questions/78074498/how-to-configure-xrdp-to-work-with-gnome-on-ubuntu

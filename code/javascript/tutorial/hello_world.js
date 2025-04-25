@@ -3687,8 +3687,8 @@ function showCircle(cx, cy, radius, callback) {
         div.style.width = radius * 2 + 'px';
         div.style.height = radius * 2 + 'px';
 
-        div.addEventListener('transitionned', function handler() {
-            div.removeEventListener('transitionned', handler);
+        div.addEventListener('transitionend', function handler() {
+            div.removeEventListener('transitionend', handler);
             callback(div);
         });
     }, 0);
@@ -3721,10 +3721,10 @@ function showCirclePromise(cx, cy, radius) {
     });
 }
 // new use
-// showCircle(150, 150, 100).then(div => {
-//     div.classList.add('message-ball');
-//     div.append("Hello, world!");
-// });
+showCircle(150, 150, 100).then(div => {
+    div.classList.add('message-ball');
+    div.append("Hello, world!");
+});
 // */
 
 /* Promise chaining
@@ -3751,6 +3751,63 @@ console.log("executes first");
 // according to the spec, a queued task only runs when nothing else runs
 // */
 
-// /* async/await
+/* async/await
+console.log('-- placing the "async" keyword before a function means it always returns a promise');
+async function f()  {
+    return 1;
+}
+f().then(console.log);
+console.log('-- the keyword "await" (which only works inside "async" functions) makes javascript wait for the promise to settle');
+async function g() {
+    const promise = new Promise((resolve, reject) => {
+        setTimeout(() => {resolve("done!");}, 1000);
+    });
+    const result = await promise;
+    console.log(result);
+}
+g(); // g() is a promise
+// */
 
+// /* generators
+console.log('-- generator functions return multiple values');
+function* generateSequence() {
+    yield 1;
+    yield 2;
+    yield 3;
+}
+let generator = generateSequence();
+console.log(generator);
+console.log('-- the generator generates its values with the "next" method');
+let result = generator.next();
+console.log(result); // {value 1, done: false}
+result = generator.next();
+console.log(result); // {value: 2, done: false}
+result = generator.next();
+console.log(result); // {value: 3, done: false}
+result = generator.next();
+console.log(result); // {value: undefined, done: true}
+console.log('-- generators are iterable and can be looped through');
+generator = generateSequence();
+for (let value of generator) {
+    console.log(value); // 1, then 2 (only yielded values)
+}
+console.log('-- embed generators with "yield*"');
+function* generateNumberSequence(start, end) {
+    for (let i = start; i <= end; i++) {
+        yield i
+    };
+}
+function* generatePasswordCodes() {
+    // 0..9
+    yield* generateNumberSequence(48, 57);
+    // A..Z
+    yield* generateNumberSequence(65, 90);
+    // a..z
+    yield* generateNumberSequence(97, 122);
+}
+let str = "";
+for(let code of generatePasswordCodes()) {
+    str += String.fromCharCode(code);
+}
+console.log(str); // 0..9A..Za..z
 // */
