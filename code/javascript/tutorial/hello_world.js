@@ -874,7 +874,7 @@ console.log(str.slice(0, 6).length);
 console.log(str.slice(12)); // end = Infinity by default
 // supports negative indices
 console.log(str.slice(-7, -1)); // -> not great
-// substring mmethod
+// substring method
 console.log(str.substring(7, 11));
 console.log(str.substring(11, 7)); // can swap numbers
 // substr method (deprecated)
