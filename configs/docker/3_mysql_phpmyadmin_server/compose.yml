@@ -53,4 +53,4 @@ services:
       # - "mysql_container"
       mysql_container:
         condition: "service_healthy"
-        restart: True
+        restart: true

@@ -34,33 +34,43 @@ Inflate .tar.gz file :<br>
 # Packages to install on Debian
 
 - git
+- openssh server
 - curl
-- docker
+- docker (cf. `code/bash/docker_install_script.sh`)
 - htop
 - tailscale
 - ntp
 
-# Setup Remote Desktop Viewer on Linux
+## Bugfix ssh session hanging after shutdown/reboot
+
+https://serverfault.com/a/958773
+docker
+```bash
+sudo cp /usr/share/doc/openssh-client/examples/ssh-session-cleanup.service /etc/systemd/system/
+sudo systemctl enable ssh-session-cleanup.service
+```
+
+## Setup Remote Desktop Viewer on Linux
 
 https://stackoverflow.com/questions/78074498/how-to-configure-xrdp-to-work-with-gnome-on-ubuntu
 
 ### On the linux machine (Debian) to log into
 
 - install the required packages :
-	- `sudo apt update`
-	- `sudo apt install xrdp gnome-session`
+    - `sudo apt update`
+    - `sudo apt install xrdp gnome-session`
 - Allow xrdp to modify local SSL certicates :
 `sudo adduser xrdp ssl-cert`
 - Add the file `~/.xsession` with the following content :
-	```
-	gnome-session
-	```
+    ```
+    gnome-session
+    ```
 - Add the file `~/.xsessionrc` with the following content :
-	```
-	export XAUTHORITY=${HOME}/.Xauthority
-	export XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/etc/xdg
-	export GNOME_SHELL_SESSION_MODE=ubuntu
-	```
+    ```
+    export XAUTHORITY=${HOME}/.Xauthority
+    export XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/etc/xdg
+    export GNOME_SHELL_SESSION_MODE=ubuntu
+    ```
 - Optionally, to get the vertical menu on the side, add to `~/.xsessionrc` :<br>
 `export XDG_CURRENT_DESKTOP=ubuntu:GNOME`
 

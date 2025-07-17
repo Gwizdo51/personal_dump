@@ -46,4 +46,4 @@ alias gfs="git fetch --all -p; git status"
 # alias django="python manage.py"
 
 # give "sudo" the same aliases
-alias sudo='sudo '
+# alias sudo='sudo '
