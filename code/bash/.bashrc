@@ -151,6 +151,11 @@ if ! shopt -oq posix; then
   fi
 fi
 
+# add the ~/bin/ dir to the PATH if it exists
+if [ -d "$HOME/bin" ]; then
+    PATH="${PATH}:$HOME/bin"
+fi
+
 # https://unix.stackexchange.com/a/438712
 function Sudo {
     local firstArg=$1
@@ -166,16 +171,63 @@ function Sudo {
     fi
 }
 
+# ps -ef | grep sshd | grep -v -e grep -e root | awk '{print "sudo kill -TERM", $2}' | sh
+# function shutdown_user_sessions() {
+#     if [ "$(whoami)" != 'root' ]; then
+#         echo 'The "restart" command must be run as root'
+#         return 1
+#     fi
+#     # Get list of currently logged-in users (excluding root and system users)
+#     # 'who -u' shows idle time, etc.
+#     # 'awk' to extract just the username
+#     local users=$(who | awk '{print $1}')
+#     local user
+#     for user in $users; do
+#         # SIGTERM to gracefully exit
+#         pkill -TERM -u "$user"
+#     done
+#     # Give processes a moment to gracefully exit (e.g., 5 seconds)
+#     sleep 5
+#     # Check for any remaining processes and forcefully kill them if needed
+#     local remaining_users=$(who | awk '{print $1}')
+#     for user in $remaining_users; do
+#         # SIGKILL to force kill
+#         pkill -KILL -u "$user"
+#     done
+# }
+
+# if [ "$(whoami)" != 'root' ]; then echo 'prout'; fi
+
+# test_am_i_root() {
+#     if [ "$(whoami)" != 'root' ]; then
+#         echo 'I am not root'
+#     else
+#         echo 'I am root'
+#     fi
+# }
+
 restart() {
-    (sleep 5 && shutdown -r now) &
-    disown
+    if [ "$(whoami)" != 'root' ]; then
+        echo 'The "restart" command must be run as root'
+        return 1
+    fi
+    # start a job : wait 2 seconds, then restart the computer
+    sleep 2 && shutdown -r now &
+    # kill all SSH sessions
+    ps -ef | grep sshd | grep -v -e grep -e root | awk '{print "kill -TERM", $2}' | sh
 }
-# restart in 5 seconds and exit the current shell :
-# (Sudo restart) && exit
+# kill all SSH connections and restart the computer in 2 seconds :
+# Sudo restart
 
 turnoff() {
-    (sleep 5 && shutdown -P now) &
-    disown
+    if [ "$(whoami)" != 'root' ]; then
+        echo 'The "turnoff" command must be run as root'
+        return 1
+    fi
+    # start a job : wait 2 seconds, then shutdown the computer
+    sleep 2 && shutdown -P now &
+    # kill all SSH sessions
+    ps -ef | grep sshd | grep -v -e grep -e root | awk '{print "kill -TERM", $2}' | sh
 }
-# shutdown in 5 seconds and exit the current shell :
-# (Sudo turnoff) && exit
+# kill all SSH connections and shutdown the computer in 2 seconds :
+# Sudo turnoff

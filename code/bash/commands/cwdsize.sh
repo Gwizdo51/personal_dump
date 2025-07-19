@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # comggen:
 # "*"		-> visible files/dirs
 # "*/"		-> visible dirs

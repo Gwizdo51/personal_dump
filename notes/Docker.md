@@ -1,7 +1,25 @@
 # [Install on Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
 
 1. [Install WSL](https://learn.microsoft.com/en-us/windows/wsl/install): `wsl --install`
-2. Install Docker Desktop
+1. Install Docker Desktop
+
+# [Install Docker engine on Debian](https://docs.docker.com/engine/install/debian/)
+
+cf. `/code/bash/docker_install_script.sh`
+
+## [Rootless mode](https://docs.docker.com/engine/security/rootless/)
+
+1. Install `uidmap`
+1. Setup rootless mode in parallel of rootful : (https://stackoverflow.com/a/78225787/16509326) `dockerd-rootless-setuptool.sh install --force`
+1. Allow unprivileged apps to expose privileged ports :
+    - add 'net.ipv4.ip_unprivileged_port_start=0' to /etc/sysctl.conf
+    - run `sudo sysctl --system`
+
+Switch modes with :
+- `docker context use default` -> rootful
+- `docker context use rootless` -> rootless
+
+See current active mode with `docker context ls`
 
 # Concepts
 
@@ -107,39 +125,39 @@ A single configuration file for everything an application needs:
 ```yaml
 # specify the persistent volumes used by the application
 volumes:
-  html_dir_compose: {}
+    html_dir_compose: {}
 
 # specify the different containers
 services:
 
-  ssh_server:
-    # spawn from a Dockerfile
-    build:
-      context: "./"
-      target: "ssh_server" # specified in the Dockerfile with the "AS <target>" instruction
-    # mount the persistent volume
-    volumes:
-      - "html_dir_compose:/mnt"
-    # equivalent to the "CMD" instruction of the Dockerfile
-    command: "bash -c '/usr/sbin/sshd -D'"
-    # expose the ports the container communicates with (<host>:<container>)
-    # here, only ssh
-    ports:
-      - "22:22"
+    ssh_server:
+        # spawn from a Dockerfile
+        build:
+            context: "./"
+            target: "ssh_server" # specified in the Dockerfile with the "AS <target>" instruction
+        # mount the persistent volume
+        volumes:
+        - "html_dir_compose:/mnt"
+        # equivalent to the "CMD" instruction of the Dockerfile
+        command: "bash -c '/usr/sbin/sshd -D'"
+        # expose the ports the container communicates with (<host>:<container>)
+        # here, only ssh
+        ports:
+        - "22:22"
 
-  apache_server:
-    # spawn from a vanilla image
-    image: "php:8.3-apache"
-    # mount (and mirror) a directory from the host
-    volumes:
-      - "./8_axocamp_MVC:/var/www/html"
-    # since the "command" instruction overrides the original CMD from the image, we have to add it at the end of ours
-    # to get the original CMD of the image, look at the last layer (here, "apache2-foreground")
-    # https://hub.docker.com/layers/library/php/8.3-apache/images/sha256-9e8338661e2abfc1aa17ca678580ddab53b93ea3cf6ef718d502338639f5264b
-    command: "bash -c 'mv /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini && apache2-foreground'"
-    # expose HTTP port
-    ports:
-      - "80:80"
+    apache_server:
+        # spawn from a vanilla image
+        image: "php:8.3-apache"
+        # mount (and mirror) a directory from the host
+        volumes:
+        - "./8_axocamp_MVC:/var/www/html"
+        # since the "command" instruction overrides the original CMD from the image, we have to add it at the end of ours
+        # to get the original CMD of the image, look at the last layer (here, "apache2-foreground")
+        # https://hub.docker.com/layers/library/php/8.3-apache/images/sha256-9e8338661e2abfc1aa17ca678580ddab53b93ea3cf6ef718d502338639f5264b
+        command: "bash -c 'mv /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini && apache2-foreground'"
+        # expose HTTP port
+        ports:
+        - "80:80"
 ```
 
 # compose.yml "command" vs RUN vs CMD vs ENTRYPOINT
