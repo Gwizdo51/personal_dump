@@ -36,7 +36,7 @@ Inflate .tar.gz file :<br>
 - git
 - openssh server
 - curl
-- docker (cf. `code/bash/docker_install_script.sh`)
+- docker (cf. `code/bash/scripts/docker_install_script_debian.sh`)
 - htop
 - tailscale
 - ntp
