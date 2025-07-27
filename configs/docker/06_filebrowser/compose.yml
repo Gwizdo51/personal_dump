@@ -12,8 +12,8 @@ services:
     - "filebrowser_net"
     image: "filebrowser/filebrowser"
     volumes:
-    - "./data/root:/srv"
-    - "./data/filebrowser.db:/database.db"
+    - "<path/to/folder>:/srv"
+    - "/srv/docker_data/filebrowser/filebrowser.db:/database.db"
     user: "1000:1000"
     ports:
     - "80:80"
