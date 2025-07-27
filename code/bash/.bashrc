@@ -47,34 +47,56 @@ force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
+    # We have color support; assume it's compliant with Ecma-48
+    # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+    # a case would tend to support setf rather than setaf.)
+        color_prompt=yes
     else
-	color_prompt=
+        color_prompt=
     fi
 fi
 
-#if [ "$color_prompt" = yes ]; then
-#    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-#else
-#    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-#fi
-
-# Add git branch if its present to PS1
-parse_git_branch() {
-    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
-}
-if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[01;31m\]$(parse_git_branch)\[\033[00m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(parse_git_branch)\$ '
-fi
+# if [ "$color_prompt" = yes ]; then
+#     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+# else
+#     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+# fi
 
 unset color_prompt force_color_prompt
 
-# echo $PS1
+##################
+### CUSTOM PS1 ###
+##################
+
+# Define color variables
+RESET="\[\033[00m\]"
+BOLD="\[\033[1m\]"
+DIM="\[\033[2m\]"
+UNDERLINE="\[\033[4m\]"
+
+FG_RED="\[\033[31m\]"
+FG_GREEN="\[\033[32m\]"
+FG_YELLOW="\[\033[33m\]"
+FG_BLUE="\[\033[34m\]"
+FG_MAGENTA="\[\033[35m\]"
+FG_CYAN="\[\033[36m\]"
+FG_WHITE="\[\033[37m\]"
+
+gen_prompt() {
+    local prompt="${debian_chroot:+($debian_chroot)}${FG_GREEN}${BOLD}\u@\h${RESET}:${FG_BLUE}${BOLD}\w${RESET}"
+    if git rev-parse --is-inside-work-tree &> /dev/null; then
+        local branch="$(git rev-parse --abbrev-ref HEAD)"
+        if [ "${branch}" = 'HEAD' ]; then
+            branch="${FG_RED}$(git rev-parse --short HEAD)"
+        else
+            branch="${FG_CYAN}${branch}"
+        fi
+        prompt="${prompt} (${BOLD}${branch}${RESET})"
+    fi
+    prompt="${prompt}\n\$ "
+    echo -e "${prompt}"
+}
+PROMPT_COMMAND='PS1="$(gen_prompt)"'
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
@@ -84,8 +106,6 @@ xterm*|rxvt*)
 *)
     ;;
 esac
-
-# echo $PS1
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -103,13 +123,13 @@ fi
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # some more ls aliases
-#alias ll='ls -alF'
+#alias ll='ls -l'
 #alias la='ls -A'
 #alias l='ls -CF'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+# alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # Alias definitions.
 # You may want to put all your additions into a separate file like
@@ -131,18 +151,83 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# # >>> conda initialize >>>
-# # !! Contents within this block are managed by 'conda init' !!
-# __conda_setup="$('/home/arthur/Programs/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-# if [ $? -eq 0 ]; then
-#     eval "$__conda_setup"
-# else
-#     if [ -f "/home/arthur/Programs/anaconda3/etc/profile.d/conda.sh" ]; then
-#         . "/home/arthur/Programs/anaconda3/etc/profile.d/conda.sh"
-#     else
-#         export PATH="/home/arthur/Programs/anaconda3/bin:$PATH"
-#     fi
-# fi
+# add the ~/bin/ dir to the PATH if it exists
+if [ -d "$HOME/bin" ]; then
+    PATH="${PATH}:$HOME/bin"
+fi
 
-# unset __conda_setup
-# # <<< conda initialize <<<
+# https://unix.stackexchange.com/a/438712
+function Sudo {
+    local firstArg=$1
+    if [ $(type -t $firstArg) = function ]
+    then
+        shift && command sudo bash -c "$(declare -f $firstArg);$firstArg $*"
+    elif [ $(type -t $firstArg) = alias ]
+    then
+        alias sudo='\sudo '
+        eval "sudo $@"
+    else
+        command sudo "$@"
+    fi
+}
+
+# ps -ef | grep sshd | grep -v -e grep -e root | awk '{print "sudo kill -TERM", $2}' | sh
+# function shutdown_user_sessions() {
+#     if [ "$(whoami)" != 'root' ]; then
+#         echo 'The "restart" command must be run as root'
+#         return 1
+#     fi
+#     # Get list of currently logged-in users (excluding root and system users)
+#     # 'who -u' shows idle time, etc.
+#     # 'awk' to extract just the username
+#     local users=$(who | awk '{print $1}')
+#     local user
+#     for user in $users; do
+#         # SIGTERM to gracefully exit
+#         pkill -TERM -u "$user"
+#     done
+#     # Give processes a moment to gracefully exit (e.g., 5 seconds)
+#     sleep 5
+#     # Check for any remaining processes and forcefully kill them if needed
+#     local remaining_users=$(who | awk '{print $1}')
+#     for user in $remaining_users; do
+#         # SIGKILL to force kill
+#         pkill -KILL -u "$user"
+#     done
+# }
+
+# if [ "$(whoami)" != 'root' ]; then echo 'prout'; fi
+
+# test_am_i_root() {
+#     if [ "$(whoami)" != 'root' ]; then
+#         echo 'I am not root'
+#     else
+#         echo 'I am root'
+#     fi
+# }
+
+restart() {
+    if [ "$(whoami)" != 'root' ]; then
+        echo 'The "restart" command must be run as root'
+        return 1
+    fi
+    # start a job : wait 2 seconds, then restart the computer
+    sleep 2 && shutdown -r now &
+    # kill all SSH sessions
+    ps -ef | grep sshd | grep -v -e grep -e root | awk '{print "kill -TERM", $2}' | sh
+}
+# kill all SSH connections and restart the computer in 2 seconds :
+# Sudo restart
+
+turnoff() {
+    if [ "$(whoami)" != 'root' ]; then
+        echo 'The "turnoff" command must be run as root'
+        return 1
+    fi
+    # start a job : wait 2 seconds, then shutdown the computer
+    sleep 2 && shutdown -P now &
+    # kill all SSH sessions
+    ps -ef | grep sshd | grep -v -e grep -e root | awk '{print "kill -TERM", $2}' | sh
+}
+# kill all SSH connections and shutdown the computer in 2 seconds :
+# Sudo turnoff

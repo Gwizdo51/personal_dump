@@ -23,7 +23,7 @@ alias rmd='rm -r'
 
 alias cpd='cp -r'
 
-#alias slm='bash /home/arthur/my_bash_scripts/launch_system_load_monitor.sh'
+# alias slm='bash /home/arthur/my_bash_scripts/launch_system_load_monitor.sh'
 # alias slm='ps -C "indicator-multi" >/dev/null && echo "System load monitor is already running." || bash /home/arthur/my_bash_scripts/launch_system_load_monitor.sh'
 
 # alias lamp='bash /home/arthur/my_bash_scripts/launch_lampstack_manager.sh'
@@ -46,4 +46,4 @@ alias gfs="git fetch --all -p; git status"
 # alias django="python manage.py"
 
 # give "sudo" the same aliases
-alias sudo='sudo '
+# alias sudo='sudo '

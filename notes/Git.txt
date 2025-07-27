@@ -121,3 +121,6 @@ git reset --hard <commit_hash>
 
 display the history of the current branch as a tree:
 git log --graph --decorate --pretty=oneline --abbrev-commit
+
+chmod a file on Windows:
+git update-index --chmod=+x <path/to/file>
