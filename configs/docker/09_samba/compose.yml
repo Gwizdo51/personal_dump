@@ -14,9 +14,9 @@ services:
     environment:
       NAME: "Data"
       USER: "arthur"
+      PASS: "123456789"
       UID: "1000"
       GID: "1000"
-      PASS: "123456789"
     volumes:
     - "<path/to/local/folder>:/storage"
     networks:
