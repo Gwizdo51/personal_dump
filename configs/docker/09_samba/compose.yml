@@ -1,4 +1,5 @@
-# Exposes network drives through the SMB protocol
+# https://hub.docker.com/r/dockurr/samba
+# Exposes network drives through Windows' SMB protocol
 name: "samba"
 
 networks:
@@ -27,4 +28,4 @@ services:
 
 # Access the network drive :
 # - On Windows (File Explorer) : \\<host>\Data
-# - On Ubuntu (Nautilus) : smb://<host>/Data on Ubuntu
+# - On Ubuntu (Nautilus) (SFTP is still better) : smb://<host>/Data
