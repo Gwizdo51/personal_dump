@@ -44,7 +44,7 @@ services:
     # mount a local directory to save the database files
     volumes:
     # - "mysql_data:/var/lib/mysql"
-    - "./data:/var/lib/mysql"
+    - "/srv/docker_data/amp_database:/var/lib/mysql"
     environment:
       MYSQL_ROOT_PASSWORD: "123456789"
     # bugfix when using "compose up" on a database that already exists

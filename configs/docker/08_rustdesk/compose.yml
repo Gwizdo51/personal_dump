@@ -23,7 +23,7 @@ services:
     image: "rustdesk/rustdesk-server:latest"
     command: "hbbs"
     volumes:
-    - "./data:/root"
+    - "/srv/docker_data/rustdesk:/root"
     networks:
     - "rustdesk_net"
     depends_on:
@@ -38,7 +38,7 @@ services:
     image: "rustdesk/rustdesk-server:latest"
     command: "hbbr"
     volumes:
-    - "./data:/root"
+    - "/srv/docker_data/rustdesk:/root"
     networks:
     - "rustdesk_net"
     restart: "unless-stopped"

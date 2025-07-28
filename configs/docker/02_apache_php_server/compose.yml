@@ -10,7 +10,7 @@ services:
       target: "apache_server_img"
     # mount the directory containing the web app files to "/var/www/html"
     volumes:
-    - "D:\\code\\esaip_repo\\S3\\php\\9_immatriculation:/var/www/html:ro"
+    - "../../../code/php/01_wakeonlan:/var/www/html:ro"
     # expose the HTTP port
     ports:
-    - "80:80"
+    - "8080:80"

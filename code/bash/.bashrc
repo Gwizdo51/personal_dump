@@ -93,7 +93,7 @@ gen_prompt() {
         fi
         prompt="${prompt} (${BOLD}${branch}${RESET})"
     fi
-    prompt="${prompt}\n\$ "
+    prompt="${prompt}\n${BOLD}${FG_YELLOW}\$${RESET} "
     echo -e "${prompt}"
 }
 PROMPT_COMMAND='PS1="$(gen_prompt)"'
@@ -211,12 +211,12 @@ restart() {
         echo 'The "restart" command must be run as root'
         return 1
     fi
-    # start a job : wait 2 seconds, then restart the computer
-    sleep 2 && shutdown -r now &
+    # start a job : wait 1 seconds, then restart the computer
+    sleep 1 && shutdown -r now &
     # kill all SSH sessions
     ps -ef | grep sshd | grep -v -e grep -e root | awk '{print "kill -TERM", $2}' | sh
 }
-# kill all SSH connections and restart the computer in 2 seconds :
+# kill all SSH connections and restart the computer after 1 seconds :
 # Sudo restart
 
 turnoff() {
@@ -224,10 +224,10 @@ turnoff() {
         echo 'The "turnoff" command must be run as root'
         return 1
     fi
-    # start a job : wait 2 seconds, then shutdown the computer
-    sleep 2 && shutdown -P now &
+    # start a job : wait 1 seconds, then shutdown the computer
+    sleep 1 && shutdown -P now &
     # kill all SSH sessions
     ps -ef | grep sshd | grep -v -e grep -e root | awk '{print "kill -TERM", $2}' | sh
 }
-# kill all SSH connections and shutdown the computer in 2 seconds :
+# kill all SSH connections and shutdown the computer after 1 seconds :
 # Sudo turnoff
