@@ -1,0 +1,31 @@
+# https://hub.docker.com/r/dockurr/samba
+# Exposes network drives through Windows' SMB protocol
+name: "samba"
+
+networks:
+  net:
+    driver: "bridge"
+    name: "samba_net"
+
+services:
+
+  samba:
+    image: "dockurr/samba:4.21.6"
+    container_name: "samba"
+    environment:
+      NAME: "Data"
+      USER: "arthur"
+      PASS: "123456789"
+      UID: "1000"
+      GID: "1000"
+    volumes:
+    - "<path/to/local/folder>:/storage"
+    networks:
+    - "net"
+    ports:
+    - "445:445"
+    restart: "unless-stopped"
+
+# Access the network drive :
+# - On Windows (File Explorer) : \\<host>\Data
+# - On Ubuntu (Nautilus) (SFTP is still better) : smb://<host>/Data
