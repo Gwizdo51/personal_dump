@@ -74,6 +74,7 @@ A folder of images inside a registry.
 | -> restart an application | `docker compose restart` |
 | -> run a one-off command inside a running service | `docker compose exec <service> <command>` |
 | -> run a container from a compose file on its own | `docker compose run --rm <service>` |
+| -> run a container from a compose file on its own with a terminal (needs `entrypoint: bash`) | `docker compose run -i --rm <service>` |
 | create a new image after manual modifications of a container | `docker container commit -m "message" <base_container> <new_image>` |
 | view the layers of an image | `docker image history <image>` |
 | remove a container | `docker rm [-f] <container_name>` |
