@@ -1,0 +1,23 @@
+networks:
+  net:
+    name: "webapps"
+    # driver: "bridge"
+    external: true
+# spawn the network :
+# docker network create webapps
+
+services:
+  nginx:
+    container_name: "nginx_rp"
+    build:
+      target: "nginx_image"
+      context: "./"
+    image: "proxy/nginx"
+    networks:
+    - "net"
+    volumes:
+    - "/srv/docker_data/certs:/etc/nginx/certs:ro"
+    - "./vhost.conf:/etc/nginx/conf.d/default.conf"
+    ports:
+    - "80:80"
+    - "443:443"
