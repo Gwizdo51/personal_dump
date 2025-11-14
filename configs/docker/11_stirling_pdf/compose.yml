@@ -10,7 +10,7 @@ services:
     container_name: "stirling_pdf"
     image: "stirlingtools/stirling-pdf:1.3.2"
     # ports:
-    #   - '8080:8080'
+    # - "8080:8080"
     networks:
     - "net"
     volumes:
@@ -22,3 +22,4 @@ services:
     environment:
       DISABLE_ADDITIONAL_FEATURES: "false"
       LANGS: "en_GB"
+    restart: "unless-stopped"

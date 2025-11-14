@@ -1,7 +1,8 @@
+name: "reverse_proxy"
+
 networks:
   net:
     name: "webapps"
-    # driver: "bridge"
     external: true
 # spawn the network :
 # docker network create webapps
@@ -21,3 +22,4 @@ services:
     ports:
     - "80:80"
     - "443:443"
+    restart: "unless-stopped"
