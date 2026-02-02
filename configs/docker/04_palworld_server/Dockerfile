@@ -1,6 +1,6 @@
 # container used to initialise the server config
 # start from the official python image
-FROM python:3.12 AS init_server_image
+FROM python:3.12 AS setup_image
 # install python dependencies
 RUN pip install pyyaml
 # work in /tmp
@@ -19,7 +19,7 @@ CMD ["python", "gen_palworld_settings.py"]
 # container used for the server itself
 # start from the official PocketPair palserver image
 # https://github.com/pocketpairjp/palworld-dedicated-server-docker/pkgs/container/palserver
-FROM ghcr.io/pocketpairjp/palserver:latest AS palworld_server_image
+FROM ghcr.io/pocketpairjp/palserver:latest AS server_image
 # copy the helper.sh to the /pal directory
 COPY ./helper.sh /pal/helper.sh
 # RUN chown -R user:usergroup /pal/Package/Pal

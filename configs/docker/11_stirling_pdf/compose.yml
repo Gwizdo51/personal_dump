@@ -1,0 +1,25 @@
+name: "stirling_pdf"
+
+networks:
+  net:
+    name: "webapps"
+    external: true
+
+services:
+  stirling_pdf:
+    container_name: "stirling_pdf"
+    image: "stirlingtools/stirling-pdf:1.3.2"
+    # ports:
+    # - "8080:8080"
+    networks:
+    - "net"
+    volumes:
+    - "/srv/docker_data/stirling_pdf/training_data:/usr/share/tessdata" # Required for extra OCR languages
+    - "/srv/docker_data/stirling_pdf/extra_configs:/configs"
+    - "/srv/docker_data/stirling_pdf/custom_files:/customFiles/"
+    - "/srv/docker_data/stirling_pdf/logs:/logs/"
+    - "/srv/docker_data/stirling_pdf/pipeline:/pipeline/"
+    environment:
+      DISABLE_ADDITIONAL_FEATURES: "false"
+      LANGS: "en_GB"
+    restart: "unless-stopped"

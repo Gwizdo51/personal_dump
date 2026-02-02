@@ -1,20 +1,23 @@
 name: "filebrowser"
 
 networks:
-  filebrowser_net:
-    external: false
+  # filebrowser_net:
+  #   external: false
+  net:
+    name: "webapps"
+    external: true
 
 services:
 
-  filebrowser_container:
-    container_name: "filebrowser_container"
+  filebrowser:
+    container_name: "filebrowser"
     networks:
-    - "filebrowser_net"
+    - "net"
     image: "filebrowser/filebrowser"
     volumes:
-    - "<path/to/folder>:/srv"
+    - "/mnt/file_browser_root:/srv"
     - "/srv/docker_data/filebrowser/filebrowser.db:/database.db"
     user: "1000:1000"
-    ports:
-    - "80:80"
+    # ports:
+    # - "80:80"
     restart: "unless-stopped"

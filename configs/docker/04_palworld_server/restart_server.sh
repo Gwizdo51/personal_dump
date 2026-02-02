@@ -1,6 +1,6 @@
 #!/bin/sh
 
-compose_file_path="/srv/personal_dump/configs/docker/4_palworld_server/compose.yml"
+compose_file_path="/srv/personal_dump/configs/docker/04_palworld_server/compose.yml"
 
 # stop the server
 docker compose -f ${compose_file_path} down

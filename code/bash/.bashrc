@@ -231,3 +231,7 @@ turnoff() {
 }
 # kill all SSH connections and shutdown the computer after 1 seconds :
 # Sudo turnoff
+
+# enable some bash options
+# https://www.gnu.org/software/bash/manual/html_node/The-Shopt-Builtin.html
+shopt -s dotglob extglob

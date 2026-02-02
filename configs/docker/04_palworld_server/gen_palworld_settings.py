@@ -13,9 +13,13 @@ import yaml
 from pathlib import Path
 import traceback
 import sys
+import os
 
 
-def gen_palworld_settings():
+def setup():
+    # setup the folder tree
+    settings_file_path = Path.cwd() / "data" / "Config" / "LinuxServer" / "PalWorldSettings.ini"
+    os.makedirs(settings_file_path.parent, 0o755, True)
     # read the yaml file
     with open("./palworld_server_config.yml") as f:
         palworld_settings_dict: dict[str] = yaml.safe_load(f)
@@ -29,14 +33,13 @@ def gen_palworld_settings():
     options_settings_line += ",".join(settings_list) + ")\n"
     palworld_settings_file_lines.append(options_settings_line)
     # write the lines to "./PalWorldSettings.ini", with Unix EOL
-    file_path = Path.cwd() / "data" / "Config" / "LinuxServer" / "PalWorldSettings.ini"
-    with open(file_path, "w", newline="\n") as f:
+    with open(settings_file_path, "w", newline="\n") as f:
         f.writelines(palworld_settings_file_lines)
 
 
 if __name__ == "__main__":
     try:
-        gen_palworld_settings()
+        setup()
         print("Successfully generated the server config file")
     except Exception as e:
         print("An error has occurred during the initialisation step:\n")
