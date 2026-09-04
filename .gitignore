@@ -34,3 +34,4 @@ code/python/tests_dir/
 ps_buffer.txt
 sudo.bat
 configs/docker/*/data/
+code/latex/reinforcement_learning/reinforcement_learning.*

@@ -1,0 +1,24 @@
+name: "miktex"
+
+networks:
+  net:
+    name: "miktex_net"
+
+volumes:
+  miktex:
+
+services:
+  miktex:
+    container_name: "miktex"
+    image: "miktex/miktex:23.10-basic"
+    environment:
+      MIKTEX_UID: 1000
+    networks:
+    - "net"
+    volumes:
+    - "miktex:/var/lib/miktex"
+    - "./:/miktex/work"
+    tty: true
+    stdin_open: true
+    entrypoint:
+    - "pdflatex"
